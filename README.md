@@ -1,4 +1,4 @@
-# go-dap: Go implementation of the DAP protocol
+# go-dap: Go implementation of the Debug Adapter Protocol
 
 For an overview of DAP, see
 https://microsoft.github.io/debug-adapter-protocol/overview
