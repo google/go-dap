@@ -108,7 +108,7 @@ type ExitedEventBody struct {
 type TerminatedEvent struct {
 	Event
 
-	Body TerminatedEventBody `json:"body"`
+	Body TerminatedEventBody `json:"body,omitempty"`
 }
 
 type TerminatedEventBody struct {
@@ -247,7 +247,7 @@ type InitializeRequestArguments struct {
 type InitializeResponse struct {
 	Response
 
-	Body Capabilities `json:"body"`
+	Body Capabilities `json:"body,omitempty"`
 }
 
 type ConfigurationDoneRequest struct {
@@ -940,7 +940,7 @@ type ReadMemoryArguments struct {
 type ReadMemoryResponse struct {
 	Response
 
-	Body ReadMemoryResponseBody `json:"body"`
+	Body ReadMemoryResponseBody `json:"body,omitempty"`
 }
 
 type ReadMemoryResponseBody struct {
@@ -966,7 +966,7 @@ type DisassembleArguments struct {
 type DisassembleResponse struct {
 	Response
 
-	Body DisassembleResponseBody `json:"body"`
+	Body DisassembleResponseBody `json:"body,omitempty"`
 }
 
 type DisassembleResponseBody struct {
