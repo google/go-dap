@@ -1,9 +1,15 @@
 The schema for DAP messages is defined in JSON at
 https://github.com/microsoft/vscode-debugadapter-node/blob/master/debugProtocol.json
 
+The auto-generated TypeScript code is at
+https://github.com/microsoft/vscode-debugadapter-node/blob/master/protocol/src/debugProtocol.ts
+
+----
+
 In this directory we have a copy of the schema, which is licensed by Microsoft
 with a [MIT
-License](https://github.com/microsoft/vscode-debugadapter-node/blob/master/License.txt)
+License](https://github.com/microsoft/vscode-debugadapter-node/blob/master/License.txt).
+This copy must be updated whenever the schema changes.
 
 To generate Go types from the schema, run:
 
