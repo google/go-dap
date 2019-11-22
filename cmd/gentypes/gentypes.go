@@ -229,10 +229,10 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", propType)
 			}
 		} else {
-			propItems := propValue.(map[string]interface{})
+			propDesc := propValue.(map[string]interface{})
 
 			// Go type of this property.
-			goType := parsePropertyType(propItems)
+			goType := parsePropertyType(propDesc)
 
 			jsonTag := fmt.Sprintf("`json:\"%s", propName)
 			if requiredMap[propName] {
