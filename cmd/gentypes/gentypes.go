@@ -240,6 +240,11 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 			} else {
 				jsonTag += ",omitempty\"`"
 			}
+
+			if goType == "Message" {
+				goType = "ErrorMessage"
+			}
+
 			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
 		}
 	}
@@ -330,6 +335,10 @@ const preamble = `// Copyright 2019 Google LLC
 
 package dap
 
+type Message interface {
+	isMessage()
+}
+
 `
 
 func main() {
@@ -355,8 +364,29 @@ func main() {
 
 	for _, typeName := range typeNames {
 		desc := typeMap[typeName]
+
+		// Since we have a top-level interface named Message, we replace the DAP
+		// message type Message with ErrorMessage.
+		if typeName == "Message" {
+			typeName = "ErrorMessage"
+		}
+
 		b.WriteString(emitToplevelType(typeName, desc.(map[string]interface{})))
 		b.WriteString("\n")
+	}
+
+	// For top-level types, emit an empty implementation of isMessage(), to make
+	// them implement the Message interface.
+	for _, typeName := range typeNames {
+		// Since we have a top-level interface named Message, we replace the DAP
+		// message type Message with ErrorMessage.
+		if typeName == "Message" {
+			typeName = "ErrorMessage"
+		}
+
+		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") {
+			fmt.Fprintf(&b, "func (_ %s) isMessage() {}\n", typeName)
+		}
 	}
 
 	wholeFile := []byte(b.String())
