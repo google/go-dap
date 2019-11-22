@@ -14,8 +14,8 @@ This copy must be updated whenever the schema changes.
 To generate Go types from the schema, run:
 
 ```
-$ go run cmd/gentypes/gentypes.go cmd/gentypes/debugProtocol.json > types.go
+$ go run cmd/gentypes/gentypes.go cmd/gentypes/debugProtocol.json > schematypes.go
 ```
 
-The generated ``types.go`` is also checked in, so there is no need to regenerate
-it unless the schema changes.
+The generated ``schematypes.go`` is also checked in, so there is no need to
+regenerate it unless the schema changes.
