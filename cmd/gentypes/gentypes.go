@@ -310,7 +310,8 @@ const preamble = `// Copyright 2019 Google LLC
 // limitations under the License.
 
 // DO NOT EDIT: This file is auto-generated.
-// See cmd/gentypes/README.md for details.
+// DAP spec: https://microsoft.github.io/debug-adapter-protocol/specification
+// See cmd/gentypes/README.md for additional details.
 
 `
 
