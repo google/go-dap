@@ -33,6 +33,7 @@ import (
 )
 
 // parseRef parses the value of a "$ref" key.
+// For example "#definitions/ProtocolMessage" => "ProtocolMessage".
 func parseRef(refValue interface{}) string {
 	refContents := refValue.(string)
 	if !strings.HasPrefix(refContents, "#/definitions/") {
@@ -42,10 +43,10 @@ func parseRef(refValue interface{}) string {
 	return refContents[14:]
 }
 
-// goFieldName converts a property name from its JSON representation to a Go
-// field name.
+// goFieldName converts a property name from its JSON representation to an
+// exported Go field name.
+// For example "__some_property_name" => "SomePropertyName".
 func goFieldName(jsonPropName string) string {
-	//jsonPropName = strings.TrimLeft(jsonPropName, "_")
 	clean := strings.ReplaceAll(jsonPropName, "_", " ")
 	titled := strings.Title(clean)
 	return strings.ReplaceAll(titled, " ", "")
@@ -55,7 +56,7 @@ func goFieldName(jsonPropName string) string {
 // the Go type of the property. For example, given this map:
 //
 //  {
-//   "type": "string",
+//    "type": "string",
 //    "description": "The command to execute."
 //  },
 //
@@ -67,7 +68,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 
 	propType, ok := propValue["type"]
 	if !ok {
-		log.Fatal("property with no type:", propValue)
+		log.Fatal("property with no type or ref:", propValue)
 	}
 
 	switch propType.(type) {
@@ -82,7 +83,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 		case "array":
 			propItems, ok := propValue["items"]
 			if !ok {
-				log.Fatal("property with type array, no items:", propValue)
+				log.Fatal("missing items type for property of array type:", propValue)
 			}
 			propItemsMap := propItems.(map[string]interface{})
 			return "[]" + parsePropertyType(propItemsMap)
@@ -90,7 +91,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			return "map[string]string"
 
 		default:
-			log.Fatal("unknown property type", propType)
+			log.Fatal("unknown property type value", propType)
 		}
 
 	case []interface{}:
@@ -103,26 +104,32 @@ func parsePropertyType(propValue map[string]interface{}) string {
 	panic("unreachable")
 }
 
-// emitType emits a single type into a string. It takes the type name and the
-// json map representing the type. The type will have a "type" field,
-// "properties" etc.
-func emitType(name string, desc map[string]interface{}) string {
+// parseInheritance helps parse types that inherit from other types.
+// A type description can have an "allOf" key, which means it inherits from
+// another type description. Returns the name of the base type specified in
+// allOf, and the description of the inheriting type
+func parseInheritance(allOfList interface{}) (string, map[string]interface{}) {
+	allOfListSlice := allOfList.([]interface{})
+	if len(allOfListSlice) != 2 {
+		log.Fatal("want 2 elements in allOf list, got", allOfListSlice)
+	}
+
+	refInterface := allOfListSlice[0]
+	ref := refInterface.(map[string]interface{})
+	return parseRef(ref["$ref"]), allOfListSlice[1].(map[string]interface{})
+}
+
+// emitToplevelType emits a single type into a string. It takes the type name
+// and the json map representing the type. The json representation will have
+// fields: "type", "properties" etc.
+func emitToplevelType(name string, desc map[string]interface{}) string {
 	var b strings.Builder
 	var baseType string
 
-	// A type description can can an "allOf" key, which means it inherits from
-	// another type description. Process that, if exists, and then assign desc
-	// to the "actual" description for this type.
+	// If there's an "allOf" key, it consists of a reference to a base class and
+	// the description of additional fields for *this* type.
 	if allOfList, ok := desc["allOf"]; ok {
-		allOfListSlice := allOfList.([]interface{})
-		if len(allOfListSlice) != 2 {
-			log.Fatal("want 2 elements in allOf list, got", allOfListSlice)
-		}
-
-		refInterface := allOfListSlice[0]
-		ref := refInterface.(map[string]interface{})
-		baseType = parseRef(ref["$ref"])
-		desc = allOfListSlice[1].(map[string]interface{})
+		baseType, desc = parseInheritance(allOfList)
 	}
 
 	descType, ok := desc["type"]
@@ -163,11 +170,14 @@ func emitType(name string, desc map[string]interface{}) string {
 		}
 	}
 
-	var bodyTypes []string
-
-	propsMap := props.(map[string]interface{})
+	// Some types will have a "body" which should be emitted as a separate type.
+	// Since we can't emit a whole new Go type while in the middle of emitting
+	// another type, we save it for later and emit it after the current type is
+	// done.
+	bodyType := ""
 
 	// Sort property names to ensure stable emission order.
+	propsMap := props.(map[string]interface{})
 	var propNames []string
 	for k := range propsMap {
 		propNames = append(propNames, k)
@@ -201,7 +211,12 @@ func emitType(name string, desc map[string]interface{}) string {
 				propType = parseRef(ref)
 			} else {
 				propType = name + "Body"
-				bodyTypes = append(bodyTypes, emitType(propType, bodyDesc))
+
+				if bodyType == "" {
+					bodyType = emitToplevelType(propType, bodyDesc)
+				} else {
+					log.Fatalf("have body type %s, see another body in %s\n", bodyType, propType)
+				}
 			}
 
 			if requiredMap["body"] {
@@ -213,13 +228,7 @@ func emitType(name string, desc map[string]interface{}) string {
 			propItems := propValue.(map[string]interface{})
 
 			// Go type of this property.
-			var goType string
-
-			if propRef, ok := propItems["$ref"]; ok {
-				goType = parseRef(propRef)
-			} else {
-				goType = parsePropertyType(propItems)
-			}
+			goType := parsePropertyType(propItems)
 
 			jsonTag := fmt.Sprintf("`json:\"%s", propName)
 			if requiredMap[propName] {
@@ -233,20 +242,18 @@ func emitType(name string, desc map[string]interface{}) string {
 
 	b.WriteString("}\n")
 
-	if len(bodyTypes) > 0 {
+	if len(bodyType) > 0 {
 		b.WriteString("\n")
-		for _, bt := range bodyTypes {
-			b.WriteString(bt)
-		}
+		b.WriteString(bodyType)
 	}
 
 	return b.String()
 }
 
-// definitionKeys returns the keys in the "definitions" map in b, in their
+// definitionsKeys returns the keys in the "definitions" map in b, in their
 // original order in the .json stream. Based on
 // https://github.com/golang/go/issues/27179#issuecomment-415559968
-func definitionKeys(b []byte) ([]string, error) {
+func definitionsKeys(b []byte) ([]string, error) {
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(b, &top); err != nil {
 		log.Fatal(err)
@@ -276,7 +283,7 @@ func definitionKeys(b []byte) ([]string, error) {
 	}
 }
 
-var end = errors.New("invalid end of array or object")
+var errEnd = errors.New("invalid end of array or object")
 
 func skipValue(d *json.Decoder) error {
 	t, err := d.Token()
@@ -287,14 +294,14 @@ func skipValue(d *json.Decoder) error {
 	case json.Delim('['), json.Delim('{'):
 		for {
 			if err := skipValue(d); err != nil {
-				if err == end {
+				if err == errEnd {
 					break
 				}
 				return err
 			}
 		}
 	case json.Delim(']'), json.Delim('}'):
-		return end
+		return errEnd
 	}
 	return nil
 }
@@ -317,31 +324,34 @@ const preamble = `// Copyright 2019 Google LLC
 // DAP spec: https://microsoft.github.io/debug-adapter-protocol/specification
 // See cmd/gentypes/README.md for additional details.
 
+package dap
+
 `
 
 func main() {
-	jp := os.Args[1]
-	jpdata, err := ioutil.ReadFile(jp)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	keys, err := definitionKeys(jpdata)
+	inputFilename := os.Args[1]
+	inputData, err := ioutil.ReadFile(inputFilename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var m map[string]interface{}
-	if err := json.Unmarshal(jpdata, &m); err != nil {
+	if err := json.Unmarshal(inputData, &m); err != nil {
 		log.Fatal(err)
 	}
-	mdef := m["definitions"].(map[string]interface{})
+	typeMap := m["definitions"].(map[string]interface{})
 
 	var b strings.Builder
 	b.WriteString(preamble)
-	for _, typeName := range keys {
-		desc := mdef[typeName]
-		b.WriteString(emitType(typeName, desc.(map[string]interface{})))
+
+	typeNames, err := definitionsKeys(inputData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, typeName := range typeNames {
+		desc := typeMap[typeName]
+		b.WriteString(emitToplevelType(typeName, desc.(map[string]interface{})))
 		b.WriteString("\n")
 	}
 

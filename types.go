@@ -13,7 +13,10 @@
 // limitations under the License.
 
 // DO NOT EDIT: This file is auto-generated.
-// See cmd/gentypes/README.md for details.
+// DAP spec: https://microsoft.github.io/debug-adapter-protocol/specification
+// See cmd/gentypes/README.md for additional details.
+
+package dap
 
 type ProtocolMessage struct {
 	Seq  int    `json:"seq"`
@@ -1232,4 +1235,3 @@ type DisassembledInstruction struct {
 	Location         Source `json:"location,omitempty"`
 	Symbol           string `json:"symbol,omitempty"`
 }
-
