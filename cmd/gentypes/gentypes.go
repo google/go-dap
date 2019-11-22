@@ -186,7 +186,11 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 
 	for _, propName := range propNames {
 		propValue := propsMap[propName]
-		// For top-level properties, don't emit unless we're in top-level types.
+		// The JSON schema is designed for the TypeScript type system, where a
+		// subclass can redefine a field in a superclass with a refined type (such
+		// as specific values for a field). To ensure we emit Go structs that can
+		// be unmarshaled from JSON messages properly, we must limit each field
+		// to appear only once in hierarchical types.
 		if propName == "type" && (name == "Request" || name == "Response" || name == "Event") {
 			continue
 		}
