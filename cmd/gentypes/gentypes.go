@@ -204,7 +204,11 @@ func emitType(name string, desc map[string]interface{}) string {
 				bodyTypes = append(bodyTypes, emitType(propType, bodyDesc))
 			}
 
-			fmt.Fprintf(&b, "\t%s %s `json:\"body\"`\n", "Body", propType)
+			if requiredMap["body"] {
+				fmt.Fprintf(&b, "\t%s %s `json:\"body\"`\n", "Body", propType)
+			} else {
+				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", propType)
+			}
 		} else {
 			propItems := propValue.(map[string]interface{})
 
