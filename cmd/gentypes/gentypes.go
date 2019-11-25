@@ -28,7 +28,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"sort"
 	"strings"
 )
 
@@ -108,38 +107,62 @@ func parsePropertyType(propValue map[string]interface{}) string {
 // A type description can have an "allOf" key, which means it inherits from
 // another type description. Returns the name of the base type specified in
 // allOf, and the description of the inheriting type
-func parseInheritance(allOfList interface{}) (string, map[string]interface{}) {
-	allOfListSlice := allOfList.([]interface{})
-	if len(allOfListSlice) != 2 {
-		log.Fatal("want 2 elements in allOf list, got", allOfListSlice)
+func parseInheritance(allOfListJson json.RawMessage) (string, map[string]json.RawMessage) {
+	var sliceAllOfJson []json.RawMessage
+	if err := json.Unmarshal(allOfListJson, &sliceAllOfJson); err != nil {
+		log.Fatal(err)
+	}
+	if len(sliceAllOfJson) != 2 {
+		log.Fatal("want 2 elements in allOf list, got", sliceAllOfJson)
 	}
 
-	refInterface := allOfListSlice[0]
-	ref := refInterface.(map[string]interface{})
-	return parseRef(ref["$ref"]), allOfListSlice[1].(map[string]interface{})
+	var refMap map[string]interface{}
+	if err := json.Unmarshal(sliceAllOfJson[0], &refMap); err != nil {
+		log.Fatal(err)
+	}
+
+	var descMapJson map[string]json.RawMessage
+	if err := json.Unmarshal(sliceAllOfJson[1], &descMapJson); err != nil {
+		log.Fatal(err)
+	}
+	return parseRef(refMap["$ref"]), descMapJson
 }
 
 // emitToplevelType emits a single type into a string. It takes the type name
-// and the json map representing the type. The json representation will have
-// fields: "type", "properties" etc.
-func emitToplevelType(name string, desc map[string]interface{}) string {
+// and a serialized json object representing the type. The json representation
+// will have fields: "type", "properties" etc.
+func emitToplevelType(name string, jsonDesc json.RawMessage) string {
 	var b strings.Builder
 	var baseType string
 
+	// We parse the description into both a map[string]json.RawMessage and a
+	// map[string]interface{}. The former keeps values unparsed, which we need
+	// to determine the original order of properties (and to pass to recursive
+	// invocations of emitToplevelType). The latter fully parses the JSON so it's
+	// more convenient to use for other field lookups.
+	var descMap map[string]json.RawMessage
+	if err := json.Unmarshal(jsonDesc, &descMap); err != nil {
+		log.Fatal(err)
+	}
+	//var desc map[string]interface{}
+	//if err := json.Unmarshal(jsonDesc, &desc); err != nil {
+	//log.Fatal(err)
+	//}
+
 	// If there's an "allOf" key, it consists of a reference to a base class and
 	// the description of additional fields for *this* type.
-	if allOfList, ok := desc["allOf"]; ok {
-		baseType, desc = parseInheritance(allOfList)
+	if allOfListJson, ok := descMap["allOf"]; ok {
+		baseType, descMap = parseInheritance(allOfListJson)
 	}
 
-	descType, ok := desc["type"]
+	descType, ok := descMap["type"]
 	if !ok {
-		log.Fatal("want description to have 'type', got ", desc)
+		log.Fatal("want description to have 'type', got ", descMap)
 	}
 
-	descTypeString, ok := descType.(string)
-	if !ok {
-		log.Fatal("description type not string:", desc)
+	var descTypeString string
+	if err := json.Unmarshal(descType, &descTypeString); err != nil {
+		log.Fatal(err)
 	}
 
 	if descTypeString == "string" {
@@ -151,21 +174,33 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 			fmt.Fprintf(&b, "\t%s\n\n", baseType)
 		}
 	} else {
-		log.Fatal("want description type to be object or string, got ", desc)
+		log.Fatal("want description type to be object or string, got ", descType)
 	}
 
-	props, ok := desc["properties"]
+	propsJson, ok := descMap["properties"]
 	if !ok {
 		b.WriteString("}\n")
 		return b.String()
+	}
+	var propsMap map[string]interface{}
+	if err := json.Unmarshal(propsJson, &propsMap); err != nil {
+		log.Fatal(err)
+	}
+
+	propsOrder, err := keysInOrder(propsJson)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Stores the properties that are required.
 	requiredMap := make(map[string]bool)
 
-	if required, ok := desc["required"]; ok {
-		reqSlice := required.([]interface{})
-		for _, r := range reqSlice {
+	if requiredJson, ok := descMap["required"]; ok {
+		var required []interface{}
+		if err := json.Unmarshal(requiredJson, &required); err != nil {
+			log.Fatal(err)
+		}
+		for _, r := range required {
 			requiredMap[r.(string)] = true
 		}
 	}
@@ -176,15 +211,7 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 	// done.
 	bodyType := ""
 
-	// Sort property names to ensure stable emission order.
-	propsMap := props.(map[string]interface{})
-	var propNames []string
-	for k := range propsMap {
-		propNames = append(propNames, k)
-	}
-	sort.Strings(propNames)
-
-	for _, propName := range propNames {
+	for _, propName := range propsOrder {
 		propValue := propsMap[propName]
 		// The JSON schema is designed for the TypeScript type system, where a
 		// subclass can redefine a field in a superclass with a refined type (such
@@ -214,10 +241,15 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 			if ref, ok := bodyDesc["$ref"]; ok {
 				propType = parseRef(ref)
 			} else {
+				var propertiesJson map[string]json.RawMessage
+				if err := json.Unmarshal(descMap["properties"], &propertiesJson); err != nil {
+					log.Fatal(err)
+				}
+
 				propType = name + "Body"
 
 				if bodyType == "" {
-					bodyType = emitToplevelType(propType, bodyDesc)
+					bodyType = emitToplevelType(propType, propertiesJson["body"])
 				} else {
 					log.Fatalf("have body type %s, see another body in %s\n", bodyType, propType)
 				}
@@ -254,16 +286,10 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 	return b.String()
 }
 
-// definitionsKeys returns the keys in the "definitions" map in b, in their
-// original order in the .json stream. Based on
-// https://github.com/golang/go/issues/27179#issuecomment-415559968
-func definitionsKeys(b []byte) ([]string, error) {
-	var top map[string]json.RawMessage
-	if err := json.Unmarshal(b, &top); err != nil {
-		log.Fatal(err)
-	}
-
-	d := json.NewDecoder(bytes.NewReader(top["definitions"]))
+// keysInOrder returns the keys in json object in b, in their original order.
+// Based on https://github.com/golang/go/issues/27179#issuecomment-415559968
+func keysInOrder(b []byte) ([]string, error) {
+	d := json.NewDecoder(bytes.NewReader(b))
 	t, err := d.Token()
 	if err != nil {
 		return nil, err
@@ -333,30 +359,36 @@ package dap
 `
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	inputFilename := os.Args[1]
 	inputData, err := ioutil.ReadFile(inputFilename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var m map[string]interface{}
+	var m map[string]json.RawMessage
 	if err := json.Unmarshal(inputData, &m); err != nil {
 		log.Fatal(err)
 	}
-	typeMap := m["definitions"].(map[string]interface{})
+	var typeMap map[string]json.RawMessage
+	if err := json.Unmarshal(m["definitions"], &typeMap); err != nil {
+		log.Fatal(err)
+	}
 
 	var b strings.Builder
 	b.WriteString(preamble)
 
-	typeNames, err := definitionsKeys(inputData)
+	typeNames, err := keysInOrder(m["definitions"])
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, typeName := range typeNames {
-		desc := typeMap[typeName]
-		b.WriteString(emitToplevelType(typeName, desc.(map[string]interface{})))
+		//fmt.Println("@@", typeName)
+		b.WriteString(emitToplevelType(typeName, typeMap[typeName]))
 		b.WriteString("\n")
+		//fmt.Println(b.String())
 	}
 
 	wholeFile := []byte(b.String())
