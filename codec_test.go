@@ -19,12 +19,6 @@ import (
 	"testing"
 )
 
-func checkGotVsWant(t *testing.T, value string, got interface{}, want interface{}) {
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("%s=[%#v]; expected=[%#v]", value, got, want)
-	}
-}
-
 var initializeRequestString = `{"command":"initialize","arguments":{"clientID":"vscode","clientName":"Visual Studio Code","adapterID":"go","pathFormat":"path","linesStartAt1":true,"columnsStartAt1":true,"supportsVariableType":true,"supportsVariablePaging":true,"supportsRunInTerminalRequest":true,"locale":"en-us"},"type":"request","seq":1}`
 var initializeRequestStruct = InitializeRequest{
 	Request: Request{
@@ -78,37 +72,40 @@ var initializedEventStruct = InitializedEvent{
 
 func Test_DecodeProtocolMessage(t *testing.T) {
 	tests := []struct {
-		name    string
 		data    string
 		wantMsg interface{}
 		wantErr string
 	}{
 		// ProtocolMessage
-		{"PM1", ``, nil, "unexpected end of JSON input"},
-		{"PM2", `,`, nil, "invalid character ',' looking for beginning of value"},
-		{"PM3", `{}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
-		{"PM4", `{"a": 1}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
-		{"PM5", `{"type":"foo", "seq": 2}`, ProtocolMessage{2, "foo"}, "ProtocolMessage type 'foo' is not supported"},
+		{``, nil, "unexpected end of JSON input"},
+		{`,`, nil, "invalid character ',' looking for beginning of value"},
+		{`{}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
+		{`{"a": 1}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
+		{`{"type":"foo", "seq": 2}`, ProtocolMessage{2, "foo"}, "ProtocolMessage type 'foo' is not supported"},
 		// Request
-		{"RQ1", `{"type":"request"}`, Request{ProtocolMessage{0, "request"}, ""}, "Request command '' is not supported"},
-		{"RQ2", initializeRequestString, initializeRequestStruct, ""},
+		{`{"type":"request"}`, Request{ProtocolMessage{0, "request"}, ""}, "Request command '' is not supported"},
+		{initializeRequestString, initializeRequestStruct, ""},
 		// Response
-		{"RS1", `{"type":"response","success":true}`, Response{ProtocolMessage{0, "response"}, "", "", 0, true}, "Response command '' is not supported"},
-		{"RS2", initializeResponseString, initializeResponseStruct, ""},
+		{`{"type":"response","success":true}`, Response{ProtocolMessage{0, "response"}, "", "", 0, true}, "Response command '' is not supported"},
+		{initializeResponseString, initializeResponseStruct, ""},
 		// TODO(polina): add ErrorResponse test case
 		// Event
-		{"EV1", `{"type":"event"}`, Event{ProtocolMessage{0, "event"}, ""}, "Event event '' is not supported"},
-		{"RV2", initializedEventString, initializedEventStruct, ""},
+		{`{"type":"event"}`, Event{ProtocolMessage{0, "event"}, ""}, "Event event '' is not supported"},
+		{initializedEventString, initializedEventStruct, ""},
 	}
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.data, func(t *testing.T) {
 			msg, err := DecodeProtocolMessage([]byte(test.data))
+			if !reflect.DeepEqual(msg, test.wantMsg) {
+				t.Errorf("got message=%#v, want %#v", msg, test.wantMsg)
+			}
 			errstr := ""
 			if err != nil {
 				errstr = err.Error()
 			}
-			checkGotVsWant(t, "msg", msg, test.wantMsg)
-			checkGotVsWant(t, "err", errstr, test.wantErr)
+			if errstr != test.wantErr {
+				t.Errorf("got error=%#v, want %#v", errstr, test.wantMsg)
+			}
 		})
 	}
 }

@@ -25,13 +25,13 @@ import (
 // DecodeProtocolMessageFieldError describes which JSON attribute
 // has an unsupported value that the decoding cannot handle.
 type DecodeProtocolMessageFieldError struct {
-	subType    string
-	fieldName  string
-	fieldValue string
+	SubType    string
+	FieldName  string
+	FieldValue string
 }
 
 func (e *DecodeProtocolMessageFieldError) Error() string {
-	return fmt.Sprintf("%s %s '%s' is not supported", e.subType, e.fieldName, e.fieldValue)
+	return fmt.Sprintf("%s %s '%s' is not supported", e.SubType, e.FieldName, e.FieldValue)
 }
 
 // DecodeProtocolMessage parses the JSON-encoded data and returns the result of
