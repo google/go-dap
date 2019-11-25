@@ -142,19 +142,13 @@ func emitToplevelType(name string, jsonDesc json.RawMessage) string {
 	var b strings.Builder
 	var baseType string
 
-	// We parse the description into both a map[string]json.RawMessage and a
-	// map[string]interface{}. The former keeps values unparsed, which we need
-	// to determine the original order of properties (and to pass to recursive
-	// invocations of emitToplevelType). The latter fully parses the JSON so it's
-	// more convenient to use for other field lookups.
+	// We don't parse the description all the way to map[string]interface{}
+	// because we have to retain the original JSON-order of properties (in this
+	// type as well as any nested types like "body").
 	var descMap map[string]json.RawMessage
 	if err := json.Unmarshal(jsonDesc, &descMap); err != nil {
 		log.Fatal(err)
 	}
-	//var desc map[string]interface{}
-	//if err := json.Unmarshal(jsonDesc, &desc); err != nil {
-	//log.Fatal(err)
-	//}
 
 	// If there's an "allOf" key, it consists of a reference to a base class and
 	// the description of additional fields for *this* type.
@@ -392,10 +386,8 @@ func main() {
 	}
 
 	for _, typeName := range typeNames {
-		//fmt.Println("@@", typeName)
 		b.WriteString(emitToplevelType(typeName, typeMap[typeName]))
 		b.WriteString("\n")
-		//fmt.Println(b.String())
 	}
 
 	wholeFile := []byte(b.String())

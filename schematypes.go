@@ -209,11 +209,11 @@ type RunInTerminalRequest struct {
 }
 
 type RunInTerminalRequestArguments struct {
-	Kind  string            `json:"kind,omitempty"`
-	Title string            `json:"title,omitempty"`
-	Cwd   string            `json:"cwd"`
-	Args  []string          `json:"args"`
-	Env   map[string]string `json:"env,omitempty"`
+	Kind  string                 `json:"kind,omitempty"`
+	Title string                 `json:"title,omitempty"`
+	Cwd   string                 `json:"cwd"`
+	Args  []string               `json:"args"`
+	Env   map[string]interface{} `json:"env,omitempty"`
 }
 
 type RunInTerminalResponse struct {
