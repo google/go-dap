@@ -87,8 +87,15 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			propItemsMap := propItems.(map[string]interface{})
 			return "[]" + parsePropertyType(propItemsMap)
 		case "object":
-			return "map[string]string"
-
+			// When the type of a property is "object", we'll emit a map with a string
+			// key and a value type that depends on the type of the
+			// additionalProperties field.
+			additionalProps, ok := propValue["additionalProperties"]
+			if !ok {
+				log.Fatal("missing additionalProperties field when type=object:", propValue)
+			}
+			valueType := parsePropertyType(additionalProps.(map[string]interface{}))
+			return fmt.Sprintf("map[string]%v", valueType)
 		default:
 			log.Fatal("unknown property type value", propType)
 		}
