@@ -342,6 +342,11 @@ const preamble = `// Copyright 2019 Google LLC
 
 package dap
 
+// Message is an interface all DAP message types implement. It's not part of
+// the protocol but is used to enforce static typing in Go code.
+//
+// Note: the DAP type "Message" (which is used in the body of ErrorResponse)
+// is renamed to ErrorMessage to avoid collision with this interface.
 type Message interface {
 	isMessage()
 }
@@ -391,8 +396,8 @@ func main() {
 			typeName = "ErrorMessage"
 		}
 
-		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") {
-			fmt.Fprintf(&b, "func (_ %s) isMessage() {}\n", typeName)
+		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") || typeName == "ProtocolMessage" {
+			fmt.Fprintf(&b, "func (%s) isMessage() {}\n", typeName)
 		}
 	}
 
