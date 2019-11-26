@@ -113,28 +113,35 @@ func parsePropertyType(propValue map[string]interface{}) string {
 // maybeParseInheritance helps parse types that inherit from other types.
 // A type description can have an "allOf" key, which means it inherits from
 // another type description. Returns the name of the base type specified in
-// allOf, and the description of the inheriting type. If there is no "allOf",
-// returns an empty baseTypeName and descMap itself.
+// allOf, and the description of the inheriting type.
+//
+// Example:
+//
+//    "allOf": [ { "$ref": "#/definitions/ProtocolMessage" },
+//               {... type description ...} ]
+//
+// Returns base type ProtocolMessage and a map representing type description.
+// If there is no "allOf", returns an empty baseTypeName and descMap itself.
 func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName string, baseTypeJson map[string]json.RawMessage) {
 	allOfListJson, ok := descMap["allOf"]
 	if !ok {
 		return "", descMap
 	}
 
-	var sliceAllOfJson []json.RawMessage
-	if err := json.Unmarshal(allOfListJson, &sliceAllOfJson); err != nil {
+	var allOfSliceOfJson []json.RawMessage
+	if err := json.Unmarshal(allOfListJson, &allOfSliceOfJson); err != nil {
 		log.Fatal(err)
 	}
-	if len(sliceAllOfJson) != 2 {
-		log.Fatal("want 2 elements in allOf list, got", sliceAllOfJson)
+	if len(allOfSliceOfJson) != 2 {
+		log.Fatal("want 2 elements in allOf list, got", allOfSliceOfJson)
 	}
 
 	var baseTypeRef map[string]interface{}
-	if err := json.Unmarshal(sliceAllOfJson[0], &baseTypeRef); err != nil {
+	if err := json.Unmarshal(allOfSliceOfJson[0], &baseTypeRef); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := json.Unmarshal(sliceAllOfJson[1], &baseTypeJson); err != nil {
+	if err := json.Unmarshal(allOfSliceOfJson[1], &baseTypeJson); err != nil {
 		log.Fatal(err)
 	}
 	return parseRef(baseTypeRef["$ref"]), baseTypeJson
@@ -143,7 +150,7 @@ func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName str
 // emitToplevelType emits a single type into a string. It takes the type name
 // and a serialized json object representing the type. The json representation
 // will have fields: "type", "properties" etc.
-func emitToplevelType(name string, descJson json.RawMessage) string {
+func emitToplevelType(typeName string, descJson json.RawMessage) string {
 	var b strings.Builder
 	var baseType string
 
@@ -167,10 +174,10 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 	}
 
 	if descTypeString == "string" {
-		fmt.Fprintf(&b, "type %s string\n", name)
+		fmt.Fprintf(&b, "type %s string\n", typeName)
 		return b.String()
 	} else if descTypeString == "object" {
-		fmt.Fprintf(&b, "type %s struct {\n", name)
+		fmt.Fprintf(&b, "type %s struct {\n", typeName)
 		if len(baseType) > 0 {
 			fmt.Fprintf(&b, "\t%s\n\n", baseType)
 		}
@@ -218,21 +225,21 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 		// as specific values for a field). To ensure we emit Go structs that can
 		// be unmarshaled from JSON messages properly, we must limit each field
 		// to appear only once in hierarchical types.
-		if propName == "type" && (name == "Request" || name == "Response" || name == "Event") {
+		if propName == "type" && (typeName == "Request" || typeName == "Response" || typeName == "Event") {
 			continue
 		}
-		if propName == "command" && name != "Request" && name != "Response" {
+		if propName == "command" && typeName != "Request" && typeName != "Response" {
 			continue
 		}
-		if propName == "event" && name != "Event" {
+		if propName == "event" && typeName != "Event" {
 			continue
 		}
-		if propName == "arguments" && name == "Request" {
+		if propName == "arguments" && typeName == "Request" {
 			continue
 		}
 
 		if propName == "body" {
-			if name == "Response" || name == "Event" {
+			if typeName == "Response" || typeName == "Event" {
 				continue
 			}
 			var bodyDesc map[string]interface{}
@@ -240,23 +247,23 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 				log.Fatal(err)
 			}
 
-			var propType string
+			var bodyTypeName string
 			if ref, ok := bodyDesc["$ref"]; ok {
-				propType = parseRef(ref)
+				bodyTypeName = parseRef(ref)
 			} else {
-				propType = name + "Body"
+				bodyTypeName = typeName + "Body"
 
 				if bodyType == "" {
-					bodyType = emitToplevelType(propType, propsMapOfJson["body"])
+					bodyType = emitToplevelType(bodyTypeName, propsMapOfJson["body"])
 				} else {
-					log.Fatalf("have body type %s, see another body in %s\n", bodyType, propType)
+					log.Fatalf("have body type %s, see another body in %s\n", bodyType, bodyTypeName)
 				}
 			}
 
 			if requiredMap["body"] {
-				fmt.Fprintf(&b, "\t%s %s `json:\"body\"`\n", "Body", propType)
+				fmt.Fprintf(&b, "\t%s %s `json:\"body\"`\n", "Body", bodyTypeName)
 			} else {
-				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", propType)
+				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", bodyTypeName)
 			}
 		} else {
 			var propDesc map[string]interface{}
