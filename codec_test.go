@@ -96,15 +96,18 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.data, func(t *testing.T) {
 			msg, err := DecodeProtocolMessage([]byte(test.data))
+			// Partial structs maybe returned on error, so always check message
 			if !reflect.DeepEqual(msg, test.wantMsg) {
 				t.Errorf("got message=%#v, want %#v", msg, test.wantMsg)
 			}
-			errstr := ""
 			if err != nil {
-				errstr = err.Error()
-			}
-			if errstr != test.wantErr {
-				t.Errorf("got error=%#v, want %#v", errstr, test.wantMsg)
+				if err.Error() != test.wantErr {
+					t.Errorf("got error=%#v, want %q", err, test.wantErr)
+				}
+			} else {
+				if test.wantErr != "" {
+					t.Errorf("got error=nil, want %#q", test.wantErr)
+				}
 			}
 		})
 	}
