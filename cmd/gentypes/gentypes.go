@@ -114,7 +114,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 // A type description can have an "allOf" key, which means it inherits from
 // another type description. Returns the name of the base type specified in
 // allOf, and the description of the inheriting type
-func parseInheritance(allOfListJson json.RawMessage) (string, map[string]json.RawMessage) {
+func parseInheritance(allOfListJson json.RawMessage) (baseTypeName string, baseTypeJson map[string]json.RawMessage) {
 	var sliceAllOfJson []json.RawMessage
 	if err := json.Unmarshal(allOfListJson, &sliceAllOfJson); err != nil {
 		log.Fatal(err)
@@ -123,22 +123,21 @@ func parseInheritance(allOfListJson json.RawMessage) (string, map[string]json.Ra
 		log.Fatal("want 2 elements in allOf list, got", sliceAllOfJson)
 	}
 
-	var refMap map[string]interface{}
-	if err := json.Unmarshal(sliceAllOfJson[0], &refMap); err != nil {
+	var baseTypeRef map[string]interface{}
+	if err := json.Unmarshal(sliceAllOfJson[0], &baseTypeRef); err != nil {
 		log.Fatal(err)
 	}
 
-	var descMapJson map[string]json.RawMessage
-	if err := json.Unmarshal(sliceAllOfJson[1], &descMapJson); err != nil {
+	if err := json.Unmarshal(sliceAllOfJson[1], &baseTypeJson); err != nil {
 		log.Fatal(err)
 	}
-	return parseRef(refMap["$ref"]), descMapJson
+	return parseRef(baseTypeRef["$ref"]), baseTypeJson
 }
 
 // emitToplevelType emits a single type into a string. It takes the type name
 // and a serialized json object representing the type. The json representation
 // will have fields: "type", "properties" etc.
-func emitToplevelType(name string, jsonDesc json.RawMessage) string {
+func emitToplevelType(name string, descJson json.RawMessage) string {
 	var b strings.Builder
 	var baseType string
 
@@ -146,7 +145,7 @@ func emitToplevelType(name string, jsonDesc json.RawMessage) string {
 	// because we have to retain the original JSON-order of properties (in this
 	// type as well as any nested types like "body").
 	var descMap map[string]json.RawMessage
-	if err := json.Unmarshal(jsonDesc, &descMap); err != nil {
+	if err := json.Unmarshal(descJson, &descMap); err != nil {
 		log.Fatal(err)
 	}
 
