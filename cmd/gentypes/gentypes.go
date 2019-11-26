@@ -110,11 +110,17 @@ func parsePropertyType(propValue map[string]interface{}) string {
 	panic("unreachable")
 }
 
-// parseInheritance helps parse types that inherit from other types.
+// maybeParseInheritance helps parse types that inherit from other types.
 // A type description can have an "allOf" key, which means it inherits from
 // another type description. Returns the name of the base type specified in
-// allOf, and the description of the inheriting type
-func parseInheritance(allOfListJson json.RawMessage) (baseTypeName string, baseTypeJson map[string]json.RawMessage) {
+// allOf, and the description of the inheriting type. If there is no "allOf",
+// returns an empty baseTypeName and descMap itself.
+func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName string, baseTypeJson map[string]json.RawMessage) {
+	allOfListJson, ok := descMap["allOf"]
+	if !ok {
+		return "", descMap
+	}
+
 	var sliceAllOfJson []json.RawMessage
 	if err := json.Unmarshal(allOfListJson, &sliceAllOfJson); err != nil {
 		log.Fatal(err)
@@ -148,20 +154,15 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 	if err := json.Unmarshal(descJson, &descMap); err != nil {
 		log.Fatal(err)
 	}
+	baseType, descMap = maybeParseInheritance(descMap)
 
-	// If there's an "allOf" key, it consists of a reference to a base class and
-	// the description of additional fields for *this* type.
-	if allOfListJson, ok := descMap["allOf"]; ok {
-		baseType, descMap = parseInheritance(allOfListJson)
-	}
-
-	descType, ok := descMap["type"]
+	typeJson, ok := descMap["type"]
 	if !ok {
 		log.Fatal("want description to have 'type', got ", descMap)
 	}
 
 	var descTypeString string
-	if err := json.Unmarshal(descType, &descTypeString); err != nil {
+	if err := json.Unmarshal(typeJson, &descTypeString); err != nil {
 		log.Fatal(err)
 	}
 
@@ -174,20 +175,20 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 			fmt.Fprintf(&b, "\t%s\n\n", baseType)
 		}
 	} else {
-		log.Fatal("want description type to be object or string, got ", descType)
+		log.Fatal("want description type to be object or string, got ", descTypeString)
 	}
 
-	propsJson, ok := descMap["properties"]
-	if !ok {
+	var propsMapOfJson map[string]json.RawMessage
+	if propsJson, ok := descMap["properties"]; ok {
+		if err := json.Unmarshal(propsJson, &propsMapOfJson); err != nil {
+			log.Fatal(err)
+		}
+	} else {
 		b.WriteString("}\n")
 		return b.String()
 	}
-	var propsMap map[string]interface{}
-	if err := json.Unmarshal(propsJson, &propsMap); err != nil {
-		log.Fatal(err)
-	}
 
-	propsOrder, err := keysInOrder(propsJson)
+	propsNamesInOrder, err := keysInOrder(descMap["properties"])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -211,8 +212,7 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 	// done.
 	bodyType := ""
 
-	for _, propName := range propsOrder {
-		propValue := propsMap[propName]
+	for _, propName := range propsNamesInOrder {
 		// The JSON schema is designed for the TypeScript type system, where a
 		// subclass can redefine a field in a superclass with a refined type (such
 		// as specific values for a field). To ensure we emit Go structs that can
@@ -235,21 +235,19 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 			if name == "Response" || name == "Event" {
 				continue
 			}
-			bodyDesc := propValue.(map[string]interface{})
+			var bodyDesc map[string]interface{}
+			if err := json.Unmarshal(propsMapOfJson[propName], &bodyDesc); err != nil {
+				log.Fatal(err)
+			}
 
 			var propType string
 			if ref, ok := bodyDesc["$ref"]; ok {
 				propType = parseRef(ref)
 			} else {
-				var propertiesJson map[string]json.RawMessage
-				if err := json.Unmarshal(descMap["properties"], &propertiesJson); err != nil {
-					log.Fatal(err)
-				}
-
 				propType = name + "Body"
 
 				if bodyType == "" {
-					bodyType = emitToplevelType(propType, propertiesJson["body"])
+					bodyType = emitToplevelType(propType, propsMapOfJson["body"])
 				} else {
 					log.Fatalf("have body type %s, see another body in %s\n", bodyType, propType)
 				}
@@ -261,7 +259,10 @@ func emitToplevelType(name string, descJson json.RawMessage) string {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", propType)
 			}
 		} else {
-			propDesc := propValue.(map[string]interface{})
+			var propDesc map[string]interface{}
+			if err := json.Unmarshal(propsMapOfJson[propName], &propDesc); err != nil {
+				log.Fatal(err)
+			}
 
 			// Go type of this property.
 			goType := parsePropertyType(propDesc)
