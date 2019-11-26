@@ -71,42 +71,45 @@ var initializedEventStruct = InitializedEvent{
 }
 
 func Test_DecodeProtocolMessage(t *testing.T) {
+	// Sometimes partial messages are be returned on error, but
+	// the user should not rely on those and just check err itself.
+	var msgIgnoredOnError interface{} = nil
+	const noError = ""
 	tests := []struct {
 		data    string
 		wantMsg interface{}
 		wantErr string
 	}{
 		// ProtocolMessage
-		{``, nil, "unexpected end of JSON input"},
-		{`,`, nil, "invalid character ',' looking for beginning of value"},
-		{`{}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
-		{`{"a": 1}`, ProtocolMessage{}, "ProtocolMessage type '' is not supported"},
-		{`{"type":"foo", "seq": 2}`, ProtocolMessage{2, "foo"}, "ProtocolMessage type 'foo' is not supported"},
+		{``, msgIgnoredOnError, "unexpected end of JSON input"},
+		{`,`, msgIgnoredOnError, "invalid character ',' looking for beginning of value"},
+		{`{}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported"},
+		{`{"a": 1}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported"},
+		{`{"type":"foo", "seq": 2}`, msgIgnoredOnError, "ProtocolMessage type 'foo' is not supported"},
 		// Request
-		{`{"type":"request"}`, Request{ProtocolMessage{0, "request"}, ""}, "Request command '' is not supported"},
-		{initializeRequestString, initializeRequestStruct, ""},
+		{`{"type":"request"}`, msgIgnoredOnError, "Request command '' is not supported"},
+		{initializeRequestString, initializeRequestStruct, noError},
 		// Response
-		{`{"type":"response","success":true}`, Response{ProtocolMessage{0, "response"}, "", "", 0, true}, "Response command '' is not supported"},
-		{initializeResponseString, initializeResponseStruct, ""},
+		{`{"type":"response","success":true}`, msgIgnoredOnError, "Response command '' is not supported"},
+		{initializeResponseString, initializeResponseStruct, noError},
 		// TODO(polina): add ErrorResponse test case
 		// Event
-		{`{"type":"event"}`, Event{ProtocolMessage{0, "event"}, ""}, "Event event '' is not supported"},
-		{initializedEventString, initializedEventStruct, ""},
+		{`{"type":"event"}`, msgIgnoredOnError, "Event event '' is not supported"},
+		{initializedEventString, initializedEventStruct, noError},
 	}
 	for _, test := range tests {
 		t.Run(test.data, func(t *testing.T) {
 			msg, err := DecodeProtocolMessage([]byte(test.data))
-			// Partial structs maybe returned on error, so always check message
-			if !reflect.DeepEqual(msg, test.wantMsg) {
-				t.Errorf("got message=%#v, want %#v", msg, test.wantMsg)
-			}
-			if err != nil {
-				if err.Error() != test.wantErr {
+			if err != nil { // Decoding error
+				if err.Error() != test.wantErr { // Was it the right error?
 					t.Errorf("got error=%#v, want %q", err, test.wantErr)
 				}
-			} else {
-				if test.wantErr != "" {
+			} else { // No decoding error
+				if test.wantErr != "" { // Did we expect one?
 					t.Errorf("got error=nil, want %#q", test.wantErr)
+				}
+				if !reflect.DeepEqual(msg, test.wantMsg) { // Check result
+					t.Errorf("got message=%#v, want %#v", msg, test.wantMsg)
 				}
 			}
 		})
