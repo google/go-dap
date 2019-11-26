@@ -71,8 +71,9 @@ var initializedEventStruct = InitializedEvent{
 }
 
 func Test_DecodeProtocolMessage(t *testing.T) {
-	// Sometimes partial messages are be returned on error, but
+	// Sometimes partial messages can be returned on error, but
 	// the user should not rely on those and just check err itself.
+	// Hence the test will not check those.
 	var msgIgnoredOnError interface{} = nil
 	const noError = ""
 	tests := []struct {
