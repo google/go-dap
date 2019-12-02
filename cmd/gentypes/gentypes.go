@@ -40,7 +40,7 @@ func parseRef(refValue interface{}) string {
 		log.Fatal("want ref to start with '#/definitions/', got ", refValue)
 	}
 
-	return refContents[14:]
+	return replaceGoTypename(refContents[14:])
 }
 
 // goFieldName converts a property name from its JSON representation to an
@@ -248,7 +248,7 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 				jsonTag += ",omitempty\"`"
 			}
 
-			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), replaceGoTypename(goType), jsonTag)
+			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
 		}
 	}
 
