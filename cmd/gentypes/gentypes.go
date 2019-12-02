@@ -253,12 +253,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				bodyTypeName = parseRef(ref)
 			} else {
 				bodyTypeName = typeName + "Body"
-
-				if bodyType == "" {
-					bodyType = emitToplevelType(bodyTypeName, propsMapOfJson["body"])
-				} else {
-					log.Fatalf("have body type %s, see another body in %s\n", bodyType, bodyTypeName)
-				}
+				bodyType = emitToplevelType(bodyTypeName, propsMapOfJson["body"])
 			}
 
 			if requiredMap["body"] {
