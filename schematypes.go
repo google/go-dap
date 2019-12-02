@@ -18,8 +18,8 @@
 
 package dap
 
-// Message is an interface all DAP message types implement. It's not part of
-// the protocol but is simply used to enforce static typing in Go code.
+// Message is an interface that all DAP message types implement. It's not part
+// of the protocol but is used to enforce static typing in Go code.
 //
 // Note: the DAP type "Message" (which is used in the body of ErrorResponse)
 // is renamed to ErrorMessage to avoid collision with this interface.

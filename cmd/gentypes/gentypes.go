@@ -248,11 +248,7 @@ func emitToplevelType(name string, desc map[string]interface{}) string {
 				jsonTag += ",omitempty\"`"
 			}
 
-			if goType == "Message" {
-				goType = "ErrorMessage"
-			}
-
-			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
+			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), replaceGoTypename(goType), jsonTag)
 		}
 	}
 
@@ -299,6 +295,17 @@ func definitionsKeys(b []byte) ([]string, error) {
 	}
 }
 
+// replaceGoTypename replaces conflicting type names in the JSON schema with
+// proper Go type names.
+func replaceGoTypename(typeName string) string {
+	// Since we have a top-level interface named Message, we replace the DAP
+	// message type Message with ErrorMessage.
+	if typeName == "Message" {
+		return "ErrorMessage"
+	}
+	return typeName
+}
+
 var errEnd = errors.New("invalid end of array or object")
 
 func skipValue(d *json.Decoder) error {
@@ -342,8 +349,8 @@ const preamble = `// Copyright 2019 Google LLC
 
 package dap
 
-// Message is an interface all DAP message types implement. It's not part of
-// the protocol but is used to enforce static typing in Go code.
+// Message is an interface that all DAP message types implement. It's not part
+// of the protocol but is used to enforce static typing in Go code.
 //
 // Note: the DAP type "Message" (which is used in the body of ErrorResponse)
 // is renamed to ErrorMessage to avoid collision with this interface.
@@ -376,26 +383,14 @@ func main() {
 
 	for _, typeName := range typeNames {
 		desc := typeMap[typeName]
-
-		// Since we have a top-level interface named Message, we replace the DAP
-		// message type Message with ErrorMessage.
-		if typeName == "Message" {
-			typeName = "ErrorMessage"
-		}
-
-		b.WriteString(emitToplevelType(typeName, desc.(map[string]interface{})))
+		b.WriteString(emitToplevelType(replaceGoTypename(typeName), desc.(map[string]interface{})))
 		b.WriteString("\n")
 	}
 
 	// For top-level types, emit an empty implementation of isMessage(), to make
 	// them implement the Message interface.
 	for _, typeName := range typeNames {
-		// Since we have a top-level interface named Message, we replace the DAP
-		// message type Message with ErrorMessage.
-		if typeName == "Message" {
-			typeName = "ErrorMessage"
-		}
-
+		typeName = replaceGoTypename(typeName)
 		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") || typeName == "ProtocolMessage" {
 			fmt.Fprintf(&b, "func (%s) isMessage() {}\n", typeName)
 		}
