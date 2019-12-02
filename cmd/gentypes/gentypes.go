@@ -122,7 +122,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 //
 // Returns base type ProtocolMessage and a map representing type description.
 // If there is no "allOf", returns an empty baseTypeName and descMap itself.
-func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName string, baseTypeJson map[string]json.RawMessage) {
+func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName string, typeDescJson map[string]json.RawMessage) {
 	allOfListJson, ok := descMap["allOf"]
 	if !ok {
 		return "", descMap
@@ -141,10 +141,10 @@ func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName str
 		log.Fatal(err)
 	}
 
-	if err := json.Unmarshal(allOfSliceOfJson[1], &baseTypeJson); err != nil {
+	if err := json.Unmarshal(allOfSliceOfJson[1], &typeDescJson); err != nil {
 		log.Fatal(err)
 	}
-	return parseRef(baseTypeRef["$ref"]), baseTypeJson
+	return parseRef(baseTypeRef["$ref"]), typeDescJson
 }
 
 // emitToplevelType emits a single type into a string. It takes the type name
@@ -238,17 +238,18 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 			continue
 		}
 
+		var propDesc map[string]interface{}
+		if err := json.Unmarshal(propsMapOfJson[propName], &propDesc); err != nil {
+			log.Fatal(err)
+		}
+
 		if propName == "body" {
 			if typeName == "Response" || typeName == "Event" {
 				continue
 			}
-			var bodyDesc map[string]interface{}
-			if err := json.Unmarshal(propsMapOfJson[propName], &bodyDesc); err != nil {
-				log.Fatal(err)
-			}
 
 			var bodyTypeName string
-			if ref, ok := bodyDesc["$ref"]; ok {
+			if ref, ok := propDesc["$ref"]; ok {
 				bodyTypeName = parseRef(ref)
 			} else {
 				bodyTypeName = typeName + "Body"
@@ -266,11 +267,6 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", bodyTypeName)
 			}
 		} else {
-			var propDesc map[string]interface{}
-			if err := json.Unmarshal(propsMapOfJson[propName], &propDesc); err != nil {
-				log.Fatal(err)
-			}
-
 			// Go type of this property.
 			goType := parsePropertyType(propDesc)
 
