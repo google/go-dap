@@ -47,10 +47,10 @@ type Event struct {
 type Response struct {
 	ProtocolMessage
 
-	Command    string `json:"command"`
-	Message    string `json:"message,omitempty"`
 	RequestSeq int    `json:"request_seq"`
 	Success    bool   `json:"success"`
+	Command    string `json:"command"`
+	Message    string `json:"message,omitempty"`
 }
 
 type ErrorResponse struct {
@@ -88,12 +88,12 @@ type StoppedEvent struct {
 }
 
 type StoppedEventBody struct {
-	AllThreadsStopped bool   `json:"allThreadsStopped,omitempty"`
-	Description       string `json:"description,omitempty"`
-	PreserveFocusHint bool   `json:"preserveFocusHint,omitempty"`
 	Reason            string `json:"reason"`
-	Text              string `json:"text,omitempty"`
+	Description       string `json:"description,omitempty"`
 	ThreadId          int    `json:"threadId,omitempty"`
+	PreserveFocusHint bool   `json:"preserveFocusHint,omitempty"`
+	Text              string `json:"text,omitempty"`
+	AllThreadsStopped bool   `json:"allThreadsStopped,omitempty"`
 }
 
 type ContinuedEvent struct {
@@ -103,8 +103,8 @@ type ContinuedEvent struct {
 }
 
 type ContinuedEventBody struct {
-	AllThreadsContinued bool `json:"allThreadsContinued,omitempty"`
 	ThreadId            int  `json:"threadId"`
+	AllThreadsContinued bool `json:"allThreadsContinued,omitempty"`
 }
 
 type ExitedEvent struct {
@@ -146,12 +146,12 @@ type OutputEvent struct {
 
 type OutputEventBody struct {
 	Category           string      `json:"category,omitempty"`
+	Output             string      `json:"output"`
+	VariablesReference int         `json:"variablesReference,omitempty"`
+	Source             Source      `json:"source,omitempty"`
+	Line               int         `json:"line,omitempty"`
 	Column             int         `json:"column,omitempty"`
 	Data               interface{} `json:"data,omitempty"`
-	Line               int         `json:"line,omitempty"`
-	Output             string      `json:"output"`
-	Source             Source      `json:"source,omitempty"`
-	VariablesReference int         `json:"variablesReference,omitempty"`
 }
 
 type BreakpointEvent struct {
@@ -161,8 +161,8 @@ type BreakpointEvent struct {
 }
 
 type BreakpointEventBody struct {
-	Breakpoint Breakpoint `json:"breakpoint"`
 	Reason     string     `json:"reason"`
+	Breakpoint Breakpoint `json:"breakpoint"`
 }
 
 type ModuleEvent struct {
@@ -172,8 +172,8 @@ type ModuleEvent struct {
 }
 
 type ModuleEventBody struct {
-	Module Module `json:"module"`
 	Reason string `json:"reason"`
+	Module Module `json:"module"`
 }
 
 type LoadedSourceEvent struct {
@@ -194,11 +194,11 @@ type ProcessEvent struct {
 }
 
 type ProcessEventBody struct {
-	IsLocalProcess  bool   `json:"isLocalProcess,omitempty"`
 	Name            string `json:"name"`
-	PointerSize     int    `json:"pointerSize,omitempty"`
-	StartMethod     string `json:"startMethod,omitempty"`
 	SystemProcessId int    `json:"systemProcessId,omitempty"`
+	IsLocalProcess  bool   `json:"isLocalProcess,omitempty"`
+	StartMethod     string `json:"startMethod,omitempty"`
+	PointerSize     int    `json:"pointerSize,omitempty"`
 }
 
 type CapabilitiesEvent struct {
@@ -218,11 +218,11 @@ type RunInTerminalRequest struct {
 }
 
 type RunInTerminalRequestArguments struct {
-	Args  []string               `json:"args"`
-	Cwd   string                 `json:"cwd"`
-	Env   map[string]interface{} `json:"env,omitempty"`
 	Kind  string                 `json:"kind,omitempty"`
 	Title string                 `json:"title,omitempty"`
+	Cwd   string                 `json:"cwd"`
+	Args  []string               `json:"args"`
+	Env   map[string]interface{} `json:"env,omitempty"`
 }
 
 type RunInTerminalResponse struct {
@@ -243,17 +243,17 @@ type InitializeRequest struct {
 }
 
 type InitializeRequestArguments struct {
-	AdapterID                    string `json:"adapterID"`
 	ClientID                     string `json:"clientID,omitempty"`
 	ClientName                   string `json:"clientName,omitempty"`
-	ColumnsStartAt1              bool   `json:"columnsStartAt1,omitempty"`
-	LinesStartAt1                bool   `json:"linesStartAt1,omitempty"`
+	AdapterID                    string `json:"adapterID"`
 	Locale                       string `json:"locale,omitempty"`
+	LinesStartAt1                bool   `json:"linesStartAt1,omitempty"`
+	ColumnsStartAt1              bool   `json:"columnsStartAt1,omitempty"`
 	PathFormat                   string `json:"pathFormat,omitempty"`
-	SupportsMemoryReferences     bool   `json:"supportsMemoryReferences,omitempty"`
-	SupportsRunInTerminalRequest bool   `json:"supportsRunInTerminalRequest,omitempty"`
-	SupportsVariablePaging       bool   `json:"supportsVariablePaging,omitempty"`
 	SupportsVariableType         bool   `json:"supportsVariableType,omitempty"`
+	SupportsVariablePaging       bool   `json:"supportsVariablePaging,omitempty"`
+	SupportsRunInTerminalRequest bool   `json:"supportsRunInTerminalRequest,omitempty"`
+	SupportsMemoryReferences     bool   `json:"supportsMemoryReferences,omitempty"`
 }
 
 type InitializeResponse struct {
@@ -282,8 +282,8 @@ type LaunchRequest struct {
 }
 
 type LaunchRequestArguments struct {
-	Restart interface{} `json:"__restart,omitempty"`
 	NoDebug bool        `json:"noDebug,omitempty"`
+	Restart interface{} `json:"__restart,omitempty"`
 }
 
 type LaunchResponse struct {
@@ -353,11 +353,11 @@ type BreakpointLocationsRequest struct {
 }
 
 type BreakpointLocationsArguments struct {
-	Column    int    `json:"column,omitempty"`
-	EndColumn int    `json:"endColumn,omitempty"`
-	EndLine   int    `json:"endLine,omitempty"`
-	Line      int    `json:"line"`
 	Source    Source `json:"source"`
+	Line      int    `json:"line"`
+	Column    int    `json:"column,omitempty"`
+	EndLine   int    `json:"endLine,omitempty"`
+	EndColumn int    `json:"endColumn,omitempty"`
 }
 
 type BreakpointLocationsResponse struct {
@@ -377,9 +377,9 @@ type SetBreakpointsRequest struct {
 }
 
 type SetBreakpointsArguments struct {
+	Source         Source             `json:"source"`
 	Breakpoints    []SourceBreakpoint `json:"breakpoints,omitempty"`
 	Lines          []int              `json:"lines,omitempty"`
-	Source         Source             `json:"source"`
 	SourceModified bool               `json:"sourceModified,omitempty"`
 }
 
@@ -420,8 +420,8 @@ type SetExceptionBreakpointsRequest struct {
 }
 
 type SetExceptionBreakpointsArguments struct {
-	ExceptionOptions []ExceptionOptions `json:"exceptionOptions,omitempty"`
 	Filters          []string           `json:"filters"`
+	ExceptionOptions []ExceptionOptions `json:"exceptionOptions,omitempty"`
 }
 
 type SetExceptionBreakpointsResponse struct {
@@ -435,8 +435,8 @@ type DataBreakpointInfoRequest struct {
 }
 
 type DataBreakpointInfoArguments struct {
-	Name               string `json:"name"`
 	VariablesReference int    `json:"variablesReference,omitempty"`
+	Name               string `json:"name"`
 }
 
 type DataBreakpointInfoResponse struct {
@@ -446,10 +446,10 @@ type DataBreakpointInfoResponse struct {
 }
 
 type DataBreakpointInfoResponseBody struct {
-	AccessTypes []DataBreakpointAccessType `json:"accessTypes,omitempty"`
-	CanPersist  bool                       `json:"canPersist,omitempty"`
 	DataId      interface{}                `json:"dataId"`
 	Description string                     `json:"description"`
+	AccessTypes []DataBreakpointAccessType `json:"accessTypes,omitempty"`
+	CanPersist  bool                       `json:"canPersist,omitempty"`
 }
 
 type SetDataBreakpointsRequest struct {
@@ -513,8 +513,8 @@ type StepInRequest struct {
 }
 
 type StepInArguments struct {
-	TargetId int `json:"targetId,omitempty"`
 	ThreadId int `json:"threadId"`
+	TargetId int `json:"targetId,omitempty"`
 }
 
 type StepInResponse struct {
@@ -584,8 +584,8 @@ type GotoRequest struct {
 }
 
 type GotoArguments struct {
-	TargetId int `json:"targetId"`
 	ThreadId int `json:"threadId"`
+	TargetId int `json:"targetId"`
 }
 
 type GotoResponse struct {
@@ -613,10 +613,10 @@ type StackTraceRequest struct {
 }
 
 type StackTraceArguments struct {
-	Format     StackFrameFormat `json:"format,omitempty"`
-	Levels     int              `json:"levels,omitempty"`
-	StartFrame int              `json:"startFrame,omitempty"`
 	ThreadId   int              `json:"threadId"`
+	StartFrame int              `json:"startFrame,omitempty"`
+	Levels     int              `json:"levels,omitempty"`
+	Format     StackFrameFormat `json:"format,omitempty"`
 }
 
 type StackTraceResponse struct {
@@ -657,11 +657,11 @@ type VariablesRequest struct {
 }
 
 type VariablesArguments struct {
-	Count              int         `json:"count,omitempty"`
-	Filter             string      `json:"filter,omitempty"`
-	Format             ValueFormat `json:"format,omitempty"`
-	Start              int         `json:"start,omitempty"`
 	VariablesReference int         `json:"variablesReference"`
+	Filter             string      `json:"filter,omitempty"`
+	Start              int         `json:"start,omitempty"`
+	Count              int         `json:"count,omitempty"`
+	Format             ValueFormat `json:"format,omitempty"`
 }
 
 type VariablesResponse struct {
@@ -681,10 +681,10 @@ type SetVariableRequest struct {
 }
 
 type SetVariableArguments struct {
-	Format             ValueFormat `json:"format,omitempty"`
+	VariablesReference int         `json:"variablesReference"`
 	Name               string      `json:"name"`
 	Value              string      `json:"value"`
-	VariablesReference int         `json:"variablesReference"`
+	Format             ValueFormat `json:"format,omitempty"`
 }
 
 type SetVariableResponse struct {
@@ -694,11 +694,11 @@ type SetVariableResponse struct {
 }
 
 type SetVariableResponseBody struct {
-	IndexedVariables   int    `json:"indexedVariables,omitempty"`
-	NamedVariables     int    `json:"namedVariables,omitempty"`
-	Type               string `json:"type,omitempty"`
 	Value              string `json:"value"`
+	Type               string `json:"type,omitempty"`
 	VariablesReference int    `json:"variablesReference,omitempty"`
+	NamedVariables     int    `json:"namedVariables,omitempty"`
+	IndexedVariables   int    `json:"indexedVariables,omitempty"`
 }
 
 type SourceRequest struct {
@@ -758,8 +758,8 @@ type ModulesRequest struct {
 }
 
 type ModulesArguments struct {
-	ModuleCount int `json:"moduleCount,omitempty"`
 	StartModule int `json:"startModule,omitempty"`
+	ModuleCount int `json:"moduleCount,omitempty"`
 }
 
 type ModulesResponse struct {
@@ -799,10 +799,10 @@ type EvaluateRequest struct {
 }
 
 type EvaluateArguments struct {
-	Context    string      `json:"context,omitempty"`
 	Expression string      `json:"expression"`
-	Format     ValueFormat `json:"format,omitempty"`
 	FrameId    int         `json:"frameId,omitempty"`
+	Context    string      `json:"context,omitempty"`
+	Format     ValueFormat `json:"format,omitempty"`
 }
 
 type EvaluateResponse struct {
@@ -812,13 +812,13 @@ type EvaluateResponse struct {
 }
 
 type EvaluateResponseBody struct {
-	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
-	MemoryReference    string                   `json:"memoryReference,omitempty"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
 	Result             string                   `json:"result"`
 	Type               string                   `json:"type,omitempty"`
+	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
 	VariablesReference int                      `json:"variablesReference"`
+	NamedVariables     int                      `json:"namedVariables,omitempty"`
+	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
+	MemoryReference    string                   `json:"memoryReference,omitempty"`
 }
 
 type SetExpressionRequest struct {
@@ -829,9 +829,9 @@ type SetExpressionRequest struct {
 
 type SetExpressionArguments struct {
 	Expression string      `json:"expression"`
-	Format     ValueFormat `json:"format,omitempty"`
-	FrameId    int         `json:"frameId,omitempty"`
 	Value      string      `json:"value"`
+	FrameId    int         `json:"frameId,omitempty"`
+	Format     ValueFormat `json:"format,omitempty"`
 }
 
 type SetExpressionResponse struct {
@@ -841,12 +841,12 @@ type SetExpressionResponse struct {
 }
 
 type SetExpressionResponseBody struct {
-	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
-	Type               string                   `json:"type,omitempty"`
 	Value              string                   `json:"value"`
+	Type               string                   `json:"type,omitempty"`
+	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
 	VariablesReference int                      `json:"variablesReference,omitempty"`
+	NamedVariables     int                      `json:"namedVariables,omitempty"`
+	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
 }
 
 type StepInTargetsRequest struct {
@@ -876,9 +876,9 @@ type GotoTargetsRequest struct {
 }
 
 type GotoTargetsArguments struct {
-	Column int    `json:"column,omitempty"`
-	Line   int    `json:"line"`
 	Source Source `json:"source"`
+	Line   int    `json:"line"`
+	Column int    `json:"column,omitempty"`
 }
 
 type GotoTargetsResponse struct {
@@ -898,10 +898,10 @@ type CompletionsRequest struct {
 }
 
 type CompletionsArguments struct {
-	Column  int    `json:"column"`
 	FrameId int    `json:"frameId,omitempty"`
-	Line    int    `json:"line,omitempty"`
 	Text    string `json:"text"`
+	Column  int    `json:"column"`
+	Line    int    `json:"line,omitempty"`
 }
 
 type CompletionsResponse struct {
@@ -931,10 +931,10 @@ type ExceptionInfoResponse struct {
 }
 
 type ExceptionInfoResponseBody struct {
-	BreakMode   ExceptionBreakMode `json:"breakMode"`
-	Description string             `json:"description,omitempty"`
-	Details     ExceptionDetails   `json:"details,omitempty"`
 	ExceptionId string             `json:"exceptionId"`
+	Description string             `json:"description,omitempty"`
+	BreakMode   ExceptionBreakMode `json:"breakMode"`
+	Details     ExceptionDetails   `json:"details,omitempty"`
 }
 
 type ReadMemoryRequest struct {
@@ -944,9 +944,9 @@ type ReadMemoryRequest struct {
 }
 
 type ReadMemoryArguments struct {
-	Count           int    `json:"count"`
 	MemoryReference string `json:"memoryReference"`
 	Offset          int    `json:"offset,omitempty"`
+	Count           int    `json:"count"`
 }
 
 type ReadMemoryResponse struct {
@@ -957,8 +957,8 @@ type ReadMemoryResponse struct {
 
 type ReadMemoryResponseBody struct {
 	Address         string `json:"address"`
-	Data            string `json:"data,omitempty"`
 	UnreadableBytes int    `json:"unreadableBytes,omitempty"`
+	Data            string `json:"data,omitempty"`
 }
 
 type DisassembleRequest struct {
@@ -968,10 +968,10 @@ type DisassembleRequest struct {
 }
 
 type DisassembleArguments struct {
-	InstructionCount  int    `json:"instructionCount"`
-	InstructionOffset int    `json:"instructionOffset,omitempty"`
 	MemoryReference   string `json:"memoryReference"`
 	Offset            int    `json:"offset,omitempty"`
+	InstructionOffset int    `json:"instructionOffset,omitempty"`
+	InstructionCount  int    `json:"instructionCount"`
 	ResolveSymbols    bool   `json:"resolveSymbols,omitempty"`
 }
 
@@ -986,73 +986,73 @@ type DisassembleResponseBody struct {
 }
 
 type Capabilities struct {
-	AdditionalModuleColumns            []ColumnDescriptor           `json:"additionalModuleColumns,omitempty"`
-	CompletionTriggerCharacters        []string                     `json:"completionTriggerCharacters,omitempty"`
-	ExceptionBreakpointFilters         []ExceptionBreakpointsFilter `json:"exceptionBreakpointFilters,omitempty"`
-	SupportTerminateDebuggee           bool                         `json:"supportTerminateDebuggee,omitempty"`
-	SupportedChecksumAlgorithms        []ChecksumAlgorithm          `json:"supportedChecksumAlgorithms,omitempty"`
-	SupportsBreakpointLocationsRequest bool                         `json:"supportsBreakpointLocationsRequest,omitempty"`
-	SupportsCancelRequest              bool                         `json:"supportsCancelRequest,omitempty"`
-	SupportsCompletionsRequest         bool                         `json:"supportsCompletionsRequest,omitempty"`
-	SupportsConditionalBreakpoints     bool                         `json:"supportsConditionalBreakpoints,omitempty"`
 	SupportsConfigurationDoneRequest   bool                         `json:"supportsConfigurationDoneRequest,omitempty"`
-	SupportsDataBreakpoints            bool                         `json:"supportsDataBreakpoints,omitempty"`
-	SupportsDelayedStackTraceLoading   bool                         `json:"supportsDelayedStackTraceLoading,omitempty"`
-	SupportsDisassembleRequest         bool                         `json:"supportsDisassembleRequest,omitempty"`
-	SupportsEvaluateForHovers          bool                         `json:"supportsEvaluateForHovers,omitempty"`
-	SupportsExceptionInfoRequest       bool                         `json:"supportsExceptionInfoRequest,omitempty"`
-	SupportsExceptionOptions           bool                         `json:"supportsExceptionOptions,omitempty"`
 	SupportsFunctionBreakpoints        bool                         `json:"supportsFunctionBreakpoints,omitempty"`
-	SupportsGotoTargetsRequest         bool                         `json:"supportsGotoTargetsRequest,omitempty"`
+	SupportsConditionalBreakpoints     bool                         `json:"supportsConditionalBreakpoints,omitempty"`
 	SupportsHitConditionalBreakpoints  bool                         `json:"supportsHitConditionalBreakpoints,omitempty"`
+	SupportsEvaluateForHovers          bool                         `json:"supportsEvaluateForHovers,omitempty"`
+	ExceptionBreakpointFilters         []ExceptionBreakpointsFilter `json:"exceptionBreakpointFilters,omitempty"`
+	SupportsStepBack                   bool                         `json:"supportsStepBack,omitempty"`
+	SupportsSetVariable                bool                         `json:"supportsSetVariable,omitempty"`
+	SupportsRestartFrame               bool                         `json:"supportsRestartFrame,omitempty"`
+	SupportsGotoTargetsRequest         bool                         `json:"supportsGotoTargetsRequest,omitempty"`
+	SupportsStepInTargetsRequest       bool                         `json:"supportsStepInTargetsRequest,omitempty"`
+	SupportsCompletionsRequest         bool                         `json:"supportsCompletionsRequest,omitempty"`
+	CompletionTriggerCharacters        []string                     `json:"completionTriggerCharacters,omitempty"`
+	SupportsModulesRequest             bool                         `json:"supportsModulesRequest,omitempty"`
+	AdditionalModuleColumns            []ColumnDescriptor           `json:"additionalModuleColumns,omitempty"`
+	SupportedChecksumAlgorithms        []ChecksumAlgorithm          `json:"supportedChecksumAlgorithms,omitempty"`
+	SupportsRestartRequest             bool                         `json:"supportsRestartRequest,omitempty"`
+	SupportsExceptionOptions           bool                         `json:"supportsExceptionOptions,omitempty"`
+	SupportsValueFormattingOptions     bool                         `json:"supportsValueFormattingOptions,omitempty"`
+	SupportsExceptionInfoRequest       bool                         `json:"supportsExceptionInfoRequest,omitempty"`
+	SupportTerminateDebuggee           bool                         `json:"supportTerminateDebuggee,omitempty"`
+	SupportsDelayedStackTraceLoading   bool                         `json:"supportsDelayedStackTraceLoading,omitempty"`
 	SupportsLoadedSourcesRequest       bool                         `json:"supportsLoadedSourcesRequest,omitempty"`
 	SupportsLogPoints                  bool                         `json:"supportsLogPoints,omitempty"`
-	SupportsModulesRequest             bool                         `json:"supportsModulesRequest,omitempty"`
-	SupportsReadMemoryRequest          bool                         `json:"supportsReadMemoryRequest,omitempty"`
-	SupportsRestartFrame               bool                         `json:"supportsRestartFrame,omitempty"`
-	SupportsRestartRequest             bool                         `json:"supportsRestartRequest,omitempty"`
-	SupportsSetExpression              bool                         `json:"supportsSetExpression,omitempty"`
-	SupportsSetVariable                bool                         `json:"supportsSetVariable,omitempty"`
-	SupportsStepBack                   bool                         `json:"supportsStepBack,omitempty"`
-	SupportsStepInTargetsRequest       bool                         `json:"supportsStepInTargetsRequest,omitempty"`
-	SupportsTerminateRequest           bool                         `json:"supportsTerminateRequest,omitempty"`
 	SupportsTerminateThreadsRequest    bool                         `json:"supportsTerminateThreadsRequest,omitempty"`
-	SupportsValueFormattingOptions     bool                         `json:"supportsValueFormattingOptions,omitempty"`
+	SupportsSetExpression              bool                         `json:"supportsSetExpression,omitempty"`
+	SupportsTerminateRequest           bool                         `json:"supportsTerminateRequest,omitempty"`
+	SupportsDataBreakpoints            bool                         `json:"supportsDataBreakpoints,omitempty"`
+	SupportsReadMemoryRequest          bool                         `json:"supportsReadMemoryRequest,omitempty"`
+	SupportsDisassembleRequest         bool                         `json:"supportsDisassembleRequest,omitempty"`
+	SupportsCancelRequest              bool                         `json:"supportsCancelRequest,omitempty"`
+	SupportsBreakpointLocationsRequest bool                         `json:"supportsBreakpointLocationsRequest,omitempty"`
 }
 
 type ExceptionBreakpointsFilter struct {
-	Default bool   `json:"default,omitempty"`
 	Filter  string `json:"filter"`
 	Label   string `json:"label"`
+	Default bool   `json:"default,omitempty"`
 }
 
 type ErrorMessage struct {
-	Format        string            `json:"format"`
 	Id            int               `json:"id"`
+	Format        string            `json:"format"`
+	Variables     map[string]string `json:"variables,omitempty"`
 	SendTelemetry bool              `json:"sendTelemetry,omitempty"`
 	ShowUser      bool              `json:"showUser,omitempty"`
 	Url           string            `json:"url,omitempty"`
 	UrlLabel      string            `json:"urlLabel,omitempty"`
-	Variables     map[string]string `json:"variables,omitempty"`
 }
 
 type Module struct {
-	AddressRange   string      `json:"addressRange,omitempty"`
-	DateTimeStamp  string      `json:"dateTimeStamp,omitempty"`
 	Id             interface{} `json:"id"`
-	IsOptimized    bool        `json:"isOptimized,omitempty"`
-	IsUserCode     bool        `json:"isUserCode,omitempty"`
 	Name           string      `json:"name"`
 	Path           string      `json:"path,omitempty"`
-	SymbolFilePath string      `json:"symbolFilePath,omitempty"`
-	SymbolStatus   string      `json:"symbolStatus,omitempty"`
+	IsOptimized    bool        `json:"isOptimized,omitempty"`
+	IsUserCode     bool        `json:"isUserCode,omitempty"`
 	Version        string      `json:"version,omitempty"`
+	SymbolStatus   string      `json:"symbolStatus,omitempty"`
+	SymbolFilePath string      `json:"symbolFilePath,omitempty"`
+	DateTimeStamp  string      `json:"dateTimeStamp,omitempty"`
+	AddressRange   string      `json:"addressRange,omitempty"`
 }
 
 type ColumnDescriptor struct {
 	AttributeName string `json:"attributeName"`
-	Format        string `json:"format,omitempty"`
 	Label         string `json:"label"`
+	Format        string `json:"format,omitempty"`
 	Type          string `json:"type,omitempty"`
 	Width         int    `json:"width,omitempty"`
 }
@@ -1067,100 +1067,100 @@ type Thread struct {
 }
 
 type Source struct {
+	Name             string      `json:"name,omitempty"`
+	Path             string      `json:"path,omitempty"`
+	SourceReference  int         `json:"sourceReference,omitempty"`
+	PresentationHint string      `json:"presentationHint,omitempty"`
+	Origin           string      `json:"origin,omitempty"`
+	Sources          []Source    `json:"sources,omitempty"`
 	AdapterData      interface{} `json:"adapterData,omitempty"`
 	Checksums        []Checksum  `json:"checksums,omitempty"`
-	Name             string      `json:"name,omitempty"`
-	Origin           string      `json:"origin,omitempty"`
-	Path             string      `json:"path,omitempty"`
-	PresentationHint string      `json:"presentationHint,omitempty"`
-	SourceReference  int         `json:"sourceReference,omitempty"`
-	Sources          []Source    `json:"sources,omitempty"`
 }
 
 type StackFrame struct {
-	Column                      int         `json:"column"`
-	EndColumn                   int         `json:"endColumn,omitempty"`
-	EndLine                     int         `json:"endLine,omitempty"`
 	Id                          int         `json:"id"`
-	InstructionPointerReference string      `json:"instructionPointerReference,omitempty"`
-	Line                        int         `json:"line"`
-	ModuleId                    interface{} `json:"moduleId,omitempty"`
 	Name                        string      `json:"name"`
-	PresentationHint            string      `json:"presentationHint,omitempty"`
 	Source                      Source      `json:"source,omitempty"`
+	Line                        int         `json:"line"`
+	Column                      int         `json:"column"`
+	EndLine                     int         `json:"endLine,omitempty"`
+	EndColumn                   int         `json:"endColumn,omitempty"`
+	InstructionPointerReference string      `json:"instructionPointerReference,omitempty"`
+	ModuleId                    interface{} `json:"moduleId,omitempty"`
+	PresentationHint            string      `json:"presentationHint,omitempty"`
 }
 
 type Scope struct {
-	Column             int    `json:"column,omitempty"`
-	EndColumn          int    `json:"endColumn,omitempty"`
-	EndLine            int    `json:"endLine,omitempty"`
-	Expensive          bool   `json:"expensive"`
-	IndexedVariables   int    `json:"indexedVariables,omitempty"`
-	Line               int    `json:"line,omitempty"`
 	Name               string `json:"name"`
-	NamedVariables     int    `json:"namedVariables,omitempty"`
 	PresentationHint   string `json:"presentationHint,omitempty"`
-	Source             Source `json:"source,omitempty"`
 	VariablesReference int    `json:"variablesReference"`
+	NamedVariables     int    `json:"namedVariables,omitempty"`
+	IndexedVariables   int    `json:"indexedVariables,omitempty"`
+	Expensive          bool   `json:"expensive"`
+	Source             Source `json:"source,omitempty"`
+	Line               int    `json:"line,omitempty"`
+	Column             int    `json:"column,omitempty"`
+	EndLine            int    `json:"endLine,omitempty"`
+	EndColumn          int    `json:"endColumn,omitempty"`
 }
 
 type Variable struct {
+	Name               string                   `json:"name"`
+	Value              string                   `json:"value"`
+	Type               string                   `json:"type,omitempty"`
+	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
 	EvaluateName       string                   `json:"evaluateName,omitempty"`
+	VariablesReference int                      `json:"variablesReference"`
+	NamedVariables     int                      `json:"namedVariables,omitempty"`
 	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
 	MemoryReference    string                   `json:"memoryReference,omitempty"`
-	Name               string                   `json:"name"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
-	Type               string                   `json:"type,omitempty"`
-	Value              string                   `json:"value"`
-	VariablesReference int                      `json:"variablesReference"`
 }
 
 type VariablePresentationHint struct {
-	Attributes []string `json:"attributes,omitempty"`
 	Kind       string   `json:"kind,omitempty"`
+	Attributes []string `json:"attributes,omitempty"`
 	Visibility string   `json:"visibility,omitempty"`
 }
 
 type BreakpointLocation struct {
-	Column    int `json:"column,omitempty"`
-	EndColumn int `json:"endColumn,omitempty"`
-	EndLine   int `json:"endLine,omitempty"`
 	Line      int `json:"line"`
+	Column    int `json:"column,omitempty"`
+	EndLine   int `json:"endLine,omitempty"`
+	EndColumn int `json:"endColumn,omitempty"`
 }
 
 type SourceBreakpoint struct {
+	Line         int    `json:"line"`
 	Column       int    `json:"column,omitempty"`
 	Condition    string `json:"condition,omitempty"`
 	HitCondition string `json:"hitCondition,omitempty"`
-	Line         int    `json:"line"`
 	LogMessage   string `json:"logMessage,omitempty"`
 }
 
 type FunctionBreakpoint struct {
+	Name         string `json:"name"`
 	Condition    string `json:"condition,omitempty"`
 	HitCondition string `json:"hitCondition,omitempty"`
-	Name         string `json:"name"`
 }
 
 type DataBreakpointAccessType string
 
 type DataBreakpoint struct {
+	DataId       string                   `json:"dataId"`
 	AccessType   DataBreakpointAccessType `json:"accessType,omitempty"`
 	Condition    string                   `json:"condition,omitempty"`
-	DataId       string                   `json:"dataId"`
 	HitCondition string                   `json:"hitCondition,omitempty"`
 }
 
 type Breakpoint struct {
-	Column    int    `json:"column,omitempty"`
-	EndColumn int    `json:"endColumn,omitempty"`
-	EndLine   int    `json:"endLine,omitempty"`
 	Id        int    `json:"id,omitempty"`
-	Line      int    `json:"line,omitempty"`
+	Verified  bool   `json:"verified"`
 	Message   string `json:"message,omitempty"`
 	Source    Source `json:"source,omitempty"`
-	Verified  bool   `json:"verified"`
+	Line      int    `json:"line,omitempty"`
+	Column    int    `json:"column,omitempty"`
+	EndLine   int    `json:"endLine,omitempty"`
+	EndColumn int    `json:"endColumn,omitempty"`
 }
 
 type StepInTarget struct {
@@ -1169,22 +1169,22 @@ type StepInTarget struct {
 }
 
 type GotoTarget struct {
-	Column                      int    `json:"column,omitempty"`
-	EndColumn                   int    `json:"endColumn,omitempty"`
-	EndLine                     int    `json:"endLine,omitempty"`
 	Id                          int    `json:"id"`
-	InstructionPointerReference string `json:"instructionPointerReference,omitempty"`
 	Label                       string `json:"label"`
 	Line                        int    `json:"line"`
+	Column                      int    `json:"column,omitempty"`
+	EndLine                     int    `json:"endLine,omitempty"`
+	EndColumn                   int    `json:"endColumn,omitempty"`
+	InstructionPointerReference string `json:"instructionPointerReference,omitempty"`
 }
 
 type CompletionItem struct {
 	Label    string             `json:"label"`
-	Length   int                `json:"length,omitempty"`
-	SortText string             `json:"sortText,omitempty"`
-	Start    int                `json:"start,omitempty"`
 	Text     string             `json:"text,omitempty"`
+	SortText string             `json:"sortText,omitempty"`
 	Type     CompletionItemType `json:"type,omitempty"`
+	Start    int                `json:"start,omitempty"`
+	Length   int                `json:"length,omitempty"`
 }
 
 type CompletionItemType string
@@ -1203,46 +1203,46 @@ type ValueFormat struct {
 type StackFrameFormat struct {
 	ValueFormat
 
-	IncludeAll      bool `json:"includeAll,omitempty"`
+	Parameters      bool `json:"parameters,omitempty"`
+	ParameterTypes  bool `json:"parameterTypes,omitempty"`
+	ParameterNames  bool `json:"parameterNames,omitempty"`
+	ParameterValues bool `json:"parameterValues,omitempty"`
 	Line            bool `json:"line,omitempty"`
 	Module          bool `json:"module,omitempty"`
-	ParameterNames  bool `json:"parameterNames,omitempty"`
-	ParameterTypes  bool `json:"parameterTypes,omitempty"`
-	ParameterValues bool `json:"parameterValues,omitempty"`
-	Parameters      bool `json:"parameters,omitempty"`
+	IncludeAll      bool `json:"includeAll,omitempty"`
 }
 
 type ExceptionOptions struct {
-	BreakMode ExceptionBreakMode     `json:"breakMode"`
 	Path      []ExceptionPathSegment `json:"path,omitempty"`
+	BreakMode ExceptionBreakMode     `json:"breakMode"`
 }
 
 type ExceptionBreakMode string
 
 type ExceptionPathSegment struct {
-	Names  []string `json:"names"`
 	Negate bool     `json:"negate,omitempty"`
+	Names  []string `json:"names"`
 }
 
 type ExceptionDetails struct {
-	EvaluateName   string             `json:"evaluateName,omitempty"`
-	FullTypeName   string             `json:"fullTypeName,omitempty"`
-	InnerException []ExceptionDetails `json:"innerException,omitempty"`
 	Message        string             `json:"message,omitempty"`
-	StackTrace     string             `json:"stackTrace,omitempty"`
 	TypeName       string             `json:"typeName,omitempty"`
+	FullTypeName   string             `json:"fullTypeName,omitempty"`
+	EvaluateName   string             `json:"evaluateName,omitempty"`
+	StackTrace     string             `json:"stackTrace,omitempty"`
+	InnerException []ExceptionDetails `json:"innerException,omitempty"`
 }
 
 type DisassembledInstruction struct {
 	Address          string `json:"address"`
-	Column           int    `json:"column,omitempty"`
-	EndColumn        int    `json:"endColumn,omitempty"`
-	EndLine          int    `json:"endLine,omitempty"`
-	Instruction      string `json:"instruction"`
 	InstructionBytes string `json:"instructionBytes,omitempty"`
-	Line             int    `json:"line,omitempty"`
-	Location         Source `json:"location,omitempty"`
+	Instruction      string `json:"instruction"`
 	Symbol           string `json:"symbol,omitempty"`
+	Location         Source `json:"location,omitempty"`
+	Line             int    `json:"line,omitempty"`
+	Column           int    `json:"column,omitempty"`
+	EndLine          int    `json:"endLine,omitempty"`
+	EndColumn        int    `json:"endColumn,omitempty"`
 }
 
 func (ProtocolMessage) isMessage()                 {}
