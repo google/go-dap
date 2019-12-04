@@ -36,12 +36,12 @@ type BaseProtocolError struct {
 func (bpe *BaseProtocolError) Error() string { return bpe.Err }
 
 var (
-	// ErrHeaderDelimiterNotCrLfCrLf is returned when only partial header delimiter
-	// \r\n\r\n is encountered.
+	// ErrHeaderDelimiterNotCrLfCrLf is returned when only partial header
+	// delimiter \r\n\r\n is encountered.
 	ErrHeaderDelimiterNotCrLfCrLf = &BaseProtocolError{fmt.Sprintf("Header delimiter is not %q", crLfcrLf)}
 
-	// ErrHeaderNotContentLength is returned when the parsed header is not of valid
-	// Content-Length format.
+	// ErrHeaderNotContentLength is returned when the parsed header is
+	// not of valid Content-Length format.
 	ErrHeaderNotContentLength = &BaseProtocolError{"Header format is not " + contentLengthHeaderRegex}
 )
 
@@ -51,8 +51,8 @@ var (
 	contentLengthHeaderRegex = "^Content-Length: [0-9]+$"
 )
 
-// WriteBaseMessage prepends content with a Content-Length header that denotes its byte length
-// and writes the resulting message to w.
+// WriteBaseMessage prepends content with a Content-Length header that denotes
+// its byte length and writes the resulting message to w.
 func WriteBaseMessage(w io.Writer, content []byte) error {
 	header := fmt.Sprintf(contentLengthHeaderFmt, len(content))
 	if _, err := w.Write([]byte(header)); err != nil {
@@ -62,9 +62,9 @@ func WriteBaseMessage(w io.Writer, content []byte) error {
 	return err
 }
 
-// ReadBaseMessage reads one message from r consisting of a Content-Length header
-// and a content part. It parses the header to determine the size of the content
-// part and extracts and returns the actual content of the message.
+// ReadBaseMessage reads one message from r consisting of a Content-Length
+// header and a content part. It parses the header to determine the size of
+// the content part and extracts and returns the actual content of the message.
 // Returns nil bytes on error, which can be one of the standard IO errors or
 // a BaseProtocolError defined in this package.
 func ReadBaseMessage(r *bufio.Reader) ([]byte, error) {

@@ -157,7 +157,8 @@ func TestWriteRead(t *testing.T) {
 	}
 }
 
-// Reads messages one by one until EOF. Die on error as we expect only well-formed messages.
+// readMessagesIntoChannel reads messages one by one until EOF.
+// Die on error as we expect only well-formed messages.
 func readMessagesIntoChannel(t *testing.T, r io.Reader, messages chan<- []byte) {
 	reader := bufio.NewReader(r)
 	for {
@@ -167,8 +168,9 @@ func readMessagesIntoChannel(t *testing.T, r io.Reader, messages chan<- []byte) 
 		}
 		if err != nil {
 			close(messages)
-			// This goroutine might still be running after the test completes, so
-			// we cannot use t.Fatal here without additional synchronization
+			// This goroutine might still be running after the test
+			// completes, so we cannot use t.Fatal here without
+			// additional synchronization
 			panic(err)
 		}
 		messages <- msg
@@ -198,14 +200,14 @@ func TestReadMessageInParts(t *testing.T) {
 	// This will keep blocking to read a full message or EOF.
 	go readMessagesIntoChannel(t, r, messages)
 
-	// Write a single message in full and verify via channel that it was read.
+	// Write a message in full and verify via channel that it was read.
 	writeOrFail(t, w, header+delim+content1)
 	got := <-messages
 	if !reflect.DeepEqual(got, []byte(content1)) {
 		t.Fatalf("got %q, want %q", got, content1)
 	}
 
-	// Write a single message in parts and verify via channel that it was read.
+	// Write a message in parts and verify via channel that it was read.
 	writeOrFail(t, w, header)
 	writeOrFail(t, w, delim)
 	writeOrFail(t, w, content2)
