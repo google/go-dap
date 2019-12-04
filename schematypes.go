@@ -18,6 +18,15 @@
 
 package dap
 
+// Message is an interface that all DAP message types implement. It's not part
+// of the protocol but is used to enforce static typing in Go code.
+//
+// Note: the DAP type "Message" (which is used in the body of ErrorResponse)
+// is renamed to ErrorMessage to avoid collision with this interface.
+type Message interface {
+	isMessage()
+}
+
 type ProtocolMessage struct {
 	Seq  int    `json:"seq"`
 	Type string `json:"type"`
@@ -51,7 +60,7 @@ type ErrorResponse struct {
 }
 
 type ErrorResponseBody struct {
-	Error Message `json:"error,omitempty"`
+	Error ErrorMessage `json:"error,omitempty"`
 }
 
 type CancelRequest struct {
@@ -1017,7 +1026,7 @@ type ExceptionBreakpointsFilter struct {
 	Default bool   `json:"default,omitempty"`
 }
 
-type Message struct {
+type ErrorMessage struct {
 	Id            int               `json:"id"`
 	Format        string            `json:"format"`
 	Variables     map[string]string `json:"variables,omitempty"`
@@ -1235,3 +1244,103 @@ type DisassembledInstruction struct {
 	EndLine          int    `json:"endLine,omitempty"`
 	EndColumn        int    `json:"endColumn,omitempty"`
 }
+
+func (ProtocolMessage) isMessage()                 {}
+func (Request) isMessage()                         {}
+func (Event) isMessage()                           {}
+func (Response) isMessage()                        {}
+func (ErrorResponse) isMessage()                   {}
+func (CancelRequest) isMessage()                   {}
+func (CancelResponse) isMessage()                  {}
+func (InitializedEvent) isMessage()                {}
+func (StoppedEvent) isMessage()                    {}
+func (ContinuedEvent) isMessage()                  {}
+func (ExitedEvent) isMessage()                     {}
+func (TerminatedEvent) isMessage()                 {}
+func (ThreadEvent) isMessage()                     {}
+func (OutputEvent) isMessage()                     {}
+func (BreakpointEvent) isMessage()                 {}
+func (ModuleEvent) isMessage()                     {}
+func (LoadedSourceEvent) isMessage()               {}
+func (ProcessEvent) isMessage()                    {}
+func (CapabilitiesEvent) isMessage()               {}
+func (RunInTerminalRequest) isMessage()            {}
+func (RunInTerminalResponse) isMessage()           {}
+func (InitializeRequest) isMessage()               {}
+func (InitializeResponse) isMessage()              {}
+func (ConfigurationDoneRequest) isMessage()        {}
+func (ConfigurationDoneResponse) isMessage()       {}
+func (LaunchRequest) isMessage()                   {}
+func (LaunchResponse) isMessage()                  {}
+func (AttachRequest) isMessage()                   {}
+func (AttachResponse) isMessage()                  {}
+func (RestartRequest) isMessage()                  {}
+func (RestartResponse) isMessage()                 {}
+func (DisconnectRequest) isMessage()               {}
+func (DisconnectResponse) isMessage()              {}
+func (TerminateRequest) isMessage()                {}
+func (TerminateResponse) isMessage()               {}
+func (BreakpointLocationsRequest) isMessage()      {}
+func (BreakpointLocationsResponse) isMessage()     {}
+func (SetBreakpointsRequest) isMessage()           {}
+func (SetBreakpointsResponse) isMessage()          {}
+func (SetFunctionBreakpointsRequest) isMessage()   {}
+func (SetFunctionBreakpointsResponse) isMessage()  {}
+func (SetExceptionBreakpointsRequest) isMessage()  {}
+func (SetExceptionBreakpointsResponse) isMessage() {}
+func (DataBreakpointInfoRequest) isMessage()       {}
+func (DataBreakpointInfoResponse) isMessage()      {}
+func (SetDataBreakpointsRequest) isMessage()       {}
+func (SetDataBreakpointsResponse) isMessage()      {}
+func (ContinueRequest) isMessage()                 {}
+func (ContinueResponse) isMessage()                {}
+func (NextRequest) isMessage()                     {}
+func (NextResponse) isMessage()                    {}
+func (StepInRequest) isMessage()                   {}
+func (StepInResponse) isMessage()                  {}
+func (StepOutRequest) isMessage()                  {}
+func (StepOutResponse) isMessage()                 {}
+func (StepBackRequest) isMessage()                 {}
+func (StepBackResponse) isMessage()                {}
+func (ReverseContinueRequest) isMessage()          {}
+func (ReverseContinueResponse) isMessage()         {}
+func (RestartFrameRequest) isMessage()             {}
+func (RestartFrameResponse) isMessage()            {}
+func (GotoRequest) isMessage()                     {}
+func (GotoResponse) isMessage()                    {}
+func (PauseRequest) isMessage()                    {}
+func (PauseResponse) isMessage()                   {}
+func (StackTraceRequest) isMessage()               {}
+func (StackTraceResponse) isMessage()              {}
+func (ScopesRequest) isMessage()                   {}
+func (ScopesResponse) isMessage()                  {}
+func (VariablesRequest) isMessage()                {}
+func (VariablesResponse) isMessage()               {}
+func (SetVariableRequest) isMessage()              {}
+func (SetVariableResponse) isMessage()             {}
+func (SourceRequest) isMessage()                   {}
+func (SourceResponse) isMessage()                  {}
+func (ThreadsRequest) isMessage()                  {}
+func (ThreadsResponse) isMessage()                 {}
+func (TerminateThreadsRequest) isMessage()         {}
+func (TerminateThreadsResponse) isMessage()        {}
+func (ModulesRequest) isMessage()                  {}
+func (ModulesResponse) isMessage()                 {}
+func (LoadedSourcesRequest) isMessage()            {}
+func (LoadedSourcesResponse) isMessage()           {}
+func (EvaluateRequest) isMessage()                 {}
+func (EvaluateResponse) isMessage()                {}
+func (SetExpressionRequest) isMessage()            {}
+func (SetExpressionResponse) isMessage()           {}
+func (StepInTargetsRequest) isMessage()            {}
+func (StepInTargetsResponse) isMessage()           {}
+func (GotoTargetsRequest) isMessage()              {}
+func (GotoTargetsResponse) isMessage()             {}
+func (CompletionsRequest) isMessage()              {}
+func (CompletionsResponse) isMessage()             {}
+func (ExceptionInfoRequest) isMessage()            {}
+func (ExceptionInfoResponse) isMessage()           {}
+func (ReadMemoryRequest) isMessage()               {}
+func (ReadMemoryResponse) isMessage()              {}
+func (DisassembleRequest) isMessage()              {}
+func (DisassembleResponse) isMessage()             {}

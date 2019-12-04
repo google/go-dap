@@ -39,7 +39,7 @@ func parseRef(refValue interface{}) string {
 		log.Fatal("want ref to start with '#/definitions/', got ", refValue)
 	}
 
-	return refContents[14:]
+	return replaceGoTypename(refContents[14:])
 }
 
 // goFieldName converts a property name from its JSON representation to an
@@ -271,6 +271,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 			} else {
 				jsonTag += ",omitempty\"`"
 			}
+
 			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
 		}
 	}
@@ -310,6 +311,17 @@ func keysInOrder(b []byte) ([]string, error) {
 			return nil, err
 		}
 	}
+}
+
+// replaceGoTypename replaces conflicting type names in the JSON schema with
+// proper Go type names.
+func replaceGoTypename(typeName string) string {
+	// Since we have a top-level interface named Message, we replace the DAP
+	// message type Message with ErrorMessage.
+	if typeName == "Message" {
+		return "ErrorMessage"
+	}
+	return typeName
 }
 
 var errEnd = errors.New("invalid end of array or object")
@@ -355,6 +367,15 @@ const preamble = `// Copyright 2019 Google LLC
 
 package dap
 
+// Message is an interface that all DAP message types implement. It's not part
+// of the protocol but is used to enforce static typing in Go code.
+//
+// Note: the DAP type "Message" (which is used in the body of ErrorResponse)
+// is renamed to ErrorMessage to avoid collision with this interface.
+type Message interface {
+	isMessage()
+}
+
 `
 
 func main() {
@@ -384,8 +405,17 @@ func main() {
 	}
 
 	for _, typeName := range typeNames {
-		b.WriteString(emitToplevelType(typeName, typeMap[typeName]))
+		b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
 		b.WriteString("\n")
+	}
+
+	// For top-level types, emit an empty implementation of isMessage(), to make
+	// them implement the Message interface.
+	for _, typeName := range typeNames {
+		typeName = replaceGoTypename(typeName)
+		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") || typeName == "ProtocolMessage" {
+			fmt.Fprintf(&b, "func (%s) isMessage() {}\n", typeName)
+		}
 	}
 
 	wholeFile := []byte(b.String())
