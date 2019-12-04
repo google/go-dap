@@ -30,10 +30,10 @@ import (
 // BaseProtocolError represents base protocol error, which occurs when the raw
 // message does not conform to the header+content format of the base protocol.
 type BaseProtocolError struct {
-	ErrorString string
+	Err string
 }
 
-func (bpe *BaseProtocolError) Error() string { return bpe.ErrorString }
+func (bpe *BaseProtocolError) Error() string { return bpe.Err }
 
 var (
 	// ErrHeaderDelimiterNotCrLfCrLf is returned when only partial header delimiter
@@ -64,7 +64,7 @@ func WriteBaseMessage(w io.Writer, content []byte) error {
 
 // ReadBaseMessage reads one message from r consisting of a Content-Length header
 // and a content part. It parses the header to determine the size of the content
-// part and extracts and returns the actual JSON-encoded content of the message.
+// part and extracts and returns the actual content of the message.
 // Returns nil bytes on error, which can be one of the standard IO errors or
 // a BaseProtocolError defined in this package.
 func ReadBaseMessage(r *bufio.Reader) ([]byte, error) {
@@ -79,26 +79,22 @@ func ReadBaseMessage(r *bufio.Reader) ([]byte, error) {
 	return content, nil
 }
 
-// There is currently only a single header field that is supported and required:
+// readContentLengthHeader looks for the only header field that is supported
+// and required:
 // 		Content-Length: [0-9]+\r\n\r\n
+// Extracts and returns the content length.
 func readContentLengthHeader(r *bufio.Reader) (contentLength int, err error) {
-	// Look for <some header>\r
+	// Look for <some header>\r\n\r\n
 	headerWithCr, err := r.ReadString('\r')
 	if err != nil {
 		return 0, err
 	}
-	// Do not yet consume, but only peek ahead to find the next \n\r\n
-	nextThree, err := r.Peek(3)
-	if err != nil {
+	nextThree := make([]byte, 3)
+	if _, err = io.ReadFull(r, nextThree); err != nil {
 		return 0, err
 	}
 	if isLfCrCf, _ := regexp.MatchString("\n\r\n", string(nextThree)); !isLfCrCf {
 		return 0, ErrHeaderDelimiterNotCrLfCrLf
-	}
-	// It is safe to consume the rest of the verified delimiter
-	_, err = r.Discard(3)
-	if err != nil {
-		return 0, err
 	}
 
 	// If header is in the right format, get the length

@@ -24,8 +24,6 @@ import (
 	"testing"
 )
 
-// TODO(polina): add a test that writes messages in parts, but reads in full
-
 func Test_WriteBaseMessage(t *testing.T) {
 	tests := []struct {
 		input       string
@@ -60,7 +58,7 @@ func Test_ReadBaseMessage(t *testing.T) {
 		wantErr       error
 	}{
 		{"", nil, []byte(""), io.EOF},
-		{"random stuff\r\nabc", nil, []byte("\nabc"), ErrHeaderDelimiterNotCrLfCrLf},
+		{"random stuff\r\nabc", nil, []byte("c"), ErrHeaderDelimiterNotCrLfCrLf},
 		{"Cache-Control: no-cache\r\n\r\n", nil, []byte(""), ErrHeaderNotContentLength},
 		{"Content-Length 1\r\n\r\nabc", nil, []byte("abc"), ErrHeaderNotContentLength},
 		{"Content-Length: 10\r\n\r\nabc", nil, []byte(""), io.ErrUnexpectedEOF},
@@ -94,19 +92,19 @@ func Test_readContentLengthHeader(t *testing.T) {
 		{"", "", 0, io.EOF},
 		{"Cache-Control: no-cache", "", 0, io.EOF},
 		{"Cache-Control: no-cache\r", "", 0, io.EOF},
-		{"Cache-Control: no-cache\rabc", "abc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Cache-Control: no-cache\r\n", "\n", 0, io.EOF},
-		{"Cache-Control: no-cache\r\n\r", "\n\r", 0, io.EOF},
+		{"Cache-Control: no-cache\rabc", "", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Cache-Control: no-cache\r\n", "", 0, io.ErrUnexpectedEOF},
+		{"Cache-Control: no-cache\r\n\r", "", 0, io.ErrUnexpectedEOF},
 		{"Cache-Control: no-cache\r\n\r\n", "", 0, ErrHeaderNotContentLength},
 		{"Cache-Control: no-cache\r\n\r\nabc", "abc", 0, ErrHeaderNotContentLength},
 		{"Content-Length: 3 abc", "", 0, io.EOF},
 		{"Content-Length: 3\nabc", "", 0, io.EOF},
-		{"Content-Length: 3\rabc", "abc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Content-Length: 3\r\nabc", "\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Content-Length: 3\r\n\rabc", "\n\rabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Content-Length: 3\r \n\r\nabc", " \n\r\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Content-Length: 3\r\n \r\nabc", "\n \r\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
-		{"Content-Length: 3\r\n\r \nabc", "\n\r \nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\rabc", "", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\r\nabc", "c", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\r\n\rabc", "bc", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\r \n\r\nabc", "\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\r\n \r\nabc", "\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
+		{"Content-Length: 3\r\n\r \nabc", "\nabc", 0, ErrHeaderDelimiterNotCrLfCrLf},
 		{"Content-Length 3\r\n\r\nabc", "abc", 0, ErrHeaderNotContentLength},
 		{"_Content-Length: 3\r\n\r\nabc", "abc", 0, ErrHeaderNotContentLength},
 		{"Content-Length: 3_\r\n\r\nabc", "abc", 0, ErrHeaderNotContentLength},
@@ -157,4 +155,64 @@ func TestWriteRead(t *testing.T) {
 			t.Fatalf("got %q, want %q", rc, wc)
 		}
 	}
+}
+
+// Reads messages one by one until EOF. Die on error as we expect only well-formed messages.
+func readMessagesIntoChannel(t *testing.T, r io.Reader, messages chan<- []byte) {
+	reader := bufio.NewReader(r)
+	for {
+		msg, err := ReadBaseMessage(reader)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			close(messages)
+			// This goroutine might still be running after the test completes, so
+			// we cannot use t.Fatal here without additional synchronization
+			panic(err)
+		}
+		messages <- msg
+	}
+}
+
+func writeOrFail(t *testing.T, w io.Writer, data string) {
+	if n, err := w.Write([]byte(data)); err != nil || n < len(data) {
+		t.Fatal(err)
+	}
+}
+
+func TestReadMessageInParts(t *testing.T) {
+	// This test will use separate goroutines to write and read messages
+	// and rely on blocking channel operations between them to ensure that
+	// the expected number of messages is read for what is written.
+	// Otherwise, the test will time out.
+	// TODO(polina): use timeouts to catch such a failure mode
+	// and fail gracefully?
+	messages := make(chan []byte)
+	r, w := io.Pipe()
+	header := "Content-Length: 11"
+	delim := "\r\n\r\n"
+	content1 := "message one"
+	content2 := "message two"
+
+	// This will keep blocking to read a full message or EOF.
+	go readMessagesIntoChannel(t, r, messages)
+
+	// Write a single message in full and verify via channel that it was read.
+	writeOrFail(t, w, header+delim+content1)
+	got := <-messages
+	if !reflect.DeepEqual(got, []byte(content1)) {
+		t.Fatalf("got %q, want %q", got, content1)
+	}
+
+	// Write a single message in parts and verify via channel that it was read.
+	writeOrFail(t, w, header)
+	writeOrFail(t, w, delim)
+	writeOrFail(t, w, content2)
+	got = <-messages
+	if !reflect.DeepEqual(got, []byte(content2)) {
+		t.Fatalf("got %q, want %q", got, content2)
+	}
+
+	w.Close() // sends EOF
 }
