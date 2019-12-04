@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -71,11 +70,11 @@ func Test_ReadBaseMessage(t *testing.T) {
 			if gotErr != test.wantErr {
 				t.Errorf("got err=%#v, want %#v", gotErr, test.wantErr)
 			}
-			if gotErr == nil && !reflect.DeepEqual(gotBytes, test.wantBytesRead) {
+			if gotErr == nil && !bytes.Equal(gotBytes, test.wantBytesRead) {
 				t.Errorf("got bytes=%q, want %q", gotBytes, test.wantBytesRead)
 			}
 			bytesLeft, _ := ioutil.ReadAll(reader)
-			if !reflect.DeepEqual(bytesLeft, test.wantBytesLeft) {
+			if !bytes.Equal(bytesLeft, test.wantBytesLeft) {
 				t.Errorf("got bytesLeft=%q, want %q", bytesLeft, test.wantBytesLeft)
 			}
 		})
@@ -151,7 +150,7 @@ func TestWriteRead(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !reflect.DeepEqual(rc, wc) {
+		if !bytes.Equal(rc, wc) {
 			t.Fatalf("got %q, want %q", rc, wc)
 		}
 	}
@@ -184,12 +183,10 @@ func writeOrFail(t *testing.T, w io.Writer, data string) {
 }
 
 func TestReadMessageInParts(t *testing.T) {
-	// This test will use separate goroutines to write and read messages
-	// and rely on blocking channel operations between them to ensure that
+	// This test uses separate goroutines to write and read messages
+	// and relies on blocking channel operations between them to ensure that
 	// the expected number of messages is read for what is written.
 	// Otherwise, the test will time out.
-	// TODO(polina): use timeouts to catch such a failure mode
-	// and fail gracefully?
 	messages := make(chan []byte)
 	r, w := io.Pipe()
 	header := "Content-Length: 11"
@@ -203,7 +200,7 @@ func TestReadMessageInParts(t *testing.T) {
 	// Write a message in full and verify via channel that it was read.
 	writeOrFail(t, w, header+delim+content1)
 	got := <-messages
-	if !reflect.DeepEqual(got, []byte(content1)) {
+	if !bytes.Equal(got, []byte(content1)) {
 		t.Fatalf("got %q, want %q", got, content1)
 	}
 
@@ -212,7 +209,7 @@ func TestReadMessageInParts(t *testing.T) {
 	writeOrFail(t, w, delim)
 	writeOrFail(t, w, content2)
 	got = <-messages
-	if !reflect.DeepEqual(got, []byte(content2)) {
+	if !bytes.Equal(got, []byte(content2)) {
 		t.Fatalf("got %q, want %q", got, content2)
 	}
 
