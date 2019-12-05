@@ -38,11 +38,11 @@ func (bpe *BaseProtocolError) Error() string { return bpe.Err }
 var (
 	// ErrHeaderDelimiterNotCrLfCrLf is returned when only partial header
 	// delimiter \r\n\r\n is encountered.
-	ErrHeaderDelimiterNotCrLfCrLf = &BaseProtocolError{fmt.Sprintf("Header delimiter is not %q", crLfcrLf)}
+	ErrHeaderDelimiterNotCrLfCrLf = &BaseProtocolError{fmt.Sprintf("header delimiter is not %q", crLfcrLf)}
 
 	// ErrHeaderNotContentLength is returned when the parsed header is
 	// not of valid Content-Length format.
-	ErrHeaderNotContentLength = &BaseProtocolError{"Header format is not " + contentLengthHeaderRegex}
+	ErrHeaderNotContentLength = &BaseProtocolError{"header format is not " + contentLengthHeaderRegex}
 )
 
 var (
