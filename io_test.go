@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
+	"time"
 )
 
 func Test_WriteBaseMessage(t *testing.T) {
@@ -156,23 +157,18 @@ func TestWriteRead(t *testing.T) {
 	}
 }
 
-// readMessagesIntoChannel reads messages one by one until EOF.
-// Die on error as we expect only well-formed messages.
-func readMessagesIntoChannel(t *testing.T, r io.Reader, messages chan<- []byte) {
+// readMessagesAndNotify reads messages one by one until EOF.
+// Notifies of a read via messagesRead channel.
+func readMessagesAndNotify(t *testing.T, r io.Reader, messagesRead chan<- []byte) {
 	reader := bufio.NewReader(r)
 	for {
 		msg, err := ReadBaseMessage(reader)
 		if err == io.EOF {
+			close(messagesRead)
 			break
 		}
-		if err != nil {
-			close(messages)
-			// This goroutine might still be running after the test
-			// completes, so we cannot use t.Fatal here without
-			// additional synchronization
-			panic(err)
-		}
-		messages <- msg
+		// On error, this will send "" as the content read
+		messagesRead <- msg
 	}
 }
 
@@ -182,36 +178,60 @@ func writeOrFail(t *testing.T, w io.Writer, data string) {
 	}
 }
 
+func checkNoMessageRead(t *testing.T, messagesRead <-chan []byte) {
+	time.Sleep(100 * time.Millisecond) // Let reader goroutine run
+	select {
+	case msg := <-messagesRead:
+		t.Errorf("got %q, want none", msg)
+	default:
+	}
+}
+
+func checkOneMessageRead(t *testing.T, messagesRead <-chan []byte, want []byte) {
+	got := <-messagesRead
+	if !bytes.Equal(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
 func TestReadMessageInParts(t *testing.T) {
 	// This test uses separate goroutines to write and read messages
 	// and relies on blocking channel operations between them to ensure that
 	// the expected number of messages is read for what is written.
 	// Otherwise, the test will time out.
-	messages := make(chan []byte)
+	messagesRead := make(chan []byte)
 	r, w := io.Pipe()
 	header := "Content-Length: 11"
 	delim := "\r\n\r\n"
+	baddelim := "\r\r\r\r"
 	content1 := "message one"
 	content2 := "message two"
+	nocontent := ""
 
 	// This will keep blocking to read a full message or EOF.
-	go readMessagesIntoChannel(t, r, messages)
+	go readMessagesAndNotify(t, r, messagesRead)
 
-	// Write a message in full and verify via channel that it was read.
+	// Good message written in full
 	writeOrFail(t, w, header+delim+content1)
-	got := <-messages
-	if !bytes.Equal(got, []byte(content1)) {
-		t.Fatalf("got %q, want %q", got, content1)
-	}
+	checkOneMessageRead(t, messagesRead, []byte(content1))
 
-	// Write a message in parts and verify via channel that it was read.
+	// Good message written in parts
 	writeOrFail(t, w, header)
+	checkNoMessageRead(t, messagesRead)
 	writeOrFail(t, w, delim)
+	checkNoMessageRead(t, messagesRead)
 	writeOrFail(t, w, content2)
-	got = <-messages
-	if !bytes.Equal(got, []byte(content2)) {
-		t.Fatalf("got %q, want %q", got, content2)
-	}
+	checkOneMessageRead(t, messagesRead, []byte(content2))
 
-	w.Close() // sends EOF
+	// Bad message written in full
+	writeOrFail(t, w, header+baddelim)
+	checkOneMessageRead(t, messagesRead, []byte(nocontent))
+
+	// Bad meassage written in parts
+	writeOrFail(t, w, header)
+	checkNoMessageRead(t, messagesRead)
+	writeOrFail(t, w, baddelim)
+	checkOneMessageRead(t, messagesRead, []byte(nocontent))
+
+	w.Close() // "sends" EOF
 }
