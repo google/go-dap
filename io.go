@@ -51,8 +51,8 @@ var (
 	contentLengthHeaderRegex = "^Content-Length: ([0-9]+)$"
 )
 
-// WriteBaseMessage prepends content with a Content-Length header that denotes
-// its byte length and writes the resulting message to w.
+// WriteBaseMessage formats content with Content-Length header and delimiters
+// as per the base protocol and writes the resulting message to w.
 func WriteBaseMessage(w io.Writer, content []byte) error {
 	header := fmt.Sprintf(contentLengthHeaderFmt, len(content))
 	if _, err := w.Write([]byte(header)); err != nil {
