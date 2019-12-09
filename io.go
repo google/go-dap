@@ -48,7 +48,7 @@ var (
 var (
 	crLfcrLf                 = "\r\n\r\n"
 	contentLengthHeaderFmt   = "Content-Length: %d\r\n\r\n"
-	contentLengthHeaderRegex = "^Content-Length: [0-9]+$"
+	contentLengthHeaderRegex = "^Content-Length: ([0-9]+)$"
 )
 
 // WriteBaseMessage prepends content with a Content-Length header that denotes
@@ -93,15 +93,17 @@ func readContentLengthHeader(r *bufio.Reader) (contentLength int, err error) {
 	if _, err = io.ReadFull(r, nextThree); err != nil {
 		return 0, err
 	}
-	if isLfCrCf, _ := regexp.MatchString("\n\r\n", string(nextThree)); !isLfCrCf {
+	if string(nextThree) != "\n\r\n" {
 		return 0, ErrHeaderDelimiterNotCrLfCrLf
 	}
 
 	// If header is in the right format, get the length
 	header := strings.TrimSuffix(headerWithCr, "\r")
-	if isHeaderOK, _ := regexp.MatchString(contentLengthHeaderRegex, header); !isHeaderOK {
+	re := regexp.MustCompile(contentLengthHeaderRegex)
+	headerAndLength := re.FindStringSubmatch(header)
+	if len(headerAndLength) < 2 {
 		return 0, ErrHeaderNotContentLength
 	}
-	contentLength, _ = strconv.Atoi(string(header[16:]))
+	contentLength, _ = strconv.Atoi(headerAndLength[1])
 	return contentLength, nil
 }
