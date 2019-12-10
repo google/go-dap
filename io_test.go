@@ -178,22 +178,6 @@ func writeOrFail(t *testing.T, w io.Writer, data string) {
 	}
 }
 
-func checkNoMessageRead(t *testing.T, messagesRead <-chan []byte) {
-	time.Sleep(100 * time.Millisecond) // Let reader goroutine run
-	select {
-	case msg := <-messagesRead:
-		t.Errorf("got %q, want none", msg)
-	default:
-	}
-}
-
-func checkOneMessageRead(t *testing.T, messagesRead <-chan []byte, want []byte) {
-	got := <-messagesRead
-	if !bytes.Equal(got, want) {
-		t.Errorf("got %q, want %q", got, want)
-	}
-}
-
 func TestReadMessageInParts(t *testing.T) {
 	// This test uses separate goroutines to write and read messages
 	// and relies on blocking channel operations between them to ensure that
@@ -202,7 +186,6 @@ func TestReadMessageInParts(t *testing.T) {
 	messagesRead := make(chan []byte)
 	r, w := io.Pipe()
 	header := "Content-Length: 11"
-	delim := "\r\n\r\n"
 	baddelim := "\r\r\r\r"
 	content1 := "message one"
 	content2 := "message two"
@@ -211,27 +194,43 @@ func TestReadMessageInParts(t *testing.T) {
 	// This will keep blocking to read a full message or EOF.
 	go readMessagesAndNotify(t, r, messagesRead)
 
+	checkNoMessageRead := func() {
+		time.Sleep(100 * time.Millisecond) // Let read goroutine run
+		select {
+		case msg := <-messagesRead:
+			t.Errorf("got %q, want none", msg)
+		default:
+		}
+	}
+
+	checkOneMessageRead := func(want []byte) {
+		got := <-messagesRead
+		if !bytes.Equal(got, want) {
+			t.Errorf("got %q, want %q", got, want)
+		}
+	}
+
 	// Good message written in full
-	writeOrFail(t, w, header+delim+content1)
-	checkOneMessageRead(t, messagesRead, []byte(content1))
+	writeOrFail(t, w, header+crLfcrLf+content1)
+	checkOneMessageRead([]byte(content1))
 
 	// Good message written in parts
 	writeOrFail(t, w, header)
-	checkNoMessageRead(t, messagesRead)
-	writeOrFail(t, w, delim)
-	checkNoMessageRead(t, messagesRead)
+	checkNoMessageRead()
+	writeOrFail(t, w, crLfcrLf)
+	checkNoMessageRead()
 	writeOrFail(t, w, content2)
-	checkOneMessageRead(t, messagesRead, []byte(content2))
+	checkOneMessageRead([]byte(content2))
 
 	// Bad message written in full
 	writeOrFail(t, w, header+baddelim)
-	checkOneMessageRead(t, messagesRead, []byte(nocontent))
+	checkOneMessageRead([]byte(nocontent))
 
 	// Bad meassage written in parts
 	writeOrFail(t, w, header)
-	checkNoMessageRead(t, messagesRead)
+	checkNoMessageRead()
 	writeOrFail(t, w, baddelim)
-	checkOneMessageRead(t, messagesRead, []byte(nocontent))
+	checkOneMessageRead([]byte(nocontent))
 
 	w.Close() // "sends" EOF
 }

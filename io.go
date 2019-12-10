@@ -42,13 +42,13 @@ var (
 
 	// ErrHeaderNotContentLength is returned when the parsed header is
 	// not of valid Content-Length format.
-	ErrHeaderNotContentLength = &BaseProtocolError{"header format is not " + contentLengthHeaderRegex}
+	ErrHeaderNotContentLength = &BaseProtocolError{fmt.Sprintf("header format is not %q", contentLengthHeaderRegex)}
 )
 
 var (
 	crLfcrLf                 = "\r\n\r\n"
 	contentLengthHeaderFmt   = "Content-Length: %d\r\n\r\n"
-	contentLengthHeaderRegex = "^Content-Length: ([0-9]+)$"
+	contentLengthHeaderRegex = regexp.MustCompile("^Content-Length: ([0-9]+)$")
 )
 
 // WriteBaseMessage formats content with Content-Length header and delimiters
@@ -99,11 +99,9 @@ func readContentLengthHeader(r *bufio.Reader) (contentLength int, err error) {
 
 	// If header is in the right format, get the length
 	header := strings.TrimSuffix(headerWithCr, "\r")
-	re := regexp.MustCompile(contentLengthHeaderRegex)
-	headerAndLength := re.FindStringSubmatch(header)
+	headerAndLength := contentLengthHeaderRegex.FindStringSubmatch(header)
 	if len(headerAndLength) < 2 {
 		return 0, ErrHeaderNotContentLength
 	}
-	contentLength, _ = strconv.Atoi(headerAndLength[1])
-	return contentLength, nil
+	return strconv.Atoi(headerAndLength[1])
 }
