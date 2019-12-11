@@ -74,11 +74,11 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 	// Sometimes partial messages can be returned on error, but
 	// the user should not rely on those and just check err itself.
 	// Hence the test will not check those.
-	var msgIgnoredOnError interface{} = nil
+	var msgIgnoredOnError Message = nil
 	const noError = ""
 	tests := []struct {
 		data    string
-		wantMsg interface{}
+		wantMsg Message
 		wantErr string
 	}{
 		// ProtocolMessage
