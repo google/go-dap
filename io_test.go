@@ -17,8 +17,10 @@ package dap
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"io"
 	"io/ioutil"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -233,4 +235,55 @@ func TestReadMessageInParts(t *testing.T) {
 	checkOneMessageRead([]byte(nocontent))
 
 	w.Close() // "sends" EOF
+}
+
+func TestReadWriteWithCodec(t *testing.T) {
+	// Tests end-to-end write and read from a buffer using the DAP codec.
+	req := InitializeRequest{
+		Request: Request{
+			ProtocolMessage: ProtocolMessage{
+				Type: "request",
+				Seq:  121,
+			},
+			Command: "initialize",
+		},
+		Arguments: InitializeRequestArguments{
+			ClientID:                     "vscode",
+			ClientName:                   "Visual Studio Code",
+			AdapterID:                    "go",
+			PathFormat:                   "path",
+			LinesStartAt1:                true,
+			ColumnsStartAt1:              false,
+			SupportsVariableType:         true,
+			SupportsVariablePaging:       true,
+			SupportsRunInTerminalRequest: false,
+			Locale:                       "en-us",
+		},
+	}
+
+	baseReq, err := json.Marshal(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	buf := new(bytes.Buffer)
+	err = WriteBaseMessage(buf, baseReq)
+	if err != nil {
+		t.Error(err)
+	}
+
+	reader := bufio.NewReader(buf)
+	msg, err := ReadBaseMessage(reader)
+	if err != nil {
+		t.Error(err)
+	}
+
+	readReq, err := DecodeProtocolMessage(msg)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(req, readReq) {
+		t.Errorf("got req=%#v, want %#v", readReq, req)
+	}
 }
