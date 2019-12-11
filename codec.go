@@ -38,7 +38,7 @@ func (e *DecodeProtocolMessageFieldError) Error() string {
 // the appropriate type within the ProtocolMessage hierarchy. If message type,
 // command, etc cannot be cast, returns DecodeProtocolMessageFieldError.
 // See also godoc for json.Unmarshal, which is used for underlying decoding.
-func DecodeProtocolMessage(data []byte) (interface{}, error) {
+func DecodeProtocolMessage(data []byte) (Message, error) {
 	var protomsg ProtocolMessage
 	if err := json.Unmarshal(data, &protomsg); err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func DecodeProtocolMessage(data []byte) (interface{}, error) {
 	}
 }
 
-func decodeRequest(data []byte) (interface{}, error) {
+func decodeRequest(data []byte) (Message, error) {
 	var request Request
 	if err := json.Unmarshal(data, &request); err != nil {
 		return request, err
@@ -146,7 +146,7 @@ func decodeRequest(data []byte) (interface{}, error) {
 	}
 }
 
-func decodeResponse(data []byte) (interface{}, error) {
+func decodeResponse(data []byte) (Message, error) {
 	var response Response
 	if err := json.Unmarshal(data, &response); err != nil {
 		return nil, err
@@ -244,7 +244,7 @@ func decodeResponse(data []byte) (interface{}, error) {
 	}
 }
 
-func decodeEvent(data []byte) (interface{}, error) {
+func decodeEvent(data []byte) (Message, error) {
 	var event Event
 	if err := json.Unmarshal(data, &event); err != nil {
 		return nil, err
