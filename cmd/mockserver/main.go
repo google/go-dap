@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This starts a mock DAP server that run indefinitely, accepts DAP
+// This starts a mock DAP server that runs indefinitely, accepts DAP
 // requests and responds with dummy or error responses.
 
 package main
