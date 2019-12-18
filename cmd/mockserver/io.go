@@ -27,23 +27,20 @@ import (
 	"github.com/google/go-dap"
 )
 
+// writeProtocolMessage encodes message and writes it to w.
 func writeProtocolMessage(w io.Writer, message dap.Message) error {
 	b, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
-	err = dap.WriteBaseMessage(w, b)
-	return err
+	return dap.WriteBaseMessage(w, b)
 }
 
+// readProtocolMessage reads a message from r, decodes and returns it.
 func readProtocolMessage(r *bufio.Reader) (dap.Message, error) {
 	content, err := dap.ReadBaseMessage(r)
 	if err != nil {
 		return nil, err
 	}
-	message, err := dap.DecodeProtocolMessage(content)
-	if err != nil {
-		return nil, err
-	}
-	return message, nil
+	return dap.DecodeProtocolMessage(content)
 }

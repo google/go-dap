@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This starts a mock DAP server that receives DAP requests and responds
-// with dummy or error responses.
+// This starts a mock DAP server that run indefinitely, accepts DAP
+// requests and responds with dummy or error responses.
 
 package main
 
-import "fmt"
+import (
+	"flag"
+)
 
 func main() {
-	go server("54321")
-
-	// Prevent the program from exiting until some key is pressed
-	var input string
-	fmt.Scanln(&input)
+	port := flag.String("port", "54321", "TCP port to listen on")
+	flag.Parse()
+	server(*port)
 }

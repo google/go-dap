@@ -30,19 +30,17 @@ import (
 	"github.com/google/go-dap"
 )
 
+// server starts a server that listens on a specified port
+// and blocks indefinitely. This server can accept multiple
+// client connections at the same time.
 func server(port string) {
-	addr, err := net.ResolveTCPAddr("tcp", ":"+port)
-	if err != nil {
-		log.Println("Failed to resolve address:", err)
-		return
-	}
-	listener, err := net.ListenTCP("tcp", addr)
+	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Println("Could not start server:", err)
 		return
 	}
 	defer listener.Close()
-	log.Println("Started server at", addr)
+	log.Println("Started server at", listener.Addr())
 
 	for {
 		conn, err := listener.Accept()
@@ -60,8 +58,9 @@ func handleConnection(conn net.Conn) {
 		log.Println("Closing connection from", conn.RemoteAddr())
 		conn.Close()
 	}()
+	rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	for {
-		err := handleRequest(bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn)))
+		err := handleRequest(rw)
 		// TODO(polina): check for connection vs decoding error?
 		if err != nil {
 			if err == io.EOF {

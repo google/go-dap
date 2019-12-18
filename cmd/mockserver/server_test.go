@@ -17,7 +17,10 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"io/ioutil"
+	"log"
 	"net"
+	"sync"
 	"testing"
 
 	"github.com/google/go-dap"
@@ -37,13 +40,20 @@ func expectMessage(t *testing.T, r *bufio.Reader, want []byte) {
 	}
 }
 
-func Test_DecodeProtocolMessage(t *testing.T) {
+func TestServer(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	port := "54321"
-
-	// Server
 	go server(port)
 
-	// Client
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go client(t, port, &wg)
+	go client(t, port, &wg)
+	wg.Wait()
+}
+
+func client(t *testing.T, port string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	conn, err := net.Dial("tcp", ":"+port)
 	if err != nil {
 		t.Fatal("Could not connect to server:", err)
