@@ -20,6 +20,7 @@ package dap
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"regexp"
@@ -104,4 +105,22 @@ func readContentLengthHeader(r *bufio.Reader) (contentLength int, err error) {
 		return 0, ErrHeaderNotContentLength
 	}
 	return strconv.Atoi(headerAndLength[1])
+}
+
+// WriteProtocolMessage encodes message and writes it to w.
+func WriteProtocolMessage(w io.Writer, message Message) error {
+	b, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	return WriteBaseMessage(w, b)
+}
+
+// ReadProtocolMessage reads a message from r, decodes and returns it.
+func ReadProtocolMessage(r *bufio.Reader) (Message, error) {
+	content, err := ReadBaseMessage(r)
+	if err != nil {
+		return nil, err
+	}
+	return DecodeProtocolMessage(content)
 }
