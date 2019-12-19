@@ -43,7 +43,12 @@ func expectMessage(t *testing.T, r *bufio.Reader, want []byte) {
 func TestServer(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
 	port := "54321"
-	go server(port)
+	go func() {
+		err := server(port)
+		if err != nil {
+			t.Fatal("Could not start server:", err)
+		}
+	}()
 
 	var wg sync.WaitGroup
 	wg.Add(2)

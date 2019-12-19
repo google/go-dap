@@ -19,10 +19,14 @@ package main
 
 import (
 	"flag"
+	"log"
 )
 
 func main() {
 	port := flag.String("port", "54321", "TCP port to listen on")
 	flag.Parse()
-	server(*port)
+	err := server(*port)
+	if err != nil {
+		log.Fatal("Could not start server: ", err)
+	}
 }

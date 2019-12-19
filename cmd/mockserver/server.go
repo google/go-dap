@@ -33,11 +33,10 @@ import (
 // server starts a server that listens on a specified port
 // and blocks indefinitely. This server can accept multiple
 // client connections at the same time.
-func server(port string) {
+func server(port string) error {
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Println("Could not start server:", err)
-		return
+		return err
 	}
 	defer listener.Close()
 	log.Println("Started server at", listener.Addr())
@@ -75,7 +74,7 @@ func handleConnection(conn net.Conn) {
 
 func handleRequest(rw *bufio.ReadWriter) error {
 	log.Println("Reading request...")
-	request, err := readProtocolMessage(rw.Reader)
+	request, err := dap.ReadProtocolMessage(rw.Reader)
 	if err != nil {
 		return err
 	}
@@ -167,7 +166,7 @@ func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 	default:
 		return errors.New("not a request")
 	}
-	writeProtocolMessage(rw.Writer, response)
+	dap.WriteProtocolMessage(rw, response)
 	log.Printf("Response sent\n\t%#v\n", response)
 	rw.Flush()
 	return nil
@@ -221,7 +220,7 @@ func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message
 	// Notify the client with an 'initialized' event. The client will end
 	// the configuration sequence with 'configurationDone' request.
 	e := dap.InitializedEvent{Event: newEvent("initialized")}
-	writeProtocolMessage(w, e)
+	dap.WriteProtocolMessage(w, e)
 	log.Printf("Event sent\n\t%#v\n", e)
 	return response
 }
