@@ -182,7 +182,7 @@ func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 
 func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message {
 	response := dap.InitializeResponse{}
-	response.Response = newResponse(request.Seq, request.Command)
+	response.Response = dap.NewResponse(0, request.Seq, request.Command, dap.Success)
 	response.Body.SupportsConfigurationDoneRequest = true
 	response.Body.SupportsFunctionBreakpoints = false
 	response.Body.SupportsConditionalBreakpoints = false
@@ -219,7 +219,7 @@ func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message
 	// requests for setting breakpoints, etc from the client at any time.
 	// Notify the client with an 'initialized' event. The client will end
 	// the configuration sequence with 'configurationDone' request.
-	e := dap.InitializedEvent{Event: newEvent("initialized")}
+	e := dap.InitializedEvent{Event: dap.NewEvent(0, "initialized")}
 	dap.WriteProtocolMessage(w, e)
 	log.Printf("Event sent\n\t%#v\n", e)
 	return response
@@ -380,33 +380,8 @@ func onBreakpointLocationsRequest(w io.Writer, request dap.BreakpointLocationsRe
 	return newErrorResponse(request.Seq, request.Command, "BreakpointLocationsRequest is not yet supported")
 }
 
-func newEvent(event string) dap.Event {
-	return dap.Event{
-		ProtocolMessage: dap.ProtocolMessage{
-			Seq:  0,
-			Type: "event",
-		},
-		Event: event,
-	}
-}
-
-func newResponse(requestSeq int, command string) dap.Response {
-	return dap.Response{
-		ProtocolMessage: dap.ProtocolMessage{
-			Seq:  0,
-			Type: "response",
-		},
-		Command:    command,
-		RequestSeq: requestSeq,
-		Success:    true,
-	}
-}
-
 func newErrorResponse(requestSeq int, command string, message string) dap.ErrorResponse {
-	er := dap.ErrorResponse{}
-	er.Response = newResponse(requestSeq, command)
-	er.Success = false
-	er.Message = "unsupported"
+	er := dap.NewErrorResponse(0, requestSeq, command, "unsupported")
 	er.Body.Error.Format = message
 	er.Body.Error.Id = 12345
 	return er

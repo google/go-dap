@@ -21,13 +21,7 @@ import (
 
 var initializeRequestString = `{"command":"initialize","arguments":{"clientID":"vscode","clientName":"Visual Studio Code","adapterID":"go","pathFormat":"path","linesStartAt1":true,"columnsStartAt1":true,"supportsVariableType":true,"supportsVariablePaging":true,"supportsRunInTerminalRequest":true,"locale":"en-us"},"type":"request","seq":1}`
 var initializeRequestStruct = InitializeRequest{
-	Request: Request{
-		ProtocolMessage: ProtocolMessage{
-			Type: "request",
-			Seq:  1,
-		},
-		Command: "initialize",
-	},
+	Request: NewRequest(1, "initialize"),
 	Arguments: InitializeRequestArguments{
 		ClientID:                     "vscode",
 		ClientName:                   "Visual Studio Code",
@@ -44,15 +38,7 @@ var initializeRequestStruct = InitializeRequest{
 
 var initializeResponseString = `{"seq":1,"type":"response","request_seq":2,"command":"initialize","success":true,"body":{"supportsConfigurationDoneRequest":true,"supportsSetVariable":true}}`
 var initializeResponseStruct = InitializeResponse{
-	Response: Response{
-		ProtocolMessage: ProtocolMessage{
-			Type: "response",
-			Seq:  1,
-		},
-		Command:    "initialize",
-		Success:    true,
-		RequestSeq: 2,
-	},
+	Response: NewResponse(1, 2, "initialize", true),
 	Body: Capabilities{
 		SupportsConfigurationDoneRequest: true,
 		SupportsSetVariable:              true,
@@ -61,13 +47,7 @@ var initializeResponseStruct = InitializeResponse{
 
 var initializedEventString = `{"seq":1,"type":"event","event":"initialized"}`
 var initializedEventStruct = InitializedEvent{
-	Event: Event{
-		ProtocolMessage: ProtocolMessage{
-			Type: "event",
-			Seq:  1,
-		},
-		Event: "initialized",
-	},
+	Event: NewEvent(1, "initialized"),
 }
 
 func Test_DecodeProtocolMessage(t *testing.T) {
