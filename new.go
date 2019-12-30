@@ -27,7 +27,7 @@ func newRequest(seq int, command string) Request {
 	}
 }
 
-// newEvent builds an *Event struct with the specified fields.
+// newEvent builds an Event struct with the specified fields.
 func newEvent(seq int, event string) Event {
 	return Event{
 		ProtocolMessage: ProtocolMessage{
