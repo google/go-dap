@@ -16,13 +16,8 @@
 
 package dap
 
-// Success can be passed to NewResponse to set the Success field.
-const Success = true
-
-// TODO(polina): should these be return by pointer?
-
-// NewRequest builds a Request struct with the specified fields.
-func NewRequest(seq int, command string) Request {
+// newRequest builds a Request struct with the specified fields.
+func newRequest(seq int, command string) Request {
 	return Request{
 		ProtocolMessage: ProtocolMessage{
 			Type: "request",
@@ -32,8 +27,8 @@ func NewRequest(seq int, command string) Request {
 	}
 }
 
-// NewEvent builds an Event struct with the specified fields.
-func NewEvent(seq int, event string) Event {
+// newEvent builds an *Event struct with the specified fields.
+func newEvent(seq int, event string) Event {
 	return Event{
 		ProtocolMessage: ProtocolMessage{
 			Seq:  seq,
@@ -43,8 +38,8 @@ func NewEvent(seq int, event string) Event {
 	}
 }
 
-// NewResponse builds a Response struct with the specified fields.
-func NewResponse(seq int, requestSeq int, command string, success bool) Response {
+// newResponse builds a Response struct with the specified fields.
+func newResponse(seq int, requestSeq int, command string, success bool) Response {
 	return Response{
 		ProtocolMessage: ProtocolMessage{
 			Seq:  seq,
@@ -56,10 +51,10 @@ func NewResponse(seq int, requestSeq int, command string, success bool) Response
 	}
 }
 
-// NewErrorResponse builds an ErrorResponse struct with the specified fields.
-func NewErrorResponse(seq int, requestSeq int, command string, message string) ErrorResponse {
+// newErrorResponse builds an ErrorResponse struct with the specified fields.
+func newErrorResponse(seq int, requestSeq int, command string, message string) ErrorResponse {
 	er := ErrorResponse{
-		Response: NewResponse(seq, requestSeq, command, !Success),
+		Response: newResponse(seq, requestSeq, command, false),
 	}
 	er.Message = message
 	return er
