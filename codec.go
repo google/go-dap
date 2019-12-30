@@ -61,86 +61,171 @@ func decodeRequest(data []byte) (Message, error) {
 		return request, err
 	}
 	switch request.Command {
-	case "initialize":
-		var ir InitializeRequest
-		err := json.Unmarshal(data, &ir)
-		return ir, err
-	case "launch":
-		panic("Not supported yet")
-	case "attach":
-		panic("Not supported yet")
-	case "disconnect":
-		panic("Not supported yet")
-	case "terminate":
-		panic("Not supported yet")
-	case "restart":
-		panic("Not supported yet")
-	case "setBreakpoints":
-		panic("Not supported yet")
-	case "setFunctionBreakpoints":
-		panic("Not supported yet")
-	case "setExceptionBreakpoints":
-		panic("Not supported yet")
-	case "configurationDone":
-		panic("Not supported yet")
-	case "continue":
-		panic("Not supported yet")
-	case "next":
-		panic("Not supported yet")
-	case "stepIn":
-		panic("Not supported yet")
-	case "stepOut":
-		panic("Not supported yet")
-	case "stepBack":
-		panic("Not supported yet")
-	case "reverseContinue":
-		panic("Not supported yet")
-	case "restartFrame":
-		panic("Not supported yet")
-	case "goto":
-		panic("Not supported yet")
-	case "pause":
-		panic("Not supported yet")
-	case "stackTrace":
-		panic("Not supported yet")
-	case "scopes":
-		panic("Not supported yet")
-	case "variables":
-		panic("Not supported yet")
-	case "setVariable":
-		panic("Not supported yet")
-	case "setExpression":
-		panic("Not supported yet")
-	case "source":
-		panic("Not supported yet")
-	case "threads":
-		panic("Not supported yet")
-	case "terminateThreads":
-		panic("Not supported yet")
-	case "evaluate":
-		panic("Not supported yet")
-	case "stepInTargets":
-		panic("Not supported yet")
-	case "gotoTargets":
-		panic("Not supported yet")
-	case "completions":
-		panic("Not supported yet")
-	case "exceptionInfo":
-		panic("Not supported yet")
-	case "loadedSources":
-		panic("Not supported yet")
-	case "dataBreakpointInfo":
-		panic("Not supported yet")
-	case "setDataBreakpoints":
-		panic("Not supported yet")
-	case "readMemory":
-		panic("Not supported yet")
-	case "disassemble":
-		panic("Not supported yet")
 	case "cancel":
-		panic("Not supported yet")
+		var r CancelRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "runInTerminal":
+		var r RunInTerminalRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "initialize":
+		var r InitializeRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "configurationDone":
+		var r ConfigurationDoneRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "launch":
+		var r LaunchRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "attach":
+		var r AttachRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "restart":
+		var r RestartRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "disconnect":
+		var r DisconnectRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "terminate":
+		var r TerminateRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
 	case "breakpointLocations":
-		panic("Not supported yet")
+		var r BreakpointLocationsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setBreakpoints":
+		var r SetBreakpointsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setFunctionBreakpoints":
+		var r SetFunctionBreakpointsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setExceptionBreakpoints":
+		var r SetExceptionBreakpointsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "dataBreakpointInfo":
+		var r DataBreakpointInfoRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setDataBreakpoints":
+		var r SetDataBreakpointsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "continue":
+		var r ContinueRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "next":
+		var r NextRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepIn":
+		var r StepInRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepOut":
+		var r StepOutRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepBack":
+		var r StepBackRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "reverseContinue":
+		var r ReverseContinueRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "restartFrame":
+		var r RestartFrameRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "goto":
+		var r GotoRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "pause":
+		var r PauseRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stackTrace":
+		var r StackTraceRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "scopes":
+		var r ScopesRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "variables":
+		var r VariablesRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setVariable":
+		var r SetVariableRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "source":
+		var r SourceRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "threads":
+		var r ThreadsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "terminateThreads":
+		var r TerminateThreadsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "modules":
+		var r ModulesRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "loadedSources":
+		var r LoadedSourcesRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "evaluate":
+		var r EvaluateRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setExpression":
+		var r SetExpressionRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepInTargets":
+		var r StepInTargetsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "gotoTargets":
+		var r GotoTargetsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "completions":
+		var r CompletionsRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "exceptionInfo":
+		var r ExceptionInfoRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "readMemory":
+		var r ReadMemoryRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "disassemble":
+		var r DisassembleRequest
+		err := json.Unmarshal(data, &r)
+		return r, err
+
 	default:
 		return request, &DecodeProtocolMessageFieldError{"Request", "command", request.Command}
 	}
@@ -159,86 +244,170 @@ func decodeResponse(data []byte) (Message, error) {
 		return errorResponse, nil
 	}
 	switch response.Command {
-	case "initialize":
-		var ir InitializeResponse
-		err := json.Unmarshal(data, &ir)
-		return ir, err
-	case "launch":
-		panic("Not supported yet")
-	case "attach":
-		panic("Not supported yet")
-	case "disconnect":
-		panic("Not supported yet")
-	case "terminate":
-		panic("Not supported yet")
-	case "restart":
-		panic("Not supported yet")
-	case "setBreakpoints":
-		panic("Not supported yet")
-	case "setFunctionBreakpoints":
-		panic("Not supported yet")
-	case "setExceptionBreakpoints":
-		panic("Not supported yet")
-	case "configurationDone":
-		panic("Not supported yet")
-	case "continue":
-		panic("Not supported yet")
-	case "next":
-		panic("Not supported yet")
-	case "stepIn":
-		panic("Not supported yet")
-	case "stepOut":
-		panic("Not supported yet")
-	case "stepBack":
-		panic("Not supported yet")
-	case "reverseContinue":
-		panic("Not supported yet")
-	case "restartFrame":
-		panic("Not supported yet")
-	case "goto":
-		panic("Not supported yet")
-	case "pause":
-		panic("Not supported yet")
-	case "stackTrace":
-		panic("Not supported yet")
-	case "scopes":
-		panic("Not supported yet")
-	case "variables":
-		panic("Not supported yet")
-	case "setVariable":
-		panic("Not supported yet")
-	case "setExpression":
-		panic("Not supported yet")
-	case "source":
-		panic("Not supported yet")
-	case "threads":
-		panic("Not supported yet")
-	case "terminateThreads":
-		panic("Not supported yet")
-	case "evaluate":
-		panic("Not supported yet")
-	case "stepInTargets":
-		panic("Not supported yet")
-	case "gotoTargets":
-		panic("Not supported yet")
-	case "completions":
-		panic("Not supported yet")
-	case "exceptionInfo":
-		panic("Not supported yet")
-	case "loadedSources":
-		panic("Not supported yet")
-	case "dataBreakpointInfo":
-		panic("Not supported yet")
-	case "setDataBreakpoints":
-		panic("Not supported yet")
-	case "readMemory":
-		panic("Not supported yet")
-	case "disassemble":
-		panic("Not supported yet")
 	case "cancel":
-		panic("Not supported yet")
+		var r CancelResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "runInTerminal":
+		var r RunInTerminalResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "initialize":
+		var r InitializeResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "configurationDone":
+		var r ConfigurationDoneResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "launch":
+		var r LaunchResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "attach":
+		var r AttachResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "restart":
+		var r RestartResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "disconnect":
+		var r DisconnectResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "terminate":
+		var r TerminateResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
 	case "breakpointLocations":
-		panic("Not supported yet")
+		var r BreakpointLocationsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setBreakpoints":
+		var r SetBreakpointsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setFunctionBreakpoints":
+		var r SetFunctionBreakpointsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setExceptionBreakpoints":
+		var r SetExceptionBreakpointsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "dataBreakpointInfo":
+		var r DataBreakpointInfoResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setDataBreakpoints":
+		var r SetDataBreakpointsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "continue":
+		var r ContinueResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "next":
+		var r NextResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepIn":
+		var r StepInResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepOut":
+		var r StepOutResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepBack":
+		var r StepBackResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "reverseContinue":
+		var r ReverseContinueResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "restartFrame":
+		var r RestartFrameResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "goto":
+		var r GotoResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "pause":
+		var r PauseResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stackTrace":
+		var r StackTraceResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "scopes":
+		var r ScopesResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "variables":
+		var r VariablesResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setVariable":
+		var r SetVariableResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "source":
+		var r SourceResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "threads":
+		var r ThreadsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "terminateThreads":
+		var r TerminateThreadsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "modules":
+		var r ModulesResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "loadedSources":
+		var r LoadedSourcesResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "evaluate":
+		var r EvaluateResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "setExpression":
+		var r SetExpressionResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "stepInTargets":
+		var r StepInTargetsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "gotoTargets":
+		var r GotoTargetsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "completions":
+		var r CompletionsResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "exceptionInfo":
+		var r ExceptionInfoResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "readMemory":
+		var r ReadMemoryResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
+	case "disassemble":
+		var r DisassembleResponse
+		err := json.Unmarshal(data, &r)
+		return r, err
 	default:
 		return response, &DecodeProtocolMessageFieldError{"Response", "command", response.Command}
 	}
@@ -251,31 +420,53 @@ func decodeEvent(data []byte) (Message, error) {
 	}
 	switch event.Event {
 	case "initialized":
-		var ie InitializedEvent
-		err := json.Unmarshal(data, &ie)
-		return ie, err
+		var e InitializedEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "stopped":
-		panic("Not supported yet")
+		var e StoppedEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "continued":
-		panic("Not supported yet")
+		var e ContinuedEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "exited":
-		panic("Not supported yet")
+		var e ExitedEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "terminated":
-		panic("Not supported yet")
+		var e TerminatedEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "thread":
-		panic("Not supported yet")
+		var e ThreadEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "output":
-		panic("Not supported yet")
+		var e OutputEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "breakpoint":
-		panic("Not supported yet")
+		var e BreakpointEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "module":
-		panic("Not supported yet")
+		var e ModuleEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "loadedSource":
-		panic("Not supported yet")
+		var e LoadedSourceEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "process":
-		panic("Not supported yet")
+		var e ProcessEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	case "capabilities":
-		panic("Not supported yet")
+		var e CapabilitiesEvent
+		err := json.Unmarshal(data, &e)
+		return e, err
 	default:
 		return event, &DecodeProtocolMessageFieldError{"Event", "event", event.Event}
 	}
