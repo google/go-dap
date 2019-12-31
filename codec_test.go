@@ -941,3 +941,48 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		})
 	}
 }
+
+
+// newRequest builds a Request struct with the specified fields.
+func newRequest(seq int, command string) Request {
+        return Request{
+                ProtocolMessage: ProtocolMessage{
+                        Type: "request",
+                        Seq:  seq,
+                },
+                Command: command,
+        }
+}
+
+// newEvent builds an Event struct with the specified fields.
+func newEvent(seq int, event string) Event {
+        return Event{
+                ProtocolMessage: ProtocolMessage{
+                        Seq:  seq,
+                        Type: "event",
+                },
+                Event: event,
+        }
+}
+
+// newResponse builds a Response struct with the specified fields.
+func newResponse(seq int, requestSeq int, command string, success bool) Response {
+        return Response{
+                ProtocolMessage: ProtocolMessage{
+                        Seq:  seq,
+                        Type: "response",
+                },
+                Command:    command,
+                RequestSeq: requestSeq,
+                Success:    success,
+        }
+}
+
+// newErrorResponse builds an ErrorResponse struct with the specified fields.
+func newErrorResponse(seq int, requestSeq int, command string, message string) ErrorResponse {
+        er := ErrorResponse{
+                Response: newResponse(seq, requestSeq, command, false),
+        }
+        er.Message = message
+        return er
+}
