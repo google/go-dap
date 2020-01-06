@@ -85,84 +85,84 @@ func handleRequest(rw *bufio.ReadWriter) error {
 func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 	var response dap.Message
 	switch request.(type) {
-	case dap.InitializeRequest:
-		response = onInitializeRequest(rw.Writer, request.(dap.InitializeRequest))
-	case dap.LaunchRequest:
-		response = onLaunchRequest(rw.Writer, request.(dap.LaunchRequest))
-	case dap.AttachRequest:
-		response = onAttachRequest(rw.Writer, request.(dap.AttachRequest))
-	case dap.DisconnectRequest:
-		response = onDisconnectRequest(rw.Writer, request.(dap.DisconnectRequest))
-	case dap.TerminateRequest:
-		response = onTerminateRequest(rw.Writer, request.(dap.TerminateRequest))
-	case dap.RestartRequest:
-		response = onRestartRequest(rw.Writer, request.(dap.RestartRequest))
-	case dap.SetBreakpointsRequest:
-		response = onSetBreakpointsRequest(rw.Writer, request.(dap.SetBreakpointsRequest))
-	case dap.SetFunctionBreakpointsRequest:
-		response = onSetFunctionBreakpointsRequest(rw.Writer, request.(dap.SetFunctionBreakpointsRequest))
-	case dap.SetExceptionBreakpointsRequest:
-		response = onSetExceptionBreakpointsRequest(rw.Writer, request.(dap.SetExceptionBreakpointsRequest))
-	case dap.ConfigurationDoneRequest:
-		response = onConfigurationDoneRequest(rw.Writer, request.(dap.ConfigurationDoneRequest))
-	case dap.ContinueRequest:
-		response = onContinueRequest(rw.Writer, request.(dap.ContinueRequest))
-	case dap.NextRequest:
-		response = onNextRequest(rw.Writer, request.(dap.NextRequest))
-	case dap.StepInRequest:
-		response = onStepInRequest(rw.Writer, request.(dap.StepInRequest))
-	case dap.StepOutRequest:
-		response = onStepOutRequest(rw.Writer, request.(dap.StepOutRequest))
-	case dap.StepBackRequest:
-		response = onStepBackRequest(rw.Writer, request.(dap.StepBackRequest))
-	case dap.ReverseContinueRequest:
-		response = onReverseContinueRequest(rw.Writer, request.(dap.ReverseContinueRequest))
-	case dap.RestartFrameRequest:
-		response = onRestartFrameRequest(rw.Writer, request.(dap.RestartFrameRequest))
-	case dap.GotoRequest:
-		response = onGotoRequest(rw.Writer, request.(dap.GotoRequest))
-	case dap.PauseRequest:
-		response = onPauseRequest(rw.Writer, request.(dap.PauseRequest))
-	case dap.StackTraceRequest:
-		response = onStackTraceRequest(rw.Writer, request.(dap.StackTraceRequest))
-	case dap.ScopesRequest:
-		response = onScopesRequest(rw.Writer, request.(dap.ScopesRequest))
-	case dap.VariablesRequest:
-		response = onVariablesRequest(rw.Writer, request.(dap.VariablesRequest))
-	case dap.SetVariableRequest:
-		response = onSetVariableRequest(rw.Writer, request.(dap.SetVariableRequest))
-	case dap.SetExpressionRequest:
-		response = onSetExpressionRequest(rw.Writer, request.(dap.SetExpressionRequest))
-	case dap.SourceRequest:
-		response = onSourceRequest(rw.Writer, request.(dap.SourceRequest))
-	case dap.ThreadsRequest:
-		response = onThreadsRequest(rw.Writer, request.(dap.ThreadsRequest))
-	case dap.TerminateThreadsRequest:
-		response = onTerminateThreadsRequest(rw.Writer, request.(dap.TerminateThreadsRequest))
-	case dap.EvaluateRequest:
-		response = onEvaluateRequest(rw.Writer, request.(dap.EvaluateRequest))
-	case dap.StepInTargetsRequest:
-		response = onStepInTargetsRequest(rw.Writer, request.(dap.StepInTargetsRequest))
-	case dap.GotoTargetsRequest:
-		response = onGotoTargetsRequest(rw.Writer, request.(dap.GotoTargetsRequest))
-	case dap.CompletionsRequest:
-		response = onCompletionsRequest(rw.Writer, request.(dap.CompletionsRequest))
-	case dap.ExceptionInfoRequest:
-		response = onExceptionInfoRequest(rw.Writer, request.(dap.ExceptionInfoRequest))
-	case dap.LoadedSourcesRequest:
-		response = onLoadedSourcesRequest(rw.Writer, request.(dap.LoadedSourcesRequest))
-	case dap.DataBreakpointInfoRequest:
-		response = onDataBreakpointInfoRequest(rw.Writer, request.(dap.DataBreakpointInfoRequest))
-	case dap.SetDataBreakpointsRequest:
-		response = onSetDataBreakpointsRequest(rw.Writer, request.(dap.SetDataBreakpointsRequest))
-	case dap.ReadMemoryRequest:
-		response = onReadMemoryRequest(rw.Writer, request.(dap.ReadMemoryRequest))
-	case dap.DisassembleRequest:
-		response = onDisassembleRequest(rw.Writer, request.(dap.DisassembleRequest))
-	case dap.CancelRequest:
-		response = onCancelRequest(rw.Writer, request.(dap.CancelRequest))
-	case dap.BreakpointLocationsRequest:
-		response = onBreakpointLocationsRequest(rw.Writer, request.(dap.BreakpointLocationsRequest))
+	case *dap.InitializeRequest:
+		response = onInitializeRequest(rw.Writer, request.(*dap.InitializeRequest))
+	case *dap.LaunchRequest:
+		response = onLaunchRequest(rw.Writer, request.(*dap.LaunchRequest))
+	case *dap.AttachRequest:
+		response = onAttachRequest(rw.Writer, request.(*dap.AttachRequest))
+	case *dap.DisconnectRequest:
+		response = onDisconnectRequest(rw.Writer, request.(*dap.DisconnectRequest))
+	case *dap.TerminateRequest:
+		response = onTerminateRequest(rw.Writer, request.(*dap.TerminateRequest))
+	case *dap.RestartRequest:
+		response = onRestartRequest(rw.Writer, request.(*dap.RestartRequest))
+	case *dap.SetBreakpointsRequest:
+		response = onSetBreakpointsRequest(rw.Writer, request.(*dap.SetBreakpointsRequest))
+	case *dap.SetFunctionBreakpointsRequest:
+		response = onSetFunctionBreakpointsRequest(rw.Writer, request.(*dap.SetFunctionBreakpointsRequest))
+	case *dap.SetExceptionBreakpointsRequest:
+		response = onSetExceptionBreakpointsRequest(rw.Writer, request.(*dap.SetExceptionBreakpointsRequest))
+	case *dap.ConfigurationDoneRequest:
+		response = onConfigurationDoneRequest(rw.Writer, request.(*dap.ConfigurationDoneRequest))
+	case *dap.ContinueRequest:
+		response = onContinueRequest(rw.Writer, request.(*dap.ContinueRequest))
+	case *dap.NextRequest:
+		response = onNextRequest(rw.Writer, request.(*dap.NextRequest))
+	case *dap.StepInRequest:
+		response = onStepInRequest(rw.Writer, request.(*dap.StepInRequest))
+	case *dap.StepOutRequest:
+		response = onStepOutRequest(rw.Writer, request.(*dap.StepOutRequest))
+	case *dap.StepBackRequest:
+		response = onStepBackRequest(rw.Writer, request.(*dap.StepBackRequest))
+	case *dap.ReverseContinueRequest:
+		response = onReverseContinueRequest(rw.Writer, request.(*dap.ReverseContinueRequest))
+	case *dap.RestartFrameRequest:
+		response = onRestartFrameRequest(rw.Writer, request.(*dap.RestartFrameRequest))
+	case *dap.GotoRequest:
+		response = onGotoRequest(rw.Writer, request.(*dap.GotoRequest))
+	case *dap.PauseRequest:
+		response = onPauseRequest(rw.Writer, request.(*dap.PauseRequest))
+	case *dap.StackTraceRequest:
+		response = onStackTraceRequest(rw.Writer, request.(*dap.StackTraceRequest))
+	case *dap.ScopesRequest:
+		response = onScopesRequest(rw.Writer, request.(*dap.ScopesRequest))
+	case *dap.VariablesRequest:
+		response = onVariablesRequest(rw.Writer, request.(*dap.VariablesRequest))
+	case *dap.SetVariableRequest:
+		response = onSetVariableRequest(rw.Writer, request.(*dap.SetVariableRequest))
+	case *dap.SetExpressionRequest:
+		response = onSetExpressionRequest(rw.Writer, request.(*dap.SetExpressionRequest))
+	case *dap.SourceRequest:
+		response = onSourceRequest(rw.Writer, request.(*dap.SourceRequest))
+	case *dap.ThreadsRequest:
+		response = onThreadsRequest(rw.Writer, request.(*dap.ThreadsRequest))
+	case *dap.TerminateThreadsRequest:
+		response = onTerminateThreadsRequest(rw.Writer, request.(*dap.TerminateThreadsRequest))
+	case *dap.EvaluateRequest:
+		response = onEvaluateRequest(rw.Writer, request.(*dap.EvaluateRequest))
+	case *dap.StepInTargetsRequest:
+		response = onStepInTargetsRequest(rw.Writer, request.(*dap.StepInTargetsRequest))
+	case *dap.GotoTargetsRequest:
+		response = onGotoTargetsRequest(rw.Writer, request.(*dap.GotoTargetsRequest))
+	case *dap.CompletionsRequest:
+		response = onCompletionsRequest(rw.Writer, request.(*dap.CompletionsRequest))
+	case *dap.ExceptionInfoRequest:
+		response = onExceptionInfoRequest(rw.Writer, request.(*dap.ExceptionInfoRequest))
+	case *dap.LoadedSourcesRequest:
+		response = onLoadedSourcesRequest(rw.Writer, request.(*dap.LoadedSourcesRequest))
+	case *dap.DataBreakpointInfoRequest:
+		response = onDataBreakpointInfoRequest(rw.Writer, request.(*dap.DataBreakpointInfoRequest))
+	case *dap.SetDataBreakpointsRequest:
+		response = onSetDataBreakpointsRequest(rw.Writer, request.(*dap.SetDataBreakpointsRequest))
+	case *dap.ReadMemoryRequest:
+		response = onReadMemoryRequest(rw.Writer, request.(*dap.ReadMemoryRequest))
+	case *dap.DisassembleRequest:
+		response = onDisassembleRequest(rw.Writer, request.(*dap.DisassembleRequest))
+	case *dap.CancelRequest:
+		response = onCancelRequest(rw.Writer, request.(*dap.CancelRequest))
+	case *dap.BreakpointLocationsRequest:
+		response = onBreakpointLocationsRequest(rw.Writer, request.(*dap.BreakpointLocationsRequest))
 	default:
 		return errors.New("not a request")
 	}
@@ -180,7 +180,7 @@ func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 // A real debug adaptor would call the debugger methods here
 // and use their results to populate each response.
 
-func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message {
+func onInitializeRequest(w io.Writer, request *dap.InitializeRequest) dap.Message {
 	response := dap.InitializeResponse{}
 	response.Response = newResponse(request.Seq, request.Command)
 	response.Body.SupportsConfigurationDoneRequest = true
@@ -225,158 +225,158 @@ func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message
 	return response
 }
 
-func onLaunchRequest(w io.Writer, request dap.LaunchRequest) dap.Message {
+func onLaunchRequest(w io.Writer, request *dap.LaunchRequest) dap.Message {
 	// This is where a real debug adaptor would check the soundness of the
 	// arguments (program from launch.json) and then use them to launch the
 	// debugger and attach to the program.
 	return newErrorResponse(request.Seq, request.Command, "LaunchRequest is not yet supported")
 }
 
-func onAttachRequest(w io.Writer, request dap.AttachRequest) dap.Message {
+func onAttachRequest(w io.Writer, request *dap.AttachRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "AttachRequest is not yet supported")
 }
 
-func onDisconnectRequest(w io.Writer, request dap.DisconnectRequest) dap.Message {
+func onDisconnectRequest(w io.Writer, request *dap.DisconnectRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "DisconnectRequest is not yet supported")
 }
 
-func onTerminateRequest(w io.Writer, request dap.TerminateRequest) dap.Message {
+func onTerminateRequest(w io.Writer, request *dap.TerminateRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "TerminateRequest is not yet supported")
 }
 
-func onRestartRequest(w io.Writer, request dap.RestartRequest) dap.Message {
+func onRestartRequest(w io.Writer, request *dap.RestartRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "RestartRequest is not yet supported")
 }
 
-func onSetBreakpointsRequest(w io.Writer, request dap.SetBreakpointsRequest) dap.Message {
+func onSetBreakpointsRequest(w io.Writer, request *dap.SetBreakpointsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SetBreakpointsRequest is not yet supported")
 }
 
-func onSetFunctionBreakpointsRequest(w io.Writer, request dap.SetFunctionBreakpointsRequest) dap.Message {
+func onSetFunctionBreakpointsRequest(w io.Writer, request *dap.SetFunctionBreakpointsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SetFunctionBreakpointsRequest is not yet supported")
 }
 
-func onSetExceptionBreakpointsRequest(w io.Writer, request dap.SetExceptionBreakpointsRequest) dap.Message {
+func onSetExceptionBreakpointsRequest(w io.Writer, request *dap.SetExceptionBreakpointsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SetExceptionBreakpointsRequest is not yet supported")
 }
 
-func onConfigurationDoneRequest(w io.Writer, request dap.ConfigurationDoneRequest) dap.Message {
+func onConfigurationDoneRequest(w io.Writer, request *dap.ConfigurationDoneRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ConfigurationDoneRequest is not yet supported")
 }
 
-func onContinueRequest(w io.Writer, request dap.ContinueRequest) dap.Message {
+func onContinueRequest(w io.Writer, request *dap.ContinueRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ContinueRequest is not yet supported")
 }
 
-func onNextRequest(w io.Writer, request dap.NextRequest) dap.Message {
+func onNextRequest(w io.Writer, request *dap.NextRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "NextRequest is not yet supported")
 }
 
-func onStepInRequest(w io.Writer, request dap.StepInRequest) dap.Message {
+func onStepInRequest(w io.Writer, request *dap.StepInRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "StepInRequest is not yet supported")
 }
 
-func onStepOutRequest(w io.Writer, request dap.StepOutRequest) dap.Message {
+func onStepOutRequest(w io.Writer, request *dap.StepOutRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "StepOutRequest is not yet supported")
 }
 
-func onStepBackRequest(w io.Writer, request dap.StepBackRequest) dap.Message {
+func onStepBackRequest(w io.Writer, request *dap.StepBackRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "StepBackRequest is not yet supported")
 }
 
-func onReverseContinueRequest(w io.Writer, request dap.ReverseContinueRequest) dap.Message {
+func onReverseContinueRequest(w io.Writer, request *dap.ReverseContinueRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ReverseContinueRequest is not yet supported")
 }
 
-func onRestartFrameRequest(w io.Writer, request dap.RestartFrameRequest) dap.Message {
+func onRestartFrameRequest(w io.Writer, request *dap.RestartFrameRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "RestartFrameRequest is not yet supported")
 }
 
-func onGotoRequest(w io.Writer, request dap.GotoRequest) dap.Message {
+func onGotoRequest(w io.Writer, request *dap.GotoRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "GotoRequest is not yet supported")
 }
 
-func onPauseRequest(w io.Writer, request dap.PauseRequest) dap.Message {
+func onPauseRequest(w io.Writer, request *dap.PauseRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "PauseRequest is not yet supported")
 }
 
-func onStackTraceRequest(w io.Writer, request dap.StackTraceRequest) dap.Message {
+func onStackTraceRequest(w io.Writer, request *dap.StackTraceRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "StackTraceRequest is not yet supported")
 }
 
-func onScopesRequest(w io.Writer, request dap.ScopesRequest) dap.Message {
+func onScopesRequest(w io.Writer, request *dap.ScopesRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ScopesRequest is not yet supported")
 }
 
-func onVariablesRequest(w io.Writer, request dap.VariablesRequest) dap.Message {
+func onVariablesRequest(w io.Writer, request *dap.VariablesRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "VariablesRequest is not yet supported")
 }
 
-func onSetVariableRequest(w io.Writer, request dap.SetVariableRequest) dap.Message {
+func onSetVariableRequest(w io.Writer, request *dap.SetVariableRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "setVariableRequest is not yet supported")
 }
 
-func onSetExpressionRequest(w io.Writer, request dap.SetExpressionRequest) dap.Message {
+func onSetExpressionRequest(w io.Writer, request *dap.SetExpressionRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SetExpressionRequest is not yet supported")
 }
 
-func onSourceRequest(w io.Writer, request dap.SourceRequest) dap.Message {
+func onSourceRequest(w io.Writer, request *dap.SourceRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SourceRequest is not yet supported")
 }
 
-func onThreadsRequest(w io.Writer, request dap.ThreadsRequest) dap.Message {
+func onThreadsRequest(w io.Writer, request *dap.ThreadsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ThreadsRequest is not yet supported")
 }
 
-func onTerminateThreadsRequest(w io.Writer, request dap.TerminateThreadsRequest) dap.Message {
+func onTerminateThreadsRequest(w io.Writer, request *dap.TerminateThreadsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "TerminateRequest is not yet supported")
 }
 
-func onEvaluateRequest(w io.Writer, request dap.EvaluateRequest) dap.Message {
+func onEvaluateRequest(w io.Writer, request *dap.EvaluateRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "EvaluateRequest is not yet supported")
 }
 
-func onStepInTargetsRequest(w io.Writer, request dap.StepInTargetsRequest) dap.Message {
+func onStepInTargetsRequest(w io.Writer, request *dap.StepInTargetsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "StepInTargetRequest is not yet supported")
 }
 
-func onGotoTargetsRequest(w io.Writer, request dap.GotoTargetsRequest) dap.Message {
+func onGotoTargetsRequest(w io.Writer, request *dap.GotoTargetsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "GotoTargetRequest is not yet supported")
 }
 
-func onCompletionsRequest(w io.Writer, request dap.CompletionsRequest) dap.Message {
+func onCompletionsRequest(w io.Writer, request *dap.CompletionsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "CompletionRequest is not yet supported")
 }
 
-func onExceptionInfoRequest(w io.Writer, request dap.ExceptionInfoRequest) dap.Message {
+func onExceptionInfoRequest(w io.Writer, request *dap.ExceptionInfoRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ExceptionRequest is not yet supported")
 }
 
-func onLoadedSourcesRequest(w io.Writer, request dap.LoadedSourcesRequest) dap.Message {
+func onLoadedSourcesRequest(w io.Writer, request *dap.LoadedSourcesRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "LoadedRequest is not yet supported")
 }
 
-func onDataBreakpointInfoRequest(w io.Writer, request dap.DataBreakpointInfoRequest) dap.Message {
+func onDataBreakpointInfoRequest(w io.Writer, request *dap.DataBreakpointInfoRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "DataBreakpointInfoRequest is not yet supported")
 }
 
-func onSetDataBreakpointsRequest(w io.Writer, request dap.SetDataBreakpointsRequest) dap.Message {
+func onSetDataBreakpointsRequest(w io.Writer, request *dap.SetDataBreakpointsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "SetDataBreakpointsRequest is not yet supported")
 }
 
-func onReadMemoryRequest(w io.Writer, request dap.ReadMemoryRequest) dap.Message {
+func onReadMemoryRequest(w io.Writer, request *dap.ReadMemoryRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "ReadMemoryRequest is not yet supported")
 }
 
-func onDisassembleRequest(w io.Writer, request dap.DisassembleRequest) dap.Message {
+func onDisassembleRequest(w io.Writer, request *dap.DisassembleRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "DisassembleRequest is not yet supported")
 }
 
-func onCancelRequest(w io.Writer, request dap.CancelRequest) dap.Message {
+func onCancelRequest(w io.Writer, request *dap.CancelRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "CancelRequest is not yet supported")
 }
 
-func onBreakpointLocationsRequest(w io.Writer, request dap.BreakpointLocationsRequest) dap.Message {
+func onBreakpointLocationsRequest(w io.Writer, request *dap.BreakpointLocationsRequest) dap.Message {
 	return newErrorResponse(request.Seq, request.Command, "BreakpointLocationsRequest is not yet supported")
 }
 
