@@ -178,7 +178,7 @@ func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 	}
 	dap.WriteProtocolMessage(rw, response)
 	log.Printf("Response sent\n\t%#v\n", response)
-	debugSession.run(rw)
+	debugSession.doContinue(rw)
 	rw.Flush()
 	return nil
 }
@@ -194,20 +194,37 @@ func writeAndLogProtocolMessage(w io.Writer, message dap.Message) {
 
 var debugSession fakeDebugSession
 
+// The debugging session will keep track of how many breakpoints
+// have been set. Once start-up is done (i.e. configurationDone
+// request is processed), it will "stop" at each breakpoint one
+// by one, and once there are no more, it will trigger a terminate
+// event.
 type fakeDebugSession struct {
+	// breakpointSet is a counter of the remaining breakpoints
+	// that the debug session is yet to stop at before the program
+	// terminates. It must be 0 at start-up and termination.
 	breakpointsSet int
-	canRun         bool
+
+	// canContinue is used to implement a small state machine between
+	// multiple server functions. The debug session is paused
+	// (canContinue is false) while multiple client requests are being
+	// processed during the start-up sequence or when stopping at a
+	// breakpoint. Once the client allows the session to continue,
+	// the value is flipped to true. It is reset back to false
+	// at termination and is ready for the next client session.
+	canContinue bool
 }
 
-// run is to be called between handling of each request/response
-// to simulate events from the debug session. If the program
-// is "stopped", this is a no-op. Otherwise, this will "stop"
-// on a breakpoint or terminate if there no more breakpoints.
-func (ds *fakeDebugSession) run(w io.Writer) {
-	if !ds.canRun {
+// doContinue is to be called between handling of each request/response
+// to simulate events from the debug session that is in doContinue mode.
+// If the program is "stopped", this will be a no-op. Otherwise, this
+// will "stop" on a breakpoint or terminate if there are no more
+// breakpoints.
+func (ds *fakeDebugSession) doContinue(w io.Writer) {
+	if !ds.canContinue {
 		return
 	}
-	ds.canRun = false
+	ds.canContinue = false
 	var e dap.Message
 	if ds.breakpointsSet == 0 {
 		e = dap.TerminatedEvent{
@@ -333,14 +350,14 @@ func onConfigurationDoneRequest(w io.Writer, request dap.ConfigurationDoneReques
 	writeAndLogProtocolMessage(w, e)
 	response := dap.ConfigurationDoneResponse{}
 	response.Response = newResponse(request.Seq, request.Command)
-	debugSession.canRun = true
+	debugSession.canContinue = true
 	return response
 }
 
 func onContinueRequest(w io.Writer, request dap.ContinueRequest) dap.Message {
 	response := dap.ContinueResponse{}
 	response.Response = newResponse(request.Seq, request.Command)
-	debugSession.canRun = true
+	debugSession.canContinue = true
 	return response
 }
 
