@@ -199,11 +199,10 @@ type fakeDebugSession struct {
 	canRun         bool
 }
 
-func (ds *fakeDebugSession) init() {
-	ds.breakpointsSet = 0
-	ds.canRun = false
-}
-
+// run is to be called between handling of each request/response
+// to simulate events from the debug session. If the program
+// is "stopped", this is a no-op. Otherwise, this will "stop"
+// on a breakpoint or terminate if there no more breakpoints.
 func (ds *fakeDebugSession) run(w io.Writer) {
 	if !ds.canRun {
 		return
@@ -273,7 +272,6 @@ func onInitializeRequest(w io.Writer, request dap.InitializeRequest) dap.Message
 	// the configuration sequence with 'configurationDone' request.
 	e := dap.InitializedEvent{Event: newEvent("initialized")}
 	writeAndLogProtocolMessage(w, e)
-	debugSession.init()
 	return response
 }
 
