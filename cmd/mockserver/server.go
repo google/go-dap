@@ -216,7 +216,7 @@ type fakeDebugSession struct {
 }
 
 // doContinue is to be called between handling of each request/response
-// to simulate events from the debug session that is in doContinue mode.
+// to simulate events from the debug session that is in continue mode.
 // If the program is "stopped", this will be a no-op. Otherwise, this
 // will "stop" on a breakpoint or terminate if there are no more
 // breakpoints.
@@ -342,9 +342,10 @@ func onSetExceptionBreakpointsRequest(w io.Writer, request dap.SetExceptionBreak
 }
 
 func onConfigurationDoneRequest(w io.Writer, request dap.ConfigurationDoneRequest) dap.Message {
-	// This would be the place to check if the session was configured to stop on entry
-	// and if that is the case, to issue a stopped-on-breakpoint event.
-	// This being a mock implementation, we "let" the program continue.
+	// This would be the place to check if the session was configured to
+	// stop on entry and if that is the case, to issue a
+	// stopped-on-breakpoint event. This being a mock implementation,
+	// we "let" the program continue.
 	onContinueRequest(w, dap.ContinueRequest{Arguments: dap.ContinueArguments{ThreadId: 1}})
 	e := dap.ThreadEvent{Event: newEvent("thread"), Body: dap.ThreadEventBody{Reason: "started", ThreadId: 1}}
 	writeAndLogProtocolMessage(w, e)
