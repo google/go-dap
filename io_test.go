@@ -278,12 +278,12 @@ func TestReadWriteWithCodec(t *testing.T) {
 		t.Error(err)
 	}
 
-	readReq, err := DecodeProtocolMessage(msg)
+	readReqPtr, err := DecodeProtocolMessage(msg)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if !reflect.DeepEqual(req, readReq) {
-		t.Errorf("got req=%#v, want %#v", readReq, req)
+	if !reflect.DeepEqual(readReqPtr, &req) {
+		t.Errorf("got req=%#v, want %#v", readReqPtr, req)
 	}
 }
