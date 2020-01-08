@@ -278,12 +278,7 @@ type ConfigurationDoneResponse struct {
 type LaunchRequest struct {
 	Request
 
-	Arguments LaunchRequestArguments `json:"arguments"`
-}
-
-type LaunchRequestArguments struct {
-	NoDebug bool        `json:"noDebug,omitempty"`
-	Restart interface{} `json:"__restart,omitempty"`
+	Arguments map[string]interface{} `json:"arguments"`
 }
 
 type LaunchResponse struct {

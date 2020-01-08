@@ -114,11 +114,10 @@ var configurationDoneResponseStruct = ConfigurationDoneResponse{Response: newRes
 
 // -------- Launch
 
-var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"noDebug": true,"name":"Launch","type":"go","request":"launch","mode":"debug","program":"/Users/foo/go/src/hello","__sessionId":"4c88179f-1202-4f75-9e67-5bf535cde30a","args":["somearg"],"env":{"GOPATH":"/Users/foo/go","HOME":"/Users/foo","SHELL":"/bin/bash"}}}`
+var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"noDebug": true,"name":"Launch"}}`
 var launchRequestStruct = LaunchRequest{
-	Request: newRequest(3, "launch"),
-	// TODO: support debugger-specific arguments
-	Arguments: LaunchRequestArguments{NoDebug: true},
+	Request:   newRequest(3, "launch"),
+	Arguments: map[string]interface{}{"noDebug": true, "name": "Launch"},
 }
 
 var launchResponseString = `{"seq":3,"type":"response","request_seq":4,"command":"launch","success":true}`
@@ -942,47 +941,46 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 	}
 }
 
-
 // newRequest builds a Request struct with the specified fields.
 func newRequest(seq int, command string) Request {
-        return Request{
-                ProtocolMessage: ProtocolMessage{
-                        Type: "request",
-                        Seq:  seq,
-                },
-                Command: command,
-        }
+	return Request{
+		ProtocolMessage: ProtocolMessage{
+			Type: "request",
+			Seq:  seq,
+		},
+		Command: command,
+	}
 }
 
 // newEvent builds an Event struct with the specified fields.
 func newEvent(seq int, event string) Event {
-        return Event{
-                ProtocolMessage: ProtocolMessage{
-                        Seq:  seq,
-                        Type: "event",
-                },
-                Event: event,
-        }
+	return Event{
+		ProtocolMessage: ProtocolMessage{
+			Seq:  seq,
+			Type: "event",
+		},
+		Event: event,
+	}
 }
 
 // newResponse builds a Response struct with the specified fields.
 func newResponse(seq int, requestSeq int, command string, success bool) Response {
-        return Response{
-                ProtocolMessage: ProtocolMessage{
-                        Seq:  seq,
-                        Type: "response",
-                },
-                Command:    command,
-                RequestSeq: requestSeq,
-                Success:    success,
-        }
+	return Response{
+		ProtocolMessage: ProtocolMessage{
+			Seq:  seq,
+			Type: "response",
+		},
+		Command:    command,
+		RequestSeq: requestSeq,
+		Success:    success,
+	}
 }
 
 // newErrorResponse builds an ErrorResponse struct with the specified fields.
 func newErrorResponse(seq int, requestSeq int, command string, message string) ErrorResponse {
-        er := ErrorResponse{
-                Response: newResponse(seq, requestSeq, command, false),
-        }
-        er.Message = message
-        return er
+	er := ErrorResponse{
+		Response: newResponse(seq, requestSeq, command, false),
+	}
+	er.Message = message
+	return er
 }

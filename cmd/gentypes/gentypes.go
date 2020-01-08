@@ -261,6 +261,10 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 			} else {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", bodyTypeName)
 			}
+		} else if propName == "arguments" && typeName == "LaunchRequest" {
+			// Special case for LaunchRequest arguments, which are implementation
+			// defined and don't have pre-set field names in the specification.
+			fmt.Fprintln(&b, "\tArguments map[string]interface{} `json:\"arguments\"`")
 		} else {
 			// Go type of this property.
 			goType := parsePropertyType(propDesc)
@@ -378,6 +382,11 @@ type Message interface {
 
 `
 
+// typesBlacklist is a blacklist of type names we don't want to emit.
+var typesBlacklist = map[string]bool{
+	"LaunchRequestArguments": true,
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -405,8 +414,10 @@ func main() {
 	}
 
 	for _, typeName := range typeNames {
-		b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
-		b.WriteString("\n")
+		if _, ok := typesBlacklist[typeName]; !ok {
+			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
+			b.WriteString("\n")
+		}
 	}
 
 	// For top-level types, emit an empty implementation of isMessage(), to make

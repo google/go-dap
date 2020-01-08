@@ -22,6 +22,7 @@ import (
 	"net"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/go-dap"
 )
@@ -83,6 +84,10 @@ func TestServer(t *testing.T) {
 			t.Fatal("Could not start server:", err)
 		}
 	}()
+
+	// Give the server some time to start so the clients have something to
+	// connect to.
+	time.Sleep(50 * time.Millisecond)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
