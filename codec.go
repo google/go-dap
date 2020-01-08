@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // This file contains utilities for decoding JSON-encoded bytes into DAP message.
-// TODO(polina): encoding utilities
 
 package dap
 

@@ -14,9 +14,19 @@
 
 // This file defines helpers and request handlers for a dummy server
 // that accepts DAP requests and responds with dummy or error responses.
-// Supported requests:
+// Fake-supported requests:
 // - initialize
-// TODO(polina): add more
+// - launch
+// - setBreakpoints
+// - setExceptionBreakpoints
+// - configurationDone
+// - threads
+// - stackTrace
+// - scopes
+// - variables
+// - continue
+// - disconnect
+// All other requests result in ErrorResponse's.
 
 package main
 
@@ -31,7 +41,7 @@ import (
 )
 
 // server starts a server that listens on a specified port
-// and blocks indefinitely. This server can accept multiple
+// and blocks indefinitely. This server cannot accept multiple
 // client connections at the same time.
 func server(port string) error {
 	listener, err := net.Listen("tcp", ":"+port)
@@ -48,7 +58,7 @@ func server(port string) error {
 			continue
 		}
 		log.Println("Accepted connection from", conn.RemoteAddr())
-		go handleConnection(conn)
+		handleConnection(conn)
 	}
 }
 
@@ -168,8 +178,66 @@ func dispatchRequest(rw *bufio.ReadWriter, request dap.Message) error {
 	}
 	dap.WriteProtocolMessage(rw, response)
 	log.Printf("Response sent\n\t%#v\n", response)
+	debugSession.doContinue(rw)
 	rw.Flush()
 	return nil
+}
+
+func writeAndLogProtocolMessage(w io.Writer, message dap.Message) {
+	dap.WriteProtocolMessage(w, message)
+	log.Printf("Message sent\n\t%#v\n", message)
+}
+
+// -----------------------------------------------------------------------
+// Very Fake Debugger
+//
+
+var debugSession fakeDebugSession
+
+// The debugging session will keep track of how many breakpoints
+// have been set. Once start-up is done (i.e. configurationDone
+// request is processed), it will "stop" at each breakpoint one
+// by one, and once there are no more, it will trigger a terminate
+// event.
+type fakeDebugSession struct {
+	// breakpointSet is a counter of the remaining breakpoints
+	// that the debug session is yet to stop at before the program
+	// terminates. It must be 0 at start-up and termination.
+	breakpointsSet int
+
+	// canContinue is used to implement a small state machine between
+	// multiple server functions. The debug session is paused
+	// (canContinue is false) while multiple client requests are being
+	// processed during the start-up sequence or when stopping at a
+	// breakpoint. Once the client allows the session to continue,
+	// the value is flipped to true. It is reset back to false
+	// at termination and is ready for the next client session.
+	canContinue bool
+}
+
+// doContinue is to be called between handling of each request/response
+// to simulate events from the debug session that is in continue mode.
+// If the program is "stopped", this will be a no-op. Otherwise, this
+// will "stop" on a breakpoint or terminate if there are no more
+// breakpoints.
+func (ds *fakeDebugSession) doContinue(w io.Writer) {
+	if !ds.canContinue {
+		return
+	}
+	ds.canContinue = false
+	var e dap.Message
+	if ds.breakpointsSet == 0 {
+		e = &dap.TerminatedEvent{
+			Event: *newEvent("terminated"),
+		}
+	} else {
+		e = &dap.StoppedEvent{
+			Event: *newEvent("stopped"),
+			Body:  dap.StoppedEventBody{Reason: "breakpoint", ThreadId: 1, AllThreadsStopped: true},
+		}
+		ds.breakpointsSet--
+	}
+	writeAndLogProtocolMessage(w, e)
 }
 
 // -----------------------------------------------------------------------
@@ -220,16 +288,17 @@ func onInitializeRequest(w io.Writer, request *dap.InitializeRequest) dap.Messag
 	// Notify the client with an 'initialized' event. The client will end
 	// the configuration sequence with 'configurationDone' request.
 	e := &dap.InitializedEvent{Event: *newEvent("initialized")}
-	dap.WriteProtocolMessage(w, e)
-	log.Printf("Event sent\n\t%#v\n", e)
+	writeAndLogProtocolMessage(w, e)
 	return response
 }
 
 func onLaunchRequest(w io.Writer, request *dap.LaunchRequest) dap.Message {
 	// This is where a real debug adaptor would check the soundness of the
-	// arguments (program from launch.json) and then use them to launch the
+	// arguments (e.g. program from launch.json) and then use them to launch the
 	// debugger and attach to the program.
-	return newErrorResponse(request.Seq, request.Command, "LaunchRequest is not yet supported")
+	response := &dap.LaunchResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	return response
 }
 
 func onAttachRequest(w io.Writer, request *dap.AttachRequest) dap.Message {
@@ -237,7 +306,9 @@ func onAttachRequest(w io.Writer, request *dap.AttachRequest) dap.Message {
 }
 
 func onDisconnectRequest(w io.Writer, request *dap.DisconnectRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "DisconnectRequest is not yet supported")
+	response := &dap.DisconnectResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	return response
 }
 
 func onTerminateRequest(w io.Writer, request *dap.TerminateRequest) dap.Message {
@@ -249,7 +320,15 @@ func onRestartRequest(w io.Writer, request *dap.RestartRequest) dap.Message {
 }
 
 func onSetBreakpointsRequest(w io.Writer, request *dap.SetBreakpointsRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "SetBreakpointsRequest is not yet supported")
+	response := &dap.SetBreakpointsResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	response.Body.Breakpoints = make([]dap.Breakpoint, len(request.Arguments.Breakpoints))
+	for i, b := range request.Arguments.Breakpoints {
+		response.Body.Breakpoints[i].Line = b.Line
+		response.Body.Breakpoints[i].Verified = true
+		debugSession.breakpointsSet++
+	}
+	return response
 }
 
 func onSetFunctionBreakpointsRequest(w io.Writer, request *dap.SetFunctionBreakpointsRequest) dap.Message {
@@ -257,15 +336,30 @@ func onSetFunctionBreakpointsRequest(w io.Writer, request *dap.SetFunctionBreakp
 }
 
 func onSetExceptionBreakpointsRequest(w io.Writer, request *dap.SetExceptionBreakpointsRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "SetExceptionBreakpointsRequest is not yet supported")
+	response := &dap.SetExceptionBreakpointsResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	return response
 }
 
 func onConfigurationDoneRequest(w io.Writer, request *dap.ConfigurationDoneRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "ConfigurationDoneRequest is not yet supported")
+	// This would be the place to check if the session was configured to
+	// stop on entry and if that is the case, to issue a
+	// stopped-on-breakpoint event. This being a mock implementation,
+	// we "let" the program continue.
+	onContinueRequest(w, &dap.ContinueRequest{Arguments: dap.ContinueArguments{ThreadId: 1}})
+	e := &dap.ThreadEvent{Event: *newEvent("thread"), Body: dap.ThreadEventBody{Reason: "started", ThreadId: 1}}
+	writeAndLogProtocolMessage(w, e)
+	response := &dap.ConfigurationDoneResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	debugSession.canContinue = true
+	return response
 }
 
 func onContinueRequest(w io.Writer, request *dap.ContinueRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "ContinueRequest is not yet supported")
+	response := &dap.ContinueResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	debugSession.canContinue = true
+	return response
 }
 
 func onNextRequest(w io.Writer, request *dap.NextRequest) dap.Message {
@@ -301,15 +395,42 @@ func onPauseRequest(w io.Writer, request *dap.PauseRequest) dap.Message {
 }
 
 func onStackTraceRequest(w io.Writer, request *dap.StackTraceRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "StackTraceRequest is not yet supported")
+	response := &dap.StackTraceResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	response.Body = dap.StackTraceResponseBody{
+		StackFrames: []dap.StackFrame{
+			dap.StackFrame{
+				Id:     1000,
+				Source: dap.Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go", SourceReference: 0},
+				Line:   5,
+				Column: 0,
+				Name:   "main.main",
+			},
+		},
+		TotalFrames: 1,
+	}
+	return response
 }
 
 func onScopesRequest(w io.Writer, request *dap.ScopesRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "ScopesRequest is not yet supported")
+	response := &dap.ScopesResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	response.Body = dap.ScopesResponseBody{
+		Scopes: []dap.Scope{
+			dap.Scope{Name: "Local", VariablesReference: 1000, Expensive: false},
+			dap.Scope{Name: "Global", VariablesReference: 1001, Expensive: true},
+		},
+	}
+	return response
 }
 
 func onVariablesRequest(w io.Writer, request *dap.VariablesRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "VariablesRequest is not yet supported")
+	response := &dap.VariablesResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	response.Body = dap.VariablesResponseBody{
+		Variables: []dap.Variable{dap.Variable{Name: "i", Value: "18434528", EvaluateName: "i", VariablesReference: 0}},
+	}
+	return response
 }
 
 func onSetVariableRequest(w io.Writer, request *dap.SetVariableRequest) dap.Message {
@@ -325,7 +446,10 @@ func onSourceRequest(w io.Writer, request *dap.SourceRequest) dap.Message {
 }
 
 func onThreadsRequest(w io.Writer, request *dap.ThreadsRequest) dap.Message {
-	return newErrorResponse(request.Seq, request.Command, "ThreadsRequest is not yet supported")
+	response := &dap.ThreadsResponse{}
+	response.Response = *newResponse(request.Seq, request.Command)
+	response.Body = dap.ThreadsResponseBody{Threads: []dap.Thread{dap.Thread{Id: 1, Name: "main"}}}
+	return response
 }
 
 func onTerminateThreadsRequest(w io.Writer, request *dap.TerminateThreadsRequest) dap.Message {
