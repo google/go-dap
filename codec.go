@@ -35,8 +35,8 @@ func (e *DecodeProtocolMessageFieldError) Error() string {
 }
 
 // DecodeProtocolMessage parses the JSON-encoded data and returns the result of
-// the appropriate type within the ProtocolMessage hierarchy by pointer. If message
-// type, command, etc cannot be cast, returns DecodeProtocolMessageFieldError.
+// the appropriate type within the ProtocolMessage hierarchy. If message type,
+// command, etc cannot be cast, returns DecodeProtocolMessageFieldError.
 // See also godoc for json.Unmarshal, which is used for underlying decoding.
 func DecodeProtocolMessage(data []byte) (Message, error) {
 	var protomsg ProtocolMessage
@@ -51,7 +51,7 @@ func DecodeProtocolMessage(data []byte) (Message, error) {
 	case "event":
 		return decodeEvent(data)
 	default:
-		return protomsg, &DecodeProtocolMessageFieldError{"ProtocolMessage", "type", protomsg.Type}
+		return nil, &DecodeProtocolMessageFieldError{"ProtocolMessage", "type", protomsg.Type}
 	}
 }
 
@@ -59,7 +59,7 @@ type messageCtor func() Message
 
 // decodeRequest determines what request type in the ProtocolMessage hierarchy
 // data corresponds to and uses json.Unmarshal to populate the corresponding
-// struct. The result is returned by pointer.
+// struct to be returned.
 func decodeRequest(data []byte) (Message, error) {
 	var r Request
 	if err := json.Unmarshal(data, &r); err != nil {
@@ -73,8 +73,8 @@ func decodeRequest(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{"Request", "command", r.Command}
 }
 
-// Mapping of request commands and corresponding struct constructors that return
-// by pointer, so it can be passed to json.Unmarshal.
+// Mapping of request commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
 var requestCtor = map[string]messageCtor{
 	"cancel":                  func() Message { return &CancelRequest{} },
 	"runInTerminal":           func() Message { return &RunInTerminalRequest{} },
@@ -121,7 +121,7 @@ var requestCtor = map[string]messageCtor{
 
 // decodeResponse determines what response type in the ProtocolMessage hierarchy
 // data corresponds to and uses json.Unmarshal to populate the corresponding
-// struct. The result is returned by pointer.
+// struct to be returned.
 func decodeResponse(data []byte) (Message, error) {
 	var r Response
 	if err := json.Unmarshal(data, &r); err != nil {
@@ -140,8 +140,8 @@ func decodeResponse(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{"Response", "command", r.Command}
 }
 
-// Mapping of response commands and corresponding struct constructors that return
-// by pointer, so it can be passed to json.Unmarshal.
+// Mapping of response commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
 var responseCtor = map[string]messageCtor{
 	"cancel":                  func() Message { return &CancelResponse{} },
 	"runInTerminal":           func() Message { return &RunInTerminalResponse{} },
@@ -188,7 +188,7 @@ var responseCtor = map[string]messageCtor{
 
 // decodeEvent determines what event type in the ProtocolMessage hierarchy
 // data corresponds to and uses json.Unmarshal to populate the corresponding
-// struct. The result is returned by pointer.
+// struct to be returned.
 func decodeEvent(data []byte) (Message, error) {
 	var e Event
 	if err := json.Unmarshal(data, &e); err != nil {
@@ -202,8 +202,8 @@ func decodeEvent(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{"Event", "event", e.Event}
 }
 
-// Mapping of event ids and corresponding struct constructors that return
-// by pointer, so it can be passed to json.Unmarshal.
+// Mapping of event ids and corresponding struct constructors that
+// can be passed to json.Unmarshal.
 var eventCtor = map[string]messageCtor{
 	"initialized":  func() Message { return &InitializedEvent{} },
 	"stopped":      func() Message { return &StoppedEvent{} },
