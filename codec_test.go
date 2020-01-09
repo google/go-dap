@@ -114,11 +114,10 @@ var configurationDoneResponseStruct = ConfigurationDoneResponse{Response: *newRe
 
 // -------- Launch
 
-var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"noDebug": true,"name":"Launch","type":"go","request":"launch","mode":"debug","program":"/Users/foo/go/src/hello","__sessionId":"4c88179f-1202-4f75-9e67-5bf535cde30a","args":["somearg"],"env":{"GOPATH":"/Users/foo/go","HOME":"/Users/foo","SHELL":"/bin/bash"}}}`
+var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"noDebug": true,"name":"Launch"}}`
 var launchRequestStruct = LaunchRequest{
-	Request: *newRequest(3, "launch"),
-	// TODO: support debugger-specific arguments
-	Arguments: LaunchRequestArguments{NoDebug: true},
+	Request:   *newRequest(3, "launch"),
+	Arguments: map[string]interface{}{"noDebug": true, "name": "Launch"},
 }
 
 var launchResponseString = `{"seq":3,"type":"response","request_seq":4,"command":"launch","success":true}`
