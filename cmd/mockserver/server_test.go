@@ -84,6 +84,8 @@ func TestServer(t *testing.T) {
 			t.Fatal("Could not start server:", err)
 		}
 	}()
+	// Give server time to start listening before clients connect
+	time.Sleep(100 * time.Millisecond)
 
 	// Give the server some time to start so the clients have something to
 	// connect to.
