@@ -385,6 +385,8 @@ type Message interface {
 
 // typesBlacklist is a blacklist of type names we don't want to emit.
 var typesBlacklist = map[string]bool{
+	// LaunchRequest arguments can be arbitrary maps. Therefore, this type is not
+	// used anywhere.
 	"LaunchRequestArguments": true,
 }
 
