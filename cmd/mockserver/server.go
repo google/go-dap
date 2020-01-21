@@ -288,9 +288,7 @@ func (ds *fakeDebugSession) doContinue() {
 		}
 	}()
 	// Keep potentially slow send out of the lock
-	if e != nil {
-		ds.send(e)
-	}
+	ds.send(e)
 }
 
 // -----------------------------------------------------------------------
