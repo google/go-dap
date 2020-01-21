@@ -54,7 +54,7 @@ import (
 )
 
 // server starts a server that listens on a specified port
-// and blocks indefinitely. This server cannot accept multiple
+// and blocks indefinitely. This server can accept multiple
 // client connections at the same time.
 func server(port string) error {
 	listener, err := net.Listen("tcp", ":"+port)
@@ -71,8 +71,8 @@ func server(port string) error {
 			continue
 		}
 		log.Println("Accepted connection from", conn.RemoteAddr())
-		// Run this in a goroutine to accept multiple connections at once
-		handleConnection(conn)
+		// Handle multiple client connections concurrently
+		go handleConnection(conn)
 	}
 }
 
@@ -253,7 +253,7 @@ type fakeDebugSession struct {
 	sendQueue chan dap.Message
 	sendWg    sync.WaitGroup
 
-	// stopDebug is used notify long-running handlers to stop processing.
+	// stopDebug is used to notify long-running handlers to stop processing.
 	stopDebug chan struct{}
 
 	// bpSet is a counter of the remaining breakpoints that the debug
@@ -268,26 +268,23 @@ type fakeDebugSession struct {
 // breakpoints. Safe to use concurrently.
 func (ds *fakeDebugSession) doContinue() {
 	var e dap.Message
-	func() {
-		ds.bpSetMux.Lock()
-		defer ds.bpSetMux.Unlock()
-		if ds.bpSet == 0 {
-			// Pretend that the program is running.
-			// The delay will alow for all in-flight responses
-			// to be sent before termination.
-			time.Sleep(1000 * time.Millisecond)
-			e = &dap.TerminatedEvent{
-				Event: *newEvent("terminated"),
-			}
-		} else {
-			e = &dap.StoppedEvent{
-				Event: *newEvent("stopped"),
-				Body:  dap.StoppedEventBody{Reason: "breakpoint", ThreadId: 1, AllThreadsStopped: true},
-			}
-			ds.bpSet--
+	ds.bpSetMux.Lock()
+	if ds.bpSet == 0 {
+		// Pretend that the program is running.
+		// The delay will alow for all in-flight responses
+		// to be sent before termination.
+		time.Sleep(1000 * time.Millisecond)
+		e = &dap.TerminatedEvent{
+			Event: *newEvent("terminated"),
 		}
-	}()
-	// Keep potentially slow send out of the lock
+	} else {
+		e = &dap.StoppedEvent{
+			Event: *newEvent("stopped"),
+			Body:  dap.StoppedEventBody{Reason: "breakpoint", ThreadId: 1, AllThreadsStopped: true},
+		}
+		ds.bpSet--
+	}
+	ds.bpSetMux.Unlock()
 	ds.send(e)
 }
 
