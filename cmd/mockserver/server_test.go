@@ -126,7 +126,7 @@ func client(t *testing.T, port string, wg *sync.WaitGroup) {
 	expectMessage(t, r, threadEvent)
 	expectMessage(t, r, configurationDoneResponse)
 
-	// Stop on preconfigured breakpoint
+	// Stop on preconfigured breakpoint & Continue
 
 	expectMessage(t, r, stoppedEvent)
 
@@ -139,13 +139,14 @@ func client(t *testing.T, port string, wg *sync.WaitGroup) {
 	dap.WriteBaseMessage(conn, scopesRequest)
 	expectMessage(t, r, scopesResponse)
 
+	// Processing of this request will be slow due to a fake delay.
+	// Send the next request right away and confirm that processing
+	// happens concurrently and the two responses are received
+	// out of order.
 	dap.WriteBaseMessage(conn, variablesRequest)
-	expectMessage(t, r, variablesResponse)
-
-	// Continue
-
 	dap.WriteBaseMessage(conn, continueRequest)
 	expectMessage(t, r, continueResponse)
+	expectMessage(t, r, variablesResponse)
 
 	// Shut down
 
