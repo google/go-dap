@@ -65,6 +65,8 @@ func Test_ReadBaseMessage(t *testing.T) {
 		{"Content-Length 1\r\n\r\nabc", nil, []byte("abc"), ErrHeaderNotContentLength},
 		{"Content-Length: 10\r\n\r\nabc", nil, []byte(""), io.ErrUnexpectedEOF},
 		{"Content-Length: 3\r\n\r\nabc", []byte("abc"), []byte(""), nil},
+		{"Content-Length: 4194305\r\n\r\nabc", nil, []byte("abc"), ErrHeaderContentTooLong},
+		{"Content-Length: 6506440440440\r\n\r\nabc", nil, []byte("abc"), ErrHeaderContentTooLong},
 	}
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
