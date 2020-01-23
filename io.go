@@ -44,11 +44,19 @@ var (
 	// ErrHeaderNotContentLength is returned when the parsed header is
 	// not of valid Content-Length format.
 	ErrHeaderNotContentLength = &BaseProtocolError{fmt.Sprintf("header format is not %q", contentLengthHeaderRegex)}
+
+	// ErrHeaderContentTooLong is returned when the content length specified in
+	// the header is above contentMaxLength.
+	ErrHeaderContentTooLong = &BaseProtocolError{fmt.Sprintf("content length over %v bytes", contentMaxLength)}
+)
+
+const (
+	crLfcrLf               = "\r\n\r\n"
+	contentLengthHeaderFmt = "Content-Length: %d\r\n\r\n"
+	contentMaxLength       = 4 * 1024 * 1024
 )
 
 var (
-	crLfcrLf                 = "\r\n\r\n"
-	contentLengthHeaderFmt   = "Content-Length: %d\r\n\r\n"
 	contentLengthHeaderRegex = regexp.MustCompile("^Content-Length: ([0-9]+)$")
 )
 
@@ -72,6 +80,9 @@ func ReadBaseMessage(r *bufio.Reader) ([]byte, error) {
 	contentLength, err := readContentLengthHeader(r)
 	if err != nil {
 		return nil, err
+	}
+	if contentLength > contentMaxLength {
+		return nil, ErrHeaderContentTooLong
 	}
 	content := make([]byte, contentLength)
 	if _, err = io.ReadFull(r, content); err != nil {
