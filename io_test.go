@@ -287,3 +287,51 @@ func TestReadWriteWithCodec(t *testing.T) {
 		t.Errorf("got req=%#v, want %#v", readReqPtr, req)
 	}
 }
+
+func TestWriteProtocolMessage(t *testing.T) {
+	req := &CancelRequest{
+		Request: Request{
+			ProtocolMessage: ProtocolMessage{
+				Type: "request",
+				Seq:  25,
+			},
+			Command: "cancel",
+		},
+		Arguments: CancelArguments{RequestId: 24},
+	}
+
+	buf := new(bytes.Buffer)
+	err := WriteProtocolMessage(buf, req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	want := "Content-Length: 75\r\n\r\n{\"seq\":25,\"type\":\"request\",\"command\":\"cancel\",\"arguments\":{\"requestId\":24}}"
+	if buf.String() != want {
+		t.Errorf("got %v, want %v", buf.String(), want)
+	}
+}
+
+func TestReadProtocolMessage(t *testing.T) {
+	input := "Content-Length: 75\r\n\r\n{\"seq\":25,\"type\":\"request\",\"command\":\"cancel\",\"arguments\":{\"requestId\":24}}"
+	reader := bufio.NewReader(strings.NewReader(input))
+
+	msg, err := ReadProtocolMessage(reader)
+	if err != nil {
+		t.Error(err)
+	}
+
+	wantreq := &CancelRequest{
+		Request: Request{
+			ProtocolMessage: ProtocolMessage{
+				Type: "request",
+				Seq:  25,
+			},
+			Command: "cancel",
+		},
+		Arguments: CancelArguments{RequestId: 24},
+	}
+	if !reflect.DeepEqual(msg, wantreq) {
+		t.Errorf("got req=%#v, want %#v", msg, wantreq)
+	}
+}
