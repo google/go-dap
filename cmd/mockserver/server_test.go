@@ -81,7 +81,7 @@ func TestServer(t *testing.T) {
 	go func() {
 		err := server(port)
 		if err != nil {
-			t.Fatal("Could not start server:", err)
+			log.Fatal("Could not start server:", err)
 		}
 	}()
 	// Give server time to start listening before clients connect
@@ -98,7 +98,7 @@ func client(t *testing.T, port string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	conn, err := net.Dial("tcp", ":"+port)
 	if err != nil {
-		t.Fatal("Could not connect to server:", err)
+		log.Fatal("Could not connect to server:", err)
 	}
 	defer func() {
 		t.Log("Closing connection to server at", conn.RemoteAddr())

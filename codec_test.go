@@ -975,12 +975,3 @@ func newResponse(seq int, requestSeq int, command string, success bool) *Respons
 		Success:    success,
 	}
 }
-
-// newErrorResponse builds an ErrorResponse struct with the specified fields.
-func newErrorResponse(seq int, requestSeq int, command string, message string) *ErrorResponse {
-	er := &ErrorResponse{
-		Response: *newResponse(seq, requestSeq, command, false),
-	}
-	er.Message = message
-	return er
-}
