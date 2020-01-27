@@ -448,7 +448,7 @@ func (ds *fakeDebugSession) onStackTraceRequest(request *dap.StackTraceRequest) 
 	response.Response = *newResponse(request.Seq, request.Command)
 	response.Body = dap.StackTraceResponseBody{
 		StackFrames: []dap.StackFrame{
-			dap.StackFrame{
+			{
 				Id:     1000,
 				Source: dap.Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go", SourceReference: 0},
 				Line:   5,
@@ -466,8 +466,8 @@ func (ds *fakeDebugSession) onScopesRequest(request *dap.ScopesRequest) {
 	response.Response = *newResponse(request.Seq, request.Command)
 	response.Body = dap.ScopesResponseBody{
 		Scopes: []dap.Scope{
-			dap.Scope{Name: "Local", VariablesReference: 1000, Expensive: false},
-			dap.Scope{Name: "Global", VariablesReference: 1001, Expensive: true},
+			{Name: "Local", VariablesReference: 1000, Expensive: false},
+			{Name: "Global", VariablesReference: 1001, Expensive: true},
 		},
 	}
 	ds.send(response)
@@ -483,7 +483,7 @@ func (ds *fakeDebugSession) onVariablesRequest(request *dap.VariablesRequest) {
 		response := &dap.VariablesResponse{}
 		response.Response = *newResponse(request.Seq, request.Command)
 		response.Body = dap.VariablesResponseBody{
-			Variables: []dap.Variable{dap.Variable{Name: "i", Value: "18434528", EvaluateName: "i", VariablesReference: 0}},
+			Variables: []dap.Variable{{Name: "i", Value: "18434528", EvaluateName: "i", VariablesReference: 0}},
 		}
 		ds.send(response)
 	}
@@ -504,7 +504,7 @@ func (ds *fakeDebugSession) onSourceRequest(request *dap.SourceRequest) {
 func (ds *fakeDebugSession) onThreadsRequest(request *dap.ThreadsRequest) {
 	response := &dap.ThreadsResponse{}
 	response.Response = *newResponse(request.Seq, request.Command)
-	response.Body = dap.ThreadsResponseBody{Threads: []dap.Thread{dap.Thread{Id: 1, Name: "main"}}}
+	response.Body = dap.ThreadsResponseBody{Threads: []dap.Thread{{Id: 1, Name: "main"}}}
 	ds.send(response)
 
 }

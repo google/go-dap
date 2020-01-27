@@ -182,7 +182,7 @@ var breakpointLocationsResponseString = `{"seq":8,"type":"response","request_seq
 var breakpointLocationsResponseStruct = BreakpointLocationsResponse{
 	Response: *newResponse(8, 9, "breakpointLocations", true),
 	Body: BreakpointLocationsResponseBody{
-		Breakpoints: []BreakpointLocation{BreakpointLocation{Line: 14}},
+		Breakpoints: []BreakpointLocation{{Line: 14}},
 	},
 }
 
@@ -193,7 +193,7 @@ var setBreakpointsRequestStruct = SetBreakpointsRequest{
 	Request: *newRequest(9, "setBreakpoints"),
 	Arguments: SetBreakpointsArguments{
 		Source:         Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go"},
-		Breakpoints:    []SourceBreakpoint{SourceBreakpoint{Line: 14}},
+		Breakpoints:    []SourceBreakpoint{{Line: 14}},
 		Lines:          []int{14},
 		SourceModified: false,
 	},
@@ -203,7 +203,7 @@ var setBreakpointsResponseString = `{"seq":9,"type":"response","request_seq":10,
 var setBreakpointsResponseStruct = SetBreakpointsResponse{
 	Response: *newResponse(9, 10, "setBreakpoints", true),
 	Body: SetBreakpointsResponseBody{
-		Breakpoints: []Breakpoint{Breakpoint{Verified: true, Line: 14}},
+		Breakpoints: []Breakpoint{{Verified: true, Line: 14}},
 	},
 }
 
@@ -213,7 +213,7 @@ var setFunctionBreakpointsRequestString = `{"seq":10,"type":"request","command":
 var setFunctionBreakpointsRequestStruct = SetFunctionBreakpointsRequest{
 	Request: *newRequest(10, "setFunctionBreakpoints"),
 	Arguments: SetFunctionBreakpointsArguments{
-		Breakpoints: []FunctionBreakpoint{FunctionBreakpoint{Name: "blah"}},
+		Breakpoints: []FunctionBreakpoint{{Name: "blah"}},
 	},
 }
 
@@ -221,7 +221,7 @@ var setFunctionBreakpointsResponseString = `{"seq":10,"type":"response","request
 var setFunctionBreakpointsResponseStruct = SetFunctionBreakpointsResponse{
 	Response: *newResponse(10, 11, "setFunctionBreakpoints", true),
 	Body: SetFunctionBreakpointsResponseBody{
-		Breakpoints: []Breakpoint{Breakpoint{Verified: true, Line: 20}},
+		Breakpoints: []Breakpoint{{Verified: true, Line: 20}},
 	},
 }
 
@@ -259,7 +259,7 @@ var setDataBreakpointsRequestString = `{"seq":13,"type":"request","command":"set
 var setDataBreakpointsRequestStruct = SetDataBreakpointsRequest{
 	Request: *newRequest(13, "setDataBreakpoints"),
 	Arguments: SetDataBreakpointsArguments{
-		Breakpoints: []DataBreakpoint{DataBreakpoint{DataId: "dataid"}},
+		Breakpoints: []DataBreakpoint{{DataId: "dataid"}},
 	},
 }
 
@@ -267,7 +267,7 @@ var setDataBreakpointsResponseString = `{"seq":13,"type":"response","request_seq
 var setDataBreakpointsResponseStruct = SetDataBreakpointsResponse{
 	Response: *newResponse(13, 14, "setDataBreakpoints", true),
 	Body: SetDataBreakpointsResponseBody{
-		Breakpoints: []Breakpoint{Breakpoint{Verified: true, Line: 100}},
+		Breakpoints: []Breakpoint{{Verified: true, Line: 100}},
 	},
 }
 
@@ -390,7 +390,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 	Response: *newResponse(23, 24, "stackTrace", true),
 	Body: StackTraceResponseBody{
 		StackFrames: []StackFrame{
-			StackFrame{
+			{
 				Id: 1000,
 				Source: Source{
 					Name:            "hello.go",
@@ -401,7 +401,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 				Column: 0,
 				Name:   "main.main",
 			},
-			StackFrame{
+			{
 				Id: 1001,
 				Source: Source{
 					Name:            "proc.go",
@@ -412,7 +412,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 				Column: 0,
 				Name:   "runtime.main",
 			},
-			StackFrame{
+			{
 				Id: 1002,
 				Source: Source{
 					Name:            "asm_amd64.s",
@@ -441,12 +441,12 @@ var scopesResponseStruct = ScopesResponse{
 	Response: *newResponse(24, 25, "scopes", true),
 	Body: ScopesResponseBody{
 		Scopes: []Scope{
-			Scope{
+			{
 				Name:               "Local",
 				VariablesReference: 1000,
 				Expensive:          false,
 			},
-			Scope{
+			{
 				Name:               "Global",
 				VariablesReference: 1001,
 				Expensive:          false,
@@ -468,7 +468,7 @@ var variablesResponseStruct = VariablesResponse{
 	Response: *newResponse(25, 26, "variables", true),
 	Body: VariablesResponseBody{
 		Variables: []Variable{
-			Variable{
+			{
 				Name:               "x",
 				Value:              "824634220368",
 				EvaluateName:       "x",
@@ -518,7 +518,7 @@ var threadsRequestStruct = ThreadsRequest{Request: *newRequest(28, "threads")}
 var threadsResponseString = `{"seq":28,"type":"response","request_seq":29,"command":"threads","success":true,"body":{"threads":[{"id":1,"name":"Dummy"}]}}`
 var threadsResponseStruct = ThreadsResponse{
 	Response: *newResponse(28, 29, "threads", true),
-	Body:     ThreadsResponseBody{Threads: []Thread{Thread{Id: 1, Name: "Dummy"}}},
+	Body:     ThreadsResponseBody{Threads: []Thread{{Id: 1, Name: "Dummy"}}},
 }
 
 // -------- TerminateThreads
@@ -548,7 +548,7 @@ var modulesResponseStruct = ModulesResponse{
 	Response: *newResponse(30, 31, "modules", true),
 	Body: ModulesResponseBody{
 		TotalModules: 2,
-		Modules:      []Module{Module{Id: 1.0, Name: "one"}},
+		Modules:      []Module{{Id: 1.0, Name: "one"}},
 	},
 }
 
@@ -565,7 +565,7 @@ var loadedSourcesResponseStruct = LoadedSourcesResponse{
 	Response: *newResponse(31, 32, "loadedSources", true),
 	Body: LoadedSourcesResponseBody{
 		Sources: []Source{
-			Source{
+			{
 				Name: "hello.go",
 				Path: "/Users/foo/go/src/hello/hello.go",
 			},
@@ -626,7 +626,7 @@ var stepInTargetsResponseStruct = StepInTargetsResponse{
 	Response: *newResponse(34, 35, "stepInTargets", true),
 	Body: StepInTargetsResponseBody{
 		Targets: []StepInTarget{
-			StepInTarget{Id: 123, Label: "somelabel"},
+			{Id: 123, Label: "somelabel"},
 		},
 	},
 }
@@ -647,7 +647,7 @@ var gotoTargetsResponseStruct = GotoTargetsResponse{
 	Response: *newResponse(35, 36, "gotoTargets", true),
 	Body: GotoTargetsResponseBody{
 		Targets: []GotoTarget{
-			GotoTarget{Id: 123, Label: "somelabel", Line: 10},
+			{Id: 123, Label: "somelabel", Line: 10},
 		},
 	},
 }
@@ -665,7 +665,7 @@ var completionsResponseStruct = CompletionsResponse{
 	Response: *newResponse(36, 37, "completions", true),
 	Body: CompletionsResponseBody{
 		Targets: []CompletionItem{
-			CompletionItem{Label: "somelabel"},
+			{Label: "somelabel"},
 		},
 	},
 }
@@ -720,7 +720,7 @@ var disassembleResponseStruct = DisassembleResponse{
 	Response: *newResponse(38, 39, "disassemble", true),
 	Body: DisassembleResponseBody{
 		Instructions: []DisassembledInstruction{
-			DisassembledInstruction{
+			{
 				Address:     "someaddr",
 				Instruction: "someinstr",
 			},
@@ -805,7 +805,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 	// Sometimes partial messages can be returned on error, but
 	// the user should not rely on those and just check err itself.
 	// Hence the test will not check those.
-	var msgIgnoredOnError Message = nil
+	var msgIgnoredOnError Message
 	const noError = ""
 	tests := []struct {
 		data    string
