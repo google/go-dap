@@ -173,6 +173,19 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 		log.Fatal(err)
 	}
 
+	var comment string
+	descDescriptionJson, ok := descMap["description"]
+	if ok {
+		if err := json.Unmarshal(descDescriptionJson, &comment); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if len(comment) > 0 {
+		comment = prependCommentPerLine(fmt.Sprintf("%s: %s", typeName, comment))
+		fmt.Fprint(&b, comment)
+	}
+
 	if descTypeString == "string" {
 		fmt.Fprintf(&b, "type %s string\n", typeName)
 		return b.String()
@@ -351,7 +364,19 @@ func skipValue(d *json.Decoder) error {
 	return nil
 }
 
-const preamble = `// Copyright 2019 Google LLC
+// prependCommentPerLine returns s such that a Go comment marker ("//") is
+// prepended to each line.
+func prependCommentPerLine(s string) string {
+	parts := strings.Split(s, "\n")
+	var sb strings.Builder
+
+	for _, p := range parts {
+		fmt.Fprintf(&sb, "// %s\n", p)
+	}
+	return sb.String()
+}
+
+const preamble = `// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
