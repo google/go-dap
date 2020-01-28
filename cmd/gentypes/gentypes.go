@@ -174,15 +174,15 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 	}
 
 	var comment string
-	descDescriptionJson, ok := descMap["description"]
+	descriptionJson, ok := descMap["description"]
 	if ok {
-		if err := json.Unmarshal(descDescriptionJson, &comment); err != nil {
+		if err := json.Unmarshal(descriptionJson, &comment); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	if len(comment) > 0 {
-		comment = prependCommentPerLine(fmt.Sprintf("%s: %s", typeName, comment))
+		comment = commentOutEachLine(fmt.Sprintf("%s: %s", typeName, comment))
 		fmt.Fprint(&b, comment)
 	}
 
@@ -364,9 +364,9 @@ func skipValue(d *json.Decoder) error {
 	return nil
 }
 
-// prependCommentPerLine returns s such that a Go comment marker ("//") is
+// commentOutEachLine returns s such that a Go comment marker ("//") is
 // prepended to each line.
-func prependCommentPerLine(s string) string {
+func commentOutEachLine(s string) string {
 	parts := strings.Split(s, "\n")
 	var sb strings.Builder
 
