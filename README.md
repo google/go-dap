@@ -1,7 +1,7 @@
 # go-dap: Go implementation of the Debug Adapter Protocol
 
-[![Build Status](https://travis-ci.org/google/go-dap.svg?branch=master)](travis)
-[![Go Report Card](https://goreportcard.com/badge/github.com/google/go-dap)](https://goreportcard.com/badge/github.com/google/go-dap)
+[![Build Status](https://travis-ci.org/google/go-dap.svg?branch=master)](https://travis-ci.org/google/go-dap)
+[![Go Report Card](https://goreportcard.com/badge/github.com/google/go-dap)](https://goreportcard.com/report/github.com/google/go-dap)
 
 For an overview of DAP, see
 https://microsoft.github.io/debug-adapter-protocol/overview
