@@ -32,7 +32,7 @@ type Message interface {
 type MessageType int
 
 const (
-	RequestType = iota
+	RequestType MessageType = iota
 	EventType
 	ResponseType
 )
