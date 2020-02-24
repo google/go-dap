@@ -26,27 +26,6 @@ package dap
 // is renamed to ErrorMessage to avoid collision with this interface.
 type Message interface {
 	GetSeq() int
-	GetType() MessageType
-}
-
-type MessageType int
-
-const (
-	RequestType MessageType = iota
-	EventType
-	ResponseType
-)
-
-func (mt MessageType) String() string {
-	switch mt {
-	case RequestType:
-		return "Request"
-	case EventType:
-		return "Event"
-	case ResponseType:
-		return "Response"
-	}
-	return ""
 }
 
 // ProtocolMessage: Base class of requests, responses, and events.
@@ -1509,296 +1488,101 @@ type DisassembledInstruction struct {
 	EndColumn        int    `json:"endColumn,omitempty"`
 }
 
-func (m *Request) GetSeq() int          { return m.Seq }
-func (m *Request) GetType() MessageType { return RequestType }
-
-func (m *Event) GetSeq() int          { return m.Seq }
-func (m *Event) GetType() MessageType { return EventType }
-
-func (m *Response) GetSeq() int          { return m.Seq }
-func (m *Response) GetType() MessageType { return ResponseType }
-
-func (m *ErrorResponse) GetSeq() int          { return m.Seq }
-func (m *ErrorResponse) GetType() MessageType { return ResponseType }
-
-func (m *CancelRequest) GetSeq() int          { return m.Seq }
-func (m *CancelRequest) GetType() MessageType { return RequestType }
-
-func (m *CancelResponse) GetSeq() int          { return m.Seq }
-func (m *CancelResponse) GetType() MessageType { return ResponseType }
-
-func (m *InitializedEvent) GetSeq() int          { return m.Seq }
-func (m *InitializedEvent) GetType() MessageType { return EventType }
-
-func (m *StoppedEvent) GetSeq() int          { return m.Seq }
-func (m *StoppedEvent) GetType() MessageType { return EventType }
-
-func (m *ContinuedEvent) GetSeq() int          { return m.Seq }
-func (m *ContinuedEvent) GetType() MessageType { return EventType }
-
-func (m *ExitedEvent) GetSeq() int          { return m.Seq }
-func (m *ExitedEvent) GetType() MessageType { return EventType }
-
-func (m *TerminatedEvent) GetSeq() int          { return m.Seq }
-func (m *TerminatedEvent) GetType() MessageType { return EventType }
-
-func (m *ThreadEvent) GetSeq() int          { return m.Seq }
-func (m *ThreadEvent) GetType() MessageType { return EventType }
-
-func (m *OutputEvent) GetSeq() int          { return m.Seq }
-func (m *OutputEvent) GetType() MessageType { return EventType }
-
-func (m *BreakpointEvent) GetSeq() int          { return m.Seq }
-func (m *BreakpointEvent) GetType() MessageType { return EventType }
-
-func (m *ModuleEvent) GetSeq() int          { return m.Seq }
-func (m *ModuleEvent) GetType() MessageType { return EventType }
-
-func (m *LoadedSourceEvent) GetSeq() int          { return m.Seq }
-func (m *LoadedSourceEvent) GetType() MessageType { return EventType }
-
-func (m *ProcessEvent) GetSeq() int          { return m.Seq }
-func (m *ProcessEvent) GetType() MessageType { return EventType }
-
-func (m *CapabilitiesEvent) GetSeq() int          { return m.Seq }
-func (m *CapabilitiesEvent) GetType() MessageType { return EventType }
-
-func (m *RunInTerminalRequest) GetSeq() int          { return m.Seq }
-func (m *RunInTerminalRequest) GetType() MessageType { return RequestType }
-
-func (m *RunInTerminalResponse) GetSeq() int          { return m.Seq }
-func (m *RunInTerminalResponse) GetType() MessageType { return ResponseType }
-
-func (m *InitializeRequest) GetSeq() int          { return m.Seq }
-func (m *InitializeRequest) GetType() MessageType { return RequestType }
-
-func (m *InitializeResponse) GetSeq() int          { return m.Seq }
-func (m *InitializeResponse) GetType() MessageType { return ResponseType }
-
-func (m *ConfigurationDoneRequest) GetSeq() int          { return m.Seq }
-func (m *ConfigurationDoneRequest) GetType() MessageType { return RequestType }
-
-func (m *ConfigurationDoneResponse) GetSeq() int          { return m.Seq }
-func (m *ConfigurationDoneResponse) GetType() MessageType { return ResponseType }
-
-func (m *LaunchRequest) GetSeq() int          { return m.Seq }
-func (m *LaunchRequest) GetType() MessageType { return RequestType }
-
-func (m *LaunchResponse) GetSeq() int          { return m.Seq }
-func (m *LaunchResponse) GetType() MessageType { return ResponseType }
-
-func (m *AttachRequest) GetSeq() int          { return m.Seq }
-func (m *AttachRequest) GetType() MessageType { return RequestType }
-
-func (m *AttachResponse) GetSeq() int          { return m.Seq }
-func (m *AttachResponse) GetType() MessageType { return ResponseType }
-
-func (m *RestartRequest) GetSeq() int          { return m.Seq }
-func (m *RestartRequest) GetType() MessageType { return RequestType }
-
-func (m *RestartResponse) GetSeq() int          { return m.Seq }
-func (m *RestartResponse) GetType() MessageType { return ResponseType }
-
-func (m *DisconnectRequest) GetSeq() int          { return m.Seq }
-func (m *DisconnectRequest) GetType() MessageType { return RequestType }
-
-func (m *DisconnectResponse) GetSeq() int          { return m.Seq }
-func (m *DisconnectResponse) GetType() MessageType { return ResponseType }
-
-func (m *TerminateRequest) GetSeq() int          { return m.Seq }
-func (m *TerminateRequest) GetType() MessageType { return RequestType }
-
-func (m *TerminateResponse) GetSeq() int          { return m.Seq }
-func (m *TerminateResponse) GetType() MessageType { return ResponseType }
-
-func (m *BreakpointLocationsRequest) GetSeq() int          { return m.Seq }
-func (m *BreakpointLocationsRequest) GetType() MessageType { return RequestType }
-
-func (m *BreakpointLocationsResponse) GetSeq() int          { return m.Seq }
-func (m *BreakpointLocationsResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetBreakpointsRequest) GetSeq() int          { return m.Seq }
-func (m *SetBreakpointsRequest) GetType() MessageType { return RequestType }
-
+func (m *Request) GetSeq() int                         { return m.Seq }
+func (m *Event) GetSeq() int                           { return m.Seq }
+func (m *Response) GetSeq() int                        { return m.Seq }
+func (m *ErrorResponse) GetSeq() int                   { return m.Seq }
+func (m *CancelRequest) GetSeq() int                   { return m.Seq }
+func (m *CancelResponse) GetSeq() int                  { return m.Seq }
+func (m *InitializedEvent) GetSeq() int                { return m.Seq }
+func (m *StoppedEvent) GetSeq() int                    { return m.Seq }
+func (m *ContinuedEvent) GetSeq() int                  { return m.Seq }
+func (m *ExitedEvent) GetSeq() int                     { return m.Seq }
+func (m *TerminatedEvent) GetSeq() int                 { return m.Seq }
+func (m *ThreadEvent) GetSeq() int                     { return m.Seq }
+func (m *OutputEvent) GetSeq() int                     { return m.Seq }
+func (m *BreakpointEvent) GetSeq() int                 { return m.Seq }
+func (m *ModuleEvent) GetSeq() int                     { return m.Seq }
+func (m *LoadedSourceEvent) GetSeq() int               { return m.Seq }
+func (m *ProcessEvent) GetSeq() int                    { return m.Seq }
+func (m *CapabilitiesEvent) GetSeq() int               { return m.Seq }
+func (m *RunInTerminalRequest) GetSeq() int            { return m.Seq }
+func (m *RunInTerminalResponse) GetSeq() int           { return m.Seq }
+func (m *InitializeRequest) GetSeq() int               { return m.Seq }
+func (m *InitializeResponse) GetSeq() int              { return m.Seq }
+func (m *ConfigurationDoneRequest) GetSeq() int        { return m.Seq }
+func (m *ConfigurationDoneResponse) GetSeq() int       { return m.Seq }
+func (m *LaunchRequest) GetSeq() int                   { return m.Seq }
+func (m *LaunchResponse) GetSeq() int                  { return m.Seq }
+func (m *AttachRequest) GetSeq() int                   { return m.Seq }
+func (m *AttachResponse) GetSeq() int                  { return m.Seq }
+func (m *RestartRequest) GetSeq() int                  { return m.Seq }
+func (m *RestartResponse) GetSeq() int                 { return m.Seq }
+func (m *DisconnectRequest) GetSeq() int               { return m.Seq }
+func (m *DisconnectResponse) GetSeq() int              { return m.Seq }
+func (m *TerminateRequest) GetSeq() int                { return m.Seq }
+func (m *TerminateResponse) GetSeq() int               { return m.Seq }
+func (m *BreakpointLocationsRequest) GetSeq() int      { return m.Seq }
+func (m *BreakpointLocationsResponse) GetSeq() int     { return m.Seq }
+func (m *SetBreakpointsRequest) GetSeq() int           { return m.Seq }
 func (m *SetBreakpointsResponse) GetSeq() int          { return m.Seq }
-func (m *SetBreakpointsResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetFunctionBreakpointsRequest) GetSeq() int          { return m.Seq }
-func (m *SetFunctionBreakpointsRequest) GetType() MessageType { return RequestType }
-
-func (m *SetFunctionBreakpointsResponse) GetSeq() int          { return m.Seq }
-func (m *SetFunctionBreakpointsResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetExceptionBreakpointsRequest) GetSeq() int          { return m.Seq }
-func (m *SetExceptionBreakpointsRequest) GetType() MessageType { return RequestType }
-
-func (m *SetExceptionBreakpointsResponse) GetSeq() int          { return m.Seq }
-func (m *SetExceptionBreakpointsResponse) GetType() MessageType { return ResponseType }
-
-func (m *DataBreakpointInfoRequest) GetSeq() int          { return m.Seq }
-func (m *DataBreakpointInfoRequest) GetType() MessageType { return RequestType }
-
-func (m *DataBreakpointInfoResponse) GetSeq() int          { return m.Seq }
-func (m *DataBreakpointInfoResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetDataBreakpointsRequest) GetSeq() int          { return m.Seq }
-func (m *SetDataBreakpointsRequest) GetType() MessageType { return RequestType }
-
-func (m *SetDataBreakpointsResponse) GetSeq() int          { return m.Seq }
-func (m *SetDataBreakpointsResponse) GetType() MessageType { return ResponseType }
-
-func (m *ContinueRequest) GetSeq() int          { return m.Seq }
-func (m *ContinueRequest) GetType() MessageType { return RequestType }
-
-func (m *ContinueResponse) GetSeq() int          { return m.Seq }
-func (m *ContinueResponse) GetType() MessageType { return ResponseType }
-
-func (m *NextRequest) GetSeq() int          { return m.Seq }
-func (m *NextRequest) GetType() MessageType { return RequestType }
-
-func (m *NextResponse) GetSeq() int          { return m.Seq }
-func (m *NextResponse) GetType() MessageType { return ResponseType }
-
-func (m *StepInRequest) GetSeq() int          { return m.Seq }
-func (m *StepInRequest) GetType() MessageType { return RequestType }
-
-func (m *StepInResponse) GetSeq() int          { return m.Seq }
-func (m *StepInResponse) GetType() MessageType { return ResponseType }
-
-func (m *StepOutRequest) GetSeq() int          { return m.Seq }
-func (m *StepOutRequest) GetType() MessageType { return RequestType }
-
-func (m *StepOutResponse) GetSeq() int          { return m.Seq }
-func (m *StepOutResponse) GetType() MessageType { return ResponseType }
-
-func (m *StepBackRequest) GetSeq() int          { return m.Seq }
-func (m *StepBackRequest) GetType() MessageType { return RequestType }
-
-func (m *StepBackResponse) GetSeq() int          { return m.Seq }
-func (m *StepBackResponse) GetType() MessageType { return ResponseType }
-
+func (m *SetFunctionBreakpointsRequest) GetSeq() int   { return m.Seq }
+func (m *SetFunctionBreakpointsResponse) GetSeq() int  { return m.Seq }
+func (m *SetExceptionBreakpointsRequest) GetSeq() int  { return m.Seq }
+func (m *SetExceptionBreakpointsResponse) GetSeq() int { return m.Seq }
+func (m *DataBreakpointInfoRequest) GetSeq() int       { return m.Seq }
+func (m *DataBreakpointInfoResponse) GetSeq() int      { return m.Seq }
+func (m *SetDataBreakpointsRequest) GetSeq() int       { return m.Seq }
+func (m *SetDataBreakpointsResponse) GetSeq() int      { return m.Seq }
+func (m *ContinueRequest) GetSeq() int                 { return m.Seq }
+func (m *ContinueResponse) GetSeq() int                { return m.Seq }
+func (m *NextRequest) GetSeq() int                     { return m.Seq }
+func (m *NextResponse) GetSeq() int                    { return m.Seq }
+func (m *StepInRequest) GetSeq() int                   { return m.Seq }
+func (m *StepInResponse) GetSeq() int                  { return m.Seq }
+func (m *StepOutRequest) GetSeq() int                  { return m.Seq }
+func (m *StepOutResponse) GetSeq() int                 { return m.Seq }
+func (m *StepBackRequest) GetSeq() int                 { return m.Seq }
+func (m *StepBackResponse) GetSeq() int                { return m.Seq }
 func (m *ReverseContinueRequest) GetSeq() int          { return m.Seq }
-func (m *ReverseContinueRequest) GetType() MessageType { return RequestType }
-
-func (m *ReverseContinueResponse) GetSeq() int          { return m.Seq }
-func (m *ReverseContinueResponse) GetType() MessageType { return ResponseType }
-
-func (m *RestartFrameRequest) GetSeq() int          { return m.Seq }
-func (m *RestartFrameRequest) GetType() MessageType { return RequestType }
-
-func (m *RestartFrameResponse) GetSeq() int          { return m.Seq }
-func (m *RestartFrameResponse) GetType() MessageType { return ResponseType }
-
-func (m *GotoRequest) GetSeq() int          { return m.Seq }
-func (m *GotoRequest) GetType() MessageType { return RequestType }
-
-func (m *GotoResponse) GetSeq() int          { return m.Seq }
-func (m *GotoResponse) GetType() MessageType { return ResponseType }
-
-func (m *PauseRequest) GetSeq() int          { return m.Seq }
-func (m *PauseRequest) GetType() MessageType { return RequestType }
-
-func (m *PauseResponse) GetSeq() int          { return m.Seq }
-func (m *PauseResponse) GetType() MessageType { return ResponseType }
-
-func (m *StackTraceRequest) GetSeq() int          { return m.Seq }
-func (m *StackTraceRequest) GetType() MessageType { return RequestType }
-
-func (m *StackTraceResponse) GetSeq() int          { return m.Seq }
-func (m *StackTraceResponse) GetType() MessageType { return ResponseType }
-
-func (m *ScopesRequest) GetSeq() int          { return m.Seq }
-func (m *ScopesRequest) GetType() MessageType { return RequestType }
-
-func (m *ScopesResponse) GetSeq() int          { return m.Seq }
-func (m *ScopesResponse) GetType() MessageType { return ResponseType }
-
-func (m *VariablesRequest) GetSeq() int          { return m.Seq }
-func (m *VariablesRequest) GetType() MessageType { return RequestType }
-
-func (m *VariablesResponse) GetSeq() int          { return m.Seq }
-func (m *VariablesResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetVariableRequest) GetSeq() int          { return m.Seq }
-func (m *SetVariableRequest) GetType() MessageType { return RequestType }
-
-func (m *SetVariableResponse) GetSeq() int          { return m.Seq }
-func (m *SetVariableResponse) GetType() MessageType { return ResponseType }
-
-func (m *SourceRequest) GetSeq() int          { return m.Seq }
-func (m *SourceRequest) GetType() MessageType { return RequestType }
-
-func (m *SourceResponse) GetSeq() int          { return m.Seq }
-func (m *SourceResponse) GetType() MessageType { return ResponseType }
-
-func (m *ThreadsRequest) GetSeq() int          { return m.Seq }
-func (m *ThreadsRequest) GetType() MessageType { return RequestType }
-
-func (m *ThreadsResponse) GetSeq() int          { return m.Seq }
-func (m *ThreadsResponse) GetType() MessageType { return ResponseType }
-
-func (m *TerminateThreadsRequest) GetSeq() int          { return m.Seq }
-func (m *TerminateThreadsRequest) GetType() MessageType { return RequestType }
-
-func (m *TerminateThreadsResponse) GetSeq() int          { return m.Seq }
-func (m *TerminateThreadsResponse) GetType() MessageType { return ResponseType }
-
-func (m *ModulesRequest) GetSeq() int          { return m.Seq }
-func (m *ModulesRequest) GetType() MessageType { return RequestType }
-
-func (m *ModulesResponse) GetSeq() int          { return m.Seq }
-func (m *ModulesResponse) GetType() MessageType { return ResponseType }
-
-func (m *LoadedSourcesRequest) GetSeq() int          { return m.Seq }
-func (m *LoadedSourcesRequest) GetType() MessageType { return RequestType }
-
-func (m *LoadedSourcesResponse) GetSeq() int          { return m.Seq }
-func (m *LoadedSourcesResponse) GetType() MessageType { return ResponseType }
-
-func (m *EvaluateRequest) GetSeq() int          { return m.Seq }
-func (m *EvaluateRequest) GetType() MessageType { return RequestType }
-
-func (m *EvaluateResponse) GetSeq() int          { return m.Seq }
-func (m *EvaluateResponse) GetType() MessageType { return ResponseType }
-
-func (m *SetExpressionRequest) GetSeq() int          { return m.Seq }
-func (m *SetExpressionRequest) GetType() MessageType { return RequestType }
-
-func (m *SetExpressionResponse) GetSeq() int          { return m.Seq }
-func (m *SetExpressionResponse) GetType() MessageType { return ResponseType }
-
-func (m *StepInTargetsRequest) GetSeq() int          { return m.Seq }
-func (m *StepInTargetsRequest) GetType() MessageType { return RequestType }
-
-func (m *StepInTargetsResponse) GetSeq() int          { return m.Seq }
-func (m *StepInTargetsResponse) GetType() MessageType { return ResponseType }
-
-func (m *GotoTargetsRequest) GetSeq() int          { return m.Seq }
-func (m *GotoTargetsRequest) GetType() MessageType { return RequestType }
-
-func (m *GotoTargetsResponse) GetSeq() int          { return m.Seq }
-func (m *GotoTargetsResponse) GetType() MessageType { return ResponseType }
-
-func (m *CompletionsRequest) GetSeq() int          { return m.Seq }
-func (m *CompletionsRequest) GetType() MessageType { return RequestType }
-
-func (m *CompletionsResponse) GetSeq() int          { return m.Seq }
-func (m *CompletionsResponse) GetType() MessageType { return ResponseType }
-
-func (m *ExceptionInfoRequest) GetSeq() int          { return m.Seq }
-func (m *ExceptionInfoRequest) GetType() MessageType { return RequestType }
-
-func (m *ExceptionInfoResponse) GetSeq() int          { return m.Seq }
-func (m *ExceptionInfoResponse) GetType() MessageType { return ResponseType }
-
-func (m *ReadMemoryRequest) GetSeq() int          { return m.Seq }
-func (m *ReadMemoryRequest) GetType() MessageType { return RequestType }
-
-func (m *ReadMemoryResponse) GetSeq() int          { return m.Seq }
-func (m *ReadMemoryResponse) GetType() MessageType { return ResponseType }
-
-func (m *DisassembleRequest) GetSeq() int          { return m.Seq }
-func (m *DisassembleRequest) GetType() MessageType { return RequestType }
-
-func (m *DisassembleResponse) GetSeq() int          { return m.Seq }
-func (m *DisassembleResponse) GetType() MessageType { return ResponseType }
+func (m *ReverseContinueResponse) GetSeq() int         { return m.Seq }
+func (m *RestartFrameRequest) GetSeq() int             { return m.Seq }
+func (m *RestartFrameResponse) GetSeq() int            { return m.Seq }
+func (m *GotoRequest) GetSeq() int                     { return m.Seq }
+func (m *GotoResponse) GetSeq() int                    { return m.Seq }
+func (m *PauseRequest) GetSeq() int                    { return m.Seq }
+func (m *PauseResponse) GetSeq() int                   { return m.Seq }
+func (m *StackTraceRequest) GetSeq() int               { return m.Seq }
+func (m *StackTraceResponse) GetSeq() int              { return m.Seq }
+func (m *ScopesRequest) GetSeq() int                   { return m.Seq }
+func (m *ScopesResponse) GetSeq() int                  { return m.Seq }
+func (m *VariablesRequest) GetSeq() int                { return m.Seq }
+func (m *VariablesResponse) GetSeq() int               { return m.Seq }
+func (m *SetVariableRequest) GetSeq() int              { return m.Seq }
+func (m *SetVariableResponse) GetSeq() int             { return m.Seq }
+func (m *SourceRequest) GetSeq() int                   { return m.Seq }
+func (m *SourceResponse) GetSeq() int                  { return m.Seq }
+func (m *ThreadsRequest) GetSeq() int                  { return m.Seq }
+func (m *ThreadsResponse) GetSeq() int                 { return m.Seq }
+func (m *TerminateThreadsRequest) GetSeq() int         { return m.Seq }
+func (m *TerminateThreadsResponse) GetSeq() int        { return m.Seq }
+func (m *ModulesRequest) GetSeq() int                  { return m.Seq }
+func (m *ModulesResponse) GetSeq() int                 { return m.Seq }
+func (m *LoadedSourcesRequest) GetSeq() int            { return m.Seq }
+func (m *LoadedSourcesResponse) GetSeq() int           { return m.Seq }
+func (m *EvaluateRequest) GetSeq() int                 { return m.Seq }
+func (m *EvaluateResponse) GetSeq() int                { return m.Seq }
+func (m *SetExpressionRequest) GetSeq() int            { return m.Seq }
+func (m *SetExpressionResponse) GetSeq() int           { return m.Seq }
+func (m *StepInTargetsRequest) GetSeq() int            { return m.Seq }
+func (m *StepInTargetsResponse) GetSeq() int           { return m.Seq }
+func (m *GotoTargetsRequest) GetSeq() int              { return m.Seq }
+func (m *GotoTargetsResponse) GetSeq() int             { return m.Seq }
+func (m *CompletionsRequest) GetSeq() int              { return m.Seq }
+func (m *CompletionsResponse) GetSeq() int             { return m.Seq }
+func (m *ExceptionInfoRequest) GetSeq() int            { return m.Seq }
+func (m *ExceptionInfoResponse) GetSeq() int           { return m.Seq }
+func (m *ReadMemoryRequest) GetSeq() int               { return m.Seq }
+func (m *ReadMemoryResponse) GetSeq() int              { return m.Seq }
+func (m *DisassembleRequest) GetSeq() int              { return m.Seq }
+func (m *DisassembleResponse) GetSeq() int             { return m.Seq }

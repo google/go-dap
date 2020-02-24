@@ -380,19 +380,11 @@ func commentOutEachLine(s string) string {
 // Message interface. These methods are only emitted for top-level types which
 // should implement that interface; other types are ignored.
 func emitMessageMethods(sb *strings.Builder, typeName string) {
-	var t string
-	if strings.HasSuffix(typeName, "Request") {
-		t = "RequestType"
-	} else if strings.HasSuffix(typeName, "Event") {
-		t = "EventType"
-	} else if strings.HasSuffix(typeName, "Response") {
-		t = "ResponseType"
-	} else {
-		return
+	if strings.HasSuffix(typeName, "Request") ||
+		strings.HasSuffix(typeName, "Event") ||
+		strings.HasSuffix(typeName, "Response") {
+		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
 	}
-
-	fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
-	fmt.Fprintf(sb, "func (m *%s) GetType() MessageType {return %s}\n\n", typeName, t)
 }
 
 const preamble = `// Copyright 2020 Google LLC
@@ -423,27 +415,6 @@ package dap
 // is renamed to ErrorMessage to avoid collision with this interface.
 type Message interface {
 	GetSeq() int
-	GetType() MessageType
-}
-
-type MessageType int
-
-const (
-	RequestType MessageType = iota
-	EventType
-	ResponseType
-)
-
-func (mt MessageType) String() string {
-	switch mt {
-	case RequestType:
-		return "Request"
-	case EventType:
-		return "Event"
-	case ResponseType:
-		return "Response"
-	}
-	return ""
 }
 
 `

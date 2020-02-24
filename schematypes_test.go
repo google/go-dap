@@ -40,15 +40,12 @@ func TestMessageInterface(t *testing.T) {
 		},
 	}
 
-	f := func(m Message) (int, MessageType) {
-		return m.GetSeq(), m.GetType()
+	f := func(m Message) int {
+		return m.GetSeq()
 	}
+	seq := f(&errorResponseStruct)
 
-	seq, ty := f(&errorResponseStruct)
 	if seq != 199 {
 		t.Errorf("got seq=%d, want 199", seq)
-	}
-	if ty != ResponseType {
-		t.Errorf("got ty=%s, want Response", ty)
 	}
 }
