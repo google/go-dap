@@ -376,6 +376,17 @@ func commentOutEachLine(s string) string {
 	return sb.String()
 }
 
+// emitMessageMethods emits methods for typeName that make it implement the
+// Message interface. These methods are only emitted for top-level types which
+// should implement that interface; other types are ignored.
+func emitMessageMethods(sb *strings.Builder, typeName string) {
+	if strings.HasSuffix(typeName, "Request") ||
+		strings.HasSuffix(typeName, "Event") ||
+		strings.HasSuffix(typeName, "Response") {
+		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
+	}
+}
+
 const preamble = `// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -398,12 +409,12 @@ package dap
 
 // Message is an interface that all DAP message types implement with pointer
 // receivers. It's not part of the protocol but is used to enforce static
-// typing in Go code.
+// typing in Go code and provide some common accessors.
 //
 // Note: the DAP type "Message" (which is used in the body of ErrorResponse)
 // is renamed to ErrorMessage to avoid collision with this interface.
 type Message interface {
-	isMessage()
+	GetSeq() int
 }
 
 `
@@ -448,13 +459,11 @@ func main() {
 		}
 	}
 
-	// For top-level types, emit an empty implementation of isMessage(), to make
-	// them implement the Message interface.
+	// For top-level types, emit implementations of methods for the Message
+	// interface.
 	for _, typeName := range typeNames {
 		typeName = replaceGoTypename(typeName)
-		if strings.HasSuffix(typeName, "Event") || strings.HasSuffix(typeName, "Request") || strings.HasSuffix(typeName, "Response") || typeName == "ProtocolMessage" {
-			fmt.Fprintf(&b, "func (*%s) isMessage() {}\n", typeName)
-		}
+		emitMessageMethods(&b, typeName)
 	}
 
 	wholeFile := []byte(b.String())
