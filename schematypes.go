@@ -587,7 +587,7 @@ type ContinueResponse struct {
 }
 
 type ContinueResponseBody struct {
-	AllThreadsContinued bool `json:"allThreadsContinued,omitempty"`
+	AllThreadsContinued bool `json:"allThreadsContinued"`
 }
 
 // NextRequest: The request starts the debuggee to run again for one step.
