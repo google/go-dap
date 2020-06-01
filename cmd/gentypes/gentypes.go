@@ -287,6 +287,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				jsonTag += "\"`"
 			} else if typeName == "ContinueResponseBody" && propName == "allThreadsContinued" {
 				// This one special field must not have the omitempty tag, despite being optional.
+				// If this attribute is missing the client will (according to the specification) assume a value of 'true' for backward compatibility.
 				// See: https://github.com/google/go-dap/issues/39
 				jsonTag += "\"`"
 			} else {
