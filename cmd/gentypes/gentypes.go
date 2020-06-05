@@ -75,6 +75,8 @@ func parsePropertyType(propValue map[string]interface{}) string {
 		switch propType {
 		case "string":
 			return "string"
+		case "number":
+			return "int"
 		case "integer":
 			return "int"
 		case "boolean":
@@ -97,7 +99,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			valueType := parsePropertyType(additionalProps.(map[string]interface{}))
 			return fmt.Sprintf("map[string]%v", valueType)
 		default:
-			log.Fatal("unknown property type value", propType)
+			log.Fatalf("unknown property type value %v in %v", propType, propValue)
 		}
 
 	case []interface{}:
