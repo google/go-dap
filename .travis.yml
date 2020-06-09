@@ -1,7 +1,10 @@
+# For Travis to run this, make sure to add a Webhook in the Github project
+# settings to send all events to https://notify.travis-ci.org
 language: go
 
 go:
-- 1.13.x
+  - 1.13.x
+  - 1.14.x
 
 env:
   global:
