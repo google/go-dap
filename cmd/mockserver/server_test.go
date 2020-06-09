@@ -59,7 +59,7 @@ var variablesRequest = []byte(`{"seq":9,"type":"request","command":"variables","
 var variablesResponse = []byte(`{"seq":0,"type":"response","request_seq":9,"success":true,"command":"variables","body":{"variables":[{"name":"i","value":"18434528","presentationHint":{},"evaluateName":"i","variablesReference":0}]}}`)
 
 var continueRequest = []byte(`{"seq":10,"type":"request","command":"continue","arguments":{"threadId":1}}`)
-var continueResponse = []byte(`{"seq":0,"type":"response","request_seq":10,"success":true,"command":"continue","body":{}}`)
+var continueResponse = []byte(`{"seq":0,"type":"response","request_seq":10,"success":true,"command":"continue","body":{"allThreadsContinued":false}}`)
 
 var terminatedEvent = []byte(`{"seq":0,"type":"event","event":"terminated","body":{}}`)
 var disconnectRequest = []byte(`{"seq":11,"type":"request","command":"disconnect","arguments":{"restart":false}}`)
