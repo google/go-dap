@@ -382,13 +382,9 @@ func commentOutEachLine(s string) string {
 	return sb.String()
 }
 
-// emitMessageMethods emits methods for typeName that make it implement the
-// Message interface. These methods are only emitted for top-level types which
-// should implement that interface; other types are ignored.
-func emitMessageMethods(sb *strings.Builder, typeName string) {
-	if strings.HasSuffix(typeName, "Request") ||
-		strings.HasSuffix(typeName, "Event") ||
-		strings.HasSuffix(typeName, "Response") {
+// emitMethodsForType may emit methods for typeName into sb.
+func emitMethodsForType(sb *strings.Builder, typeName string) {
+	if typeName == "ProtocolMessage" {
 		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
 	}
 }
@@ -463,13 +459,8 @@ func main() {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
 			b.WriteString("\n")
 		}
-	}
 
-	// For top-level types, emit implementations of methods for the Message
-	// interface.
-	for _, typeName := range typeNames {
-		typeName = replaceGoTypename(typeName)
-		emitMessageMethods(&b, typeName)
+		emitMethodsForType(&b, replaceGoTypename(typeName))
 	}
 
 	wholeFile := []byte(b.String())
