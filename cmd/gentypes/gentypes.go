@@ -459,7 +459,7 @@ func main() {
 			b.WriteString("\n")
 		}
 
-		emitMethodsForType(&b, typeName)
+		emitMethodsForType(&b, replaceGoTypename(typeName))
 	}
 
 	wholeFile := []byte(b.String())
