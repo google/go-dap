@@ -288,9 +288,10 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 			if requiredMap[propName] {
 				jsonTag += "\"`"
 			} else if typeName == "ContinueResponseBody" && propName == "allThreadsContinued" {
-				// This one special field must not have the omitempty tag, despite being optional.
-				// If this attribute is missing the client will (according to the specification) assume a value of 'true' for backward compatibility.
-				// See: https://github.com/google/go-dap/issues/39
+				// This one special field must not have the omitempty tag, despite being
+				// optional. If this attribute is missing the client will (according to
+				// the specification) assume a value of 'true' for backward
+				// compatibility. See: https://github.com/google/go-dap/issues/39
 				jsonTag += "\"`"
 			} else {
 				jsonTag += ",omitempty\"`"
@@ -383,13 +384,9 @@ func commentOutEachLine(s string) string {
 	return sb.String()
 }
 
-// emitMessageMethods emits methods for typeName that make it implement the
-// Message interface. These methods are only emitted for top-level types which
-// should implement that interface; other types are ignored.
-func emitMessageMethods(sb *strings.Builder, typeName string) {
-	if strings.HasSuffix(typeName, "Request") ||
-		strings.HasSuffix(typeName, "Event") ||
-		strings.HasSuffix(typeName, "Response") {
+// emitMethodsForType may emit methods for typeName into sb.
+func emitMethodsForType(sb *strings.Builder, typeName string) {
+	if typeName == "ProtocolMessage" {
 		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
 	}
 }
@@ -464,13 +461,8 @@ func main() {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
 			b.WriteString("\n")
 		}
-	}
 
-	// For top-level types, emit implementations of methods for the Message
-	// interface.
-	for _, typeName := range typeNames {
-		typeName = replaceGoTypename(typeName)
-		emitMessageMethods(&b, typeName)
+		emitMethodsForType(&b, replaceGoTypename(typeName))
 	}
 
 	wholeFile := []byte(b.String())
