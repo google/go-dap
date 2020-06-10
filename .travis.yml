@@ -1,5 +1,5 @@
 # For Travis to run this for pending PRs and pushes to the master branch, make
-# sure to add a Webhook in the Github repository settings to send all events to
+# sure to add a Webhook in the Github repository Settings to send all events to
 # https://notify.travis-ci.org
 language: go
 
