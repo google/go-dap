@@ -389,6 +389,15 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 	if typeName == "ProtocolMessage" {
 		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
 	}
+	if strings.HasSuffix(typeName, "Request") && typeName != "Request" {
+		fmt.Fprintf(sb, "func (r *%s) GetRequest() *Request {return &r.Request}\n", typeName)
+	}
+	if strings.HasSuffix(typeName, "Response") && typeName != "Response" {
+		fmt.Fprintf(sb, "func (r *%s) GetResponse() *Response {return &r.Response}\n", typeName)
+	}
+	if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
+		fmt.Fprintf(sb, "func (e *%s) GetEvent() *Event {return &e.Event}\n", typeName)
+	}
 }
 
 const preamble = `// Copyright 2020 Google LLC
@@ -419,6 +428,24 @@ package dap
 // is renamed to ErrorMessage to avoid collision with this interface.
 type Message interface {
 	GetSeq() int
+}
+// RequestMessage is an interface implemented by all Request-types. 
+type RequestMessage interface {
+	Message
+	// GetRequest provides access to the embedded Request-field by returning a pointer to it
+	GetRequest() *Request
+}
+// ResponseMessage is an interface implemented by all Response-types. 
+type ResponseMessage interface {
+	Message
+	// GetResponse provides access to the embedded Response-field by returning a pointer to it
+	GetResponse() *Response
+}
+// EventMessage is an interface implemented by all Event-types. 
+type EventMessage interface {
+	Message
+	// GetEvent provides access to the embedded Event-field by returning a pointer to it
+	GetEvent() *Event
 }
 
 `
