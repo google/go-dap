@@ -40,6 +40,7 @@ func TestMessageInterface(t *testing.T) {
 		},
 	}
 
+	// Test adherence to the Message interface.
 	f := func(m Message) int {
 		return m.GetSeq()
 	}
@@ -47,5 +48,15 @@ func TestMessageInterface(t *testing.T) {
 
 	if seq != 199 {
 		t.Errorf("got seq=%d, want 199", seq)
+	}
+
+	// Test adherence to the ResponseMessage interface.
+	f2 := func(rm ResponseMessage) int {
+		return rm.GetResponse().RequestSeq
+	}
+	rseq := f2(&errorResponseStruct)
+
+	if rseq != 9 {
+		t.Errorf("got ResponseSeq=%d, want 9", rseq)
 	}
 }
