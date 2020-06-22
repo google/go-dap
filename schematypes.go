@@ -31,21 +31,21 @@ type Message interface {
 // RequestMessage is an interface implemented by all Request-types.
 type RequestMessage interface {
 	Message
-	// GetRequest provides access to the embedded Request-field by returning a pointer to it
+	// GetRequest provides access to the embedded Request.
 	GetRequest() *Request
 }
 
 // ResponseMessage is an interface implemented by all Response-types.
 type ResponseMessage interface {
 	Message
-	// GetResponse provides access to the embedded Response-field by returning a pointer to it
+	// GetResponse provides access to the embedded Response.
 	GetResponse() *Response
 }
 
 // EventMessage is an interface implemented by all Event-types.
 type EventMessage interface {
 	Message
-	// GetEvent provides access to the embedded Event-field by returning a pointer to it
+	// GetEvent provides access to the embedded Event.
 	GetEvent() *Event
 }
 
