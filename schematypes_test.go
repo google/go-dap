@@ -18,8 +18,9 @@ import (
 	"testing"
 )
 
-func TestMessageInterface(t *testing.T) {
-	var errorResponseStruct = ErrorResponse{
+// makeErrorResponse creates a pre-populated ErrorResponse for testing.
+func makeErrorResponse() *ErrorResponse {
+	return &ErrorResponse{
 		Response: Response{
 			ProtocolMessage: ProtocolMessage{
 				Seq:  199,
@@ -39,23 +40,30 @@ func TestMessageInterface(t *testing.T) {
 			},
 		},
 	}
+}
 
-	// Test adherence to the Message interface.
+func TestMessageInterface(t *testing.T) {
+	resp := makeErrorResponse()
 	f := func(m Message) int {
 		return m.GetSeq()
 	}
-	seq := f(&errorResponseStruct)
+	seq := f(resp)
 
 	if seq != 199 {
 		t.Errorf("got seq=%d, want 199", seq)
 	}
+}
 
-	// Test adherence to the ResponseMessage interface.
-	f2 := func(rm ResponseMessage) int {
-		return rm.GetResponse().RequestSeq
+func TestReponseMessageInterface(t *testing.T) {
+	resp := makeErrorResponse()
+	f := func(rm ResponseMessage) (int, int) {
+		return rm.GetSeq(), rm.GetResponse().RequestSeq
 	}
-	rseq := f2(&errorResponseStruct)
+	seq, rseq := f(resp)
 
+	if seq != 199 {
+		t.Errorf("got seq=%d, want 199", seq)
+	}
 	if rseq != 9 {
 		t.Errorf("got ResponseSeq=%d, want 9", rseq)
 	}
