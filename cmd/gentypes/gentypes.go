@@ -276,8 +276,8 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 			} else {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", bodyTypeName)
 			}
-		} else if propName == "arguments" && typeName == "LaunchRequest" {
-			// Special case for LaunchRequest arguments, which are implementation
+		} else if propName == "arguments" && (typeName == "LaunchRequest" || typeName == "AttachRequest") {
+			// Special case for LaunchRequest or AttachRequest arguments, which are implementation
 			// defined and don't have pre-set field names in the specification.
 			fmt.Fprintln(&b, "\tArguments map[string]interface{} `json:\"arguments\"`")
 		} else {
@@ -398,6 +398,9 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 	if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
 		fmt.Fprintf(sb, "func (e *%s) GetEvent() *Event {return &e.Event}\n", typeName)
 	}
+	if typeName == "LaunchRequest" || typeName == "AttachRequest" {
+		fmt.Fprintf(sb, "func (r *%s) GetArguments() map[string]interface{} { return r.Arguments }\n", typeName)
+	}
 }
 
 const preamble = `// Copyright 2020 Google LLC
@@ -451,13 +454,23 @@ type EventMessage interface {
 	GetEvent() *Event
 }
 
+// LaunchAttachRequest is an interface implemented by
+// LaunchRequest and AttachRequest as they contain shared
+// implementation specific arguments that are not part of
+// the specification.
+type LaunchAttachRequest interface {
+	RequestMessage
+	// GetArguments provides access to the Arguments map.
+	GetArguments() map[string]interface{}
+}
 `
 
 // typesBlacklist is a blacklist of type names we don't want to emit.
 var typesBlacklist = map[string]bool{
-	// LaunchRequest arguments can be arbitrary maps. Therefore, this type is not
-	// used anywhere.
+	// LaunchRequest and AttachRequest arguments can be arbitrary maps.
+	// Therefore, this type is not used anywhere.
 	"LaunchRequestArguments": true,
+	"AttachRequestArguments": true,
 }
 
 func main() {

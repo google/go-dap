@@ -70,3 +70,43 @@ func TestReponseMessageInterface(t *testing.T) {
 		t.Errorf("got ResponseSeq=%d, want 9", rseq)
 	}
 }
+
+func TestLaunchAttachRequestInterface(t *testing.T) {
+	lr := &LaunchRequest{
+		Request: Request{
+			ProtocolMessage: ProtocolMessage{
+				Seq:  19,
+				Type: "request",
+			},
+			Command: "launch",
+		},
+		Arguments: map[string]interface{}{"foo": "bar"},
+	}
+	ar := &AttachRequest{
+		Request: Request{
+			ProtocolMessage: ProtocolMessage{
+				Seq:  19,
+				Type: "request",
+			},
+			Command: "attach",
+		},
+		Arguments: map[string]interface{}{"foo": "bar"},
+	}
+
+	f := func(r LaunchAttachRequest) (int, string, interface{}) {
+		return r.GetSeq(), r.GetRequest().Command, r.GetArguments()["foo"]
+	}
+	// Test adherence to the LaunchAttachRequest interface.
+	lseq, lcmd, lfoo := f(lr)
+	aseq, acmd, afoo := f(ar)
+
+	if lseq != 19 || aseq != 19 {
+		t.Errorf("got lseq=%d aseq=%d, want 19", lseq, aseq)
+	}
+	if lcmd != "launch" || acmd != "attach" {
+		t.Errorf("got lcmd=%s acmd=%s, want (\"launch\", \"attach\")", lcmd, acmd)
+	}
+	if lfoo != "bar" || afoo != "bar" {
+		t.Errorf("got lfoo=%s afoo=%s, want \"bar\"", lfoo, afoo)
+	}
+}
