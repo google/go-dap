@@ -128,7 +128,7 @@ var launchResponseStruct = LaunchResponse{Response: *newResponse(3, 4, "launch",
 var attachRequestString = `{"seq":4,"type":"request","command":"attach","arguments":{}}`
 var attachRequestStruct = AttachRequest{
 	Request:   *newRequest(4, "attach"),
-	Arguments: AttachRequestArguments{},
+	Arguments: map[string]interface{}{},
 }
 
 var attachResponseString = `{"seq":4,"type":"response","request_seq":5,"command":"attach","success":true}`
