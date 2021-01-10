@@ -90,7 +90,7 @@ func Test_readContentLengthHeader(t *testing.T) {
 	tests := []struct {
 		input         string
 		wantBytesLeft string // Bytes left in the reader after header reading
-		wantLen       int    // Extracted content length value
+		wantLen       int64  // Extracted content length value
 		wantErr       error
 	}{
 		{"", "", 0, io.EOF},
