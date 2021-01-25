@@ -465,8 +465,8 @@ type LaunchAttachRequest interface {
 }
 `
 
-// typesBlacklist is a blacklist of type names we don't want to emit.
-var typesBlacklist = map[string]bool{
+// typesExcludeList is an exclude list of type names we don't want to emit.
+var typesExcludeList = map[string]bool{
 	// LaunchRequest and AttachRequest arguments can be arbitrary maps.
 	// Therefore, this type is not used anywhere.
 	"LaunchRequestArguments": true,
@@ -500,7 +500,7 @@ func main() {
 	}
 
 	for _, typeName := range typeNames {
-		if _, ok := typesBlacklist[typeName]; !ok {
+		if _, ok := typesExcludeList[typeName]; !ok {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
 			b.WriteString("\n")
 		}
