@@ -929,6 +929,11 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 				if err.Error() != test.wantErr { // Was it the right error?
 					t.Errorf("got error=%#v, want %q", err, test.wantErr)
 				}
+				if decodeMessageError, ok := err.(*DecodeProtocolMessageFieldError); ok {
+					if test.wantMsg != msgIgnoredOnError && decodeMessageError.Seq != test.wantMsg.GetSeq() {
+						t.Errorf("got seq %d, want %d", decodeMessageError.Seq, test.wantMsg.GetSeq())
+					}
+				}
 			} else { // No decoding error
 				if test.wantErr != "" { // Did we expect one?
 					t.Errorf("got error=nil, want %#q", test.wantErr)

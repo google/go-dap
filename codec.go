@@ -24,6 +24,7 @@ import (
 // DecodeProtocolMessageFieldError describes which JSON attribute
 // has an unsupported value that the decoding cannot handle.
 type DecodeProtocolMessageFieldError struct {
+	Seq        int
 	SubType    string
 	FieldName  string
 	FieldValue string
@@ -50,7 +51,7 @@ func DecodeProtocolMessage(data []byte) (Message, error) {
 	case "event":
 		return decodeEvent(data)
 	default:
-		return nil, &DecodeProtocolMessageFieldError{"ProtocolMessage", "type", protomsg.Type}
+		return nil, &DecodeProtocolMessageFieldError{protomsg.GetSeq(), "ProtocolMessage", "type", protomsg.Type}
 	}
 }
 
@@ -69,7 +70,7 @@ func decodeRequest(data []byte) (Message, error) {
 		err := json.Unmarshal(data, requestPtr)
 		return requestPtr, err
 	}
-	return nil, &DecodeProtocolMessageFieldError{"Request", "command", r.Command}
+	return nil, &DecodeProtocolMessageFieldError{r.GetSeq(), "Request", "command", r.Command}
 }
 
 // Mapping of request commands and corresponding struct constructors that
@@ -136,7 +137,7 @@ func decodeResponse(data []byte) (Message, error) {
 		err := json.Unmarshal(data, responsePtr)
 		return responsePtr, err
 	}
-	return nil, &DecodeProtocolMessageFieldError{"Response", "command", r.Command}
+	return nil, &DecodeProtocolMessageFieldError{r.GetSeq(), "Response", "command", r.Command}
 }
 
 // Mapping of response commands and corresponding struct constructors that
@@ -198,7 +199,7 @@ func decodeEvent(data []byte) (Message, error) {
 		err := json.Unmarshal(data, eventPtr)
 		return eventPtr, err
 	}
-	return nil, &DecodeProtocolMessageFieldError{"Event", "event", e.Event}
+	return nil, &DecodeProtocolMessageFieldError{e.GetSeq(), "Event", "event", e.Event}
 }
 
 // Mapping of event ids and corresponding struct constructors that
