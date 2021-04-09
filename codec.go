@@ -31,7 +31,7 @@ type DecodeProtocolMessageFieldError struct {
 }
 
 func (e *DecodeProtocolMessageFieldError) Error() string {
-	return fmt.Sprintf("%s %s '%s' is not supported", e.SubType, e.FieldName, e.FieldValue)
+	return fmt.Sprintf("%s %s '%s' is not supported (seq: %d)", e.SubType, e.FieldName, e.FieldValue, e.Seq)
 }
 
 // DecodeProtocolMessage parses the JSON-encoded data and returns the result of

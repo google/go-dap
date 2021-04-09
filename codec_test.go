@@ -815,11 +815,11 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		// ProtocolMessage
 		{``, msgIgnoredOnError, "unexpected end of JSON input"},
 		{`,`, msgIgnoredOnError, "invalid character ',' looking for beginning of value"},
-		{`{}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported"},
-		{`{"a": 1}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported"},
-		{`{"type":"foo", "seq": 2}`, msgIgnoredOnError, "ProtocolMessage type 'foo' is not supported"},
+		{`{}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported (seq: 0)"},
+		{`{"a": 1}`, msgIgnoredOnError, "ProtocolMessage type '' is not supported (seq: 0)"},
+		{`{"type":"foo", "seq": 2}`, msgIgnoredOnError, "ProtocolMessage type 'foo' is not supported (seq: 2)"},
 		// Request
-		{`{"type":"request"}`, msgIgnoredOnError, "Request command '' is not supported"},
+		{`{"type":"request"}`, msgIgnoredOnError, "Request command '' is not supported (seq: 0)"},
 		{cancelRequestString, &cancelRequestStruct, noError},
 		{runInTerminalRequestString, &runInTerminalRequestStruct, noError},
 		{initializeRequestString, &initializeRequestStruct, noError},
@@ -863,7 +863,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{readMemoryRequestString, &readMemoryRequestStruct, noError},
 		{disassembleRequestString, &disassembleRequestStruct, noError},
 		// Response
-		{`{"type":"response","success":true}`, msgIgnoredOnError, "Response command '' is not supported"},
+		{`{"type":"response","success":true, "seq": 77}`, msgIgnoredOnError, "Response command '' is not supported (seq: 77)"},
 		{errorResponseString, &errorResponseStruct, noError},
 		{cancelResponseString, &cancelResponseStruct, noError},
 		{runInTerminalResponseString, &runInTerminalResponseStruct, noError},
@@ -908,7 +908,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{readMemoryResponseString, &readMemoryResponseStruct, noError},
 		{disassembleResponseString, &disassembleResponseStruct, noError},
 		// Event
-		{`{"type":"event"}`, msgIgnoredOnError, "Event event '' is not supported"},
+		{`{"type":"event", "seq": 8}`, msgIgnoredOnError, "Event event '' is not supported (seq: 8)"},
 		{initializedEventString, &initializedEventStruct, noError},
 		{stoppedEventString, &stoppedEventStruct, noError},
 		{continuedEventString, &continuedEventStruct, noError},
@@ -928,11 +928,6 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 			if err != nil { // Decoding error
 				if err.Error() != test.wantErr { // Was it the right error?
 					t.Errorf("got error=%#v, want %q", err, test.wantErr)
-				}
-				if decodeMessageError, ok := err.(*DecodeProtocolMessageFieldError); ok {
-					if test.wantMsg != msgIgnoredOnError && decodeMessageError.Seq != test.wantMsg.GetSeq() {
-						t.Errorf("got seq %d, want %d", decodeMessageError.Seq, test.wantMsg.GetSeq())
-					}
 				}
 			} else { // No decoding error
 				if test.wantErr != "" { // Did we expect one?
