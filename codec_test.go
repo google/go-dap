@@ -993,29 +993,3 @@ func newResponse(seq int, requestSeq int, command string, success bool) *Respons
 		Success:    success,
 	}
 }
-
-func TestDecodeRequest(t *testing.T) {
-	type args struct {
-		data []byte
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    Message
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := decodeRequest(tt.args.data)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("decodeRequest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("decodeRequest() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
