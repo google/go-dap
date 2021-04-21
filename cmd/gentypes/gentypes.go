@@ -294,7 +294,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				// compatibility. See: https://github.com/google/go-dap/issues/39
 				jsonTag += "\"`"
 			} else if typeName == "InitializeRequestArguments" && (propName == "linesStartAt1" || propName == "columnsStartAt1") {
-				// These two special field must not have the omitempty tag, despite being
+				// These two special fields must not have the omitempty tag, despite being
 				// optional. If this attribute is missing the server will (according to
 				// the specification) assume a value of 'true'.
 				jsonTag += "\"`"
