@@ -76,6 +76,7 @@ var runInTerminalResponseStruct = RunInTerminalResponse{
 // -------- Initialize
 
 var initializeRequestString = `{"seq":1,"type":"request","command":"initialize","arguments":{"clientID":"vscode","clientName":"Visual Studio Code","adapterID":"go","pathFormat":"path","linesStartAt1":true,"columnsStartAt1":true,"supportsVariableType":true,"supportsVariablePaging":true,"supportsRunInTerminalRequest":true,"locale":"en-us"}}`
+var initializeRequestOmitDefaultsString = `{"seq":1,"type":"request","command":"initialize","arguments":{"clientID":"vscode","clientName":"Visual Studio Code","adapterID":"go","supportsVariableType":true,"supportsVariablePaging":true,"supportsRunInTerminalRequest":true,"locale":"en-us"}}`
 var initializeRequestStruct = InitializeRequest{
 	Request: *newRequest(1, "initialize"),
 	Arguments: InitializeRequestArguments{
@@ -85,6 +86,23 @@ var initializeRequestStruct = InitializeRequest{
 		PathFormat:                   "path",
 		LinesStartAt1:                true,
 		ColumnsStartAt1:              true,
+		SupportsVariableType:         true,
+		SupportsVariablePaging:       true,
+		SupportsRunInTerminalRequest: true,
+		Locale:                       "en-us",
+	},
+}
+
+var initializeRequestNotDefaultsString = `{"seq":1,"type":"request","command":"initialize","arguments":{"clientID":"vscode","clientName":"Visual Studio Code","adapterID":"go","pathFormat":"url","linesStartAt1":false,"columnsStartAt1":false,"supportsVariableType":true,"supportsVariablePaging":true,"supportsRunInTerminalRequest":true,"locale":"en-us"}}`
+var initializeRequestNotDefaultsStruct = InitializeRequest{
+	Request: *newRequest(1, "initialize"),
+	Arguments: InitializeRequestArguments{
+		ClientID:                     "vscode",
+		ClientName:                   "Visual Studio Code",
+		AdapterID:                    "go",
+		PathFormat:                   "url",
+		LinesStartAt1:                false,
+		ColumnsStartAt1:              false,
 		SupportsVariableType:         true,
 		SupportsVariablePaging:       true,
 		SupportsRunInTerminalRequest: true,
@@ -823,7 +841,8 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{cancelRequestString, &cancelRequestStruct, noError},
 		{runInTerminalRequestString, &runInTerminalRequestStruct, noError},
 		{initializeRequestString, &initializeRequestStruct, noError},
-		{initializeRequestString, &initializeRequestStruct, noError},
+		{initializeRequestOmitDefaultsString, &initializeRequestStruct, noError},
+		{initializeRequestNotDefaultsString, &initializeRequestNotDefaultsStruct, noError},
 		{configurationDoneRequestString, &configurationDoneRequestStruct, noError},
 		{launchRequestString, &launchRequestStruct, noError},
 		{attachRequestString, &attachRequestStruct, noError},
@@ -867,7 +886,6 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{errorResponseString, &errorResponseStruct, noError},
 		{cancelResponseString, &cancelResponseStruct, noError},
 		{runInTerminalResponseString, &runInTerminalResponseStruct, noError},
-		{initializeResponseString, &initializeResponseStruct, noError},
 		{initializeResponseString, &initializeResponseStruct, noError},
 		{configurationDoneResponseString, &configurationDoneResponseStruct, noError},
 		{launchResponseString, &launchResponseStruct, noError},

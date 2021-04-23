@@ -427,8 +427,8 @@ type InitializeRequestArguments struct {
 	ClientName                   string `json:"clientName,omitempty"`
 	AdapterID                    string `json:"adapterID"`
 	Locale                       string `json:"locale,omitempty"`
-	LinesStartAt1                bool   `json:"linesStartAt1,omitempty"`
-	ColumnsStartAt1              bool   `json:"columnsStartAt1,omitempty"`
+	LinesStartAt1                bool   `json:"linesStartAt1"`
+	ColumnsStartAt1              bool   `json:"columnsStartAt1"`
 	PathFormat                   string `json:"pathFormat,omitempty"`
 	SupportsVariableType         bool   `json:"supportsVariableType,omitempty"`
 	SupportsVariablePaging       bool   `json:"supportsVariablePaging,omitempty"`

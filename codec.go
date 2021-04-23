@@ -76,9 +76,18 @@ func decodeRequest(data []byte) (Message, error) {
 // Mapping of request commands and corresponding struct constructors that
 // can be passed to json.Unmarshal.
 var requestCtor = map[string]messageCtor{
-	"cancel":                  func() Message { return &CancelRequest{} },
-	"runInTerminal":           func() Message { return &RunInTerminalRequest{} },
-	"initialize":              func() Message { return &InitializeRequest{} },
+	"cancel":        func() Message { return &CancelRequest{} },
+	"runInTerminal": func() Message { return &RunInTerminalRequest{} },
+	"initialize": func() Message {
+		return &InitializeRequest{
+			Arguments: InitializeRequestArguments{
+				// Set the default values specified here: https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize.
+				LinesStartAt1:   true,
+				ColumnsStartAt1: true,
+				PathFormat:      "path",
+			},
+		}
+	},
 	"configurationDone":       func() Message { return &ConfigurationDoneRequest{} },
 	"launch":                  func() Message { return &LaunchRequest{} },
 	"attach":                  func() Message { return &AttachRequest{} },
