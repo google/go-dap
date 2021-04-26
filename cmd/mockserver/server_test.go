@@ -38,7 +38,7 @@ var setBreakpointsRequest = []byte(`{"seq":3,"type":"request","command":"setBrea
 var setBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":3,"success":true,"command":"setBreakpoints","body":{"breakpoints":[{"verified":true,"source":{},"line":7}]}}`)
 
 var setExceptionBreakpointsRequest = []byte(`{"seq":4,"type":"request","command":"setExceptionBreakpoints","arguments":{"filters":[]}}`)
-var setExceptionBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":4,"success":true,"command":"setExceptionBreakpoints"}`)
+var setExceptionBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":4,"success":true,"command":"setExceptionBreakpoints","body":{}}`)
 
 var configurationDoneRequest = []byte(`{"seq":5,"type":"request","command":"configurationDone"}`)
 var threadEvent = []byte(`{"seq":0,"type":"event","event":"thread","body":{"reason":"started","threadId":1}}`)
