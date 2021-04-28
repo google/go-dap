@@ -497,7 +497,7 @@ func main() {
 
 	if flag.NArg() != 1 {
 		fmt.Fprintln(os.Stderr, "Path to the DAP specification json file is required.")
-		fmt.Fprintln(os.Stderr, "go run cmd/gentypes/gentypes.go <path/to/debugProtocol.json>")
+		fmt.Fprintln(os.Stderr, "gentypes <path/to/debugProtocol.json>")
 		os.Exit(1)
 	}
 
