@@ -15,6 +15,7 @@
 package dap
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -40,6 +41,17 @@ func makeErrorResponse() *ErrorResponse {
 			},
 		},
 	}
+}
+
+func toRawMessage(m interface{}) json.RawMessage {
+	b, _ := json.Marshal(m)
+	return (json.RawMessage)(b)
+}
+
+func fromRawMessage(b json.RawMessage) map[string]interface{} {
+	m := make(map[string]interface{})
+	_ = json.Unmarshal(b, &m)
+	return m
 }
 
 func TestMessageInterface(t *testing.T) {
@@ -80,7 +92,7 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 			},
 			Command: "launch",
 		},
-		Arguments: map[string]interface{}{"foo": "bar"},
+		Arguments: toRawMessage(map[string]interface{}{"foo": "bar"}),
 	}
 	ar := &AttachRequest{
 		Request: Request{
@@ -90,11 +102,11 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 			},
 			Command: "attach",
 		},
-		Arguments: map[string]interface{}{"foo": "bar"},
+		Arguments: toRawMessage(map[string]interface{}{"foo": "bar"}),
 	}
 
 	f := func(r LaunchAttachRequest) (int, string, interface{}) {
-		return r.GetSeq(), r.GetRequest().Command, r.GetArguments()["foo"]
+		return r.GetSeq(), r.GetRequest().Command, fromRawMessage(r.GetArguments())["foo"]
 	}
 	// Test adherence to the LaunchAttachRequest interface.
 	lseq, lcmd, lfoo := f(lr)
@@ -107,6 +119,6 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 		t.Errorf("got lcmd=%s acmd=%s, want (\"launch\", \"attach\")", lcmd, acmd)
 	}
 	if lfoo != "bar" || afoo != "bar" {
-		t.Errorf("got lfoo=%s afoo=%s, want \"bar\"", lfoo, afoo)
+		t.Errorf("got lfoo=%v afoo=%v, want \"bar\"", lfoo, afoo)
 	}
 }
