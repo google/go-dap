@@ -291,7 +291,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 		} else if propName == "arguments" && (typeName == "LaunchRequest" || typeName == "AttachRequest") {
 			// Special case for LaunchRequest or AttachRequest arguments, which are implementation
 			// defined and don't have pre-set field names in the specification.
-			fmt.Fprintln(&b, "\tArguments map[string]interface{} `json:\"arguments\"`")
+			fmt.Fprintln(&b, "\tArguments json.RawMessage `json:\"arguments\"`")
 		} else {
 			// Go type of this property.
 			goType := parsePropertyType(propDesc)
@@ -416,7 +416,7 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 		fmt.Fprintf(sb, "func (e *%s) GetEvent() *Event {return &e.Event}\n", typeName)
 	}
 	if typeName == "LaunchRequest" || typeName == "AttachRequest" {
-		fmt.Fprintf(sb, "func (r *%s) GetArguments() map[string]interface{} { return r.Arguments }\n", typeName)
+		fmt.Fprintf(sb, "func (r *%s) GetArguments() json.RawMessage { return r.Arguments }\n", typeName)
 	}
 }
 
@@ -439,6 +439,8 @@ const preamble = `// Copyright 2020 Google LLC
 // See cmd/gentypes/README.md for additional details.
 
 package dap
+
+import "encoding/json"
 
 // Message is an interface that all DAP message types implement with pointer
 // receivers. It's not part of the protocol but is used to enforce static
@@ -478,7 +480,7 @@ type EventMessage interface {
 type LaunchAttachRequest interface {
 	RequestMessage
 	// GetArguments provides access to the Arguments map.
-	GetArguments() map[string]interface{}
+	GetArguments() json.RawMessage
 }
 `
 
