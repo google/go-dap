@@ -15,8 +15,8 @@
 package dap
 
 import (
-	"bytes"
 	"encoding/json"
+	"reflect"
 	"testing"
 )
 
@@ -133,10 +133,10 @@ var configurationDoneResponseStruct = ConfigurationDoneResponse{Response: *newRe
 
 // -------- Launch
 
-var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"name":"Launch","noDebug":true}}` // map keys are sorted.
+var launchRequestString = `{"seq":3,"type":"request","command":"launch","arguments":{"noDebug":true,"name":"Launch"}}`
 var launchRequestStruct = LaunchRequest{
 	Request:   *newRequest(3, "launch"),
-	Arguments: toRawMessage(map[string]interface{}{"noDebug": true, "name": "Launch"}),
+	Arguments: json.RawMessage(`{"noDebug":true,"name":"Launch"}`),
 }
 
 var launchResponseString = `{"seq":3,"type":"response","request_seq":4,"command":"launch","success":true}`
@@ -147,7 +147,7 @@ var launchResponseStruct = LaunchResponse{Response: *newResponse(3, 4, "launch",
 var attachRequestString = `{"seq":4,"type":"request","command":"attach","arguments":{}}`
 var attachRequestStruct = AttachRequest{
 	Request:   *newRequest(4, "attach"),
-	Arguments: toRawMessage(map[string]interface{}{}),
+	Arguments: json.RawMessage(`{}`),
 }
 
 var attachResponseString = `{"seq":4,"type":"response","request_seq":5,"command":"attach","success":true}`
@@ -954,7 +954,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 				}
 				got, _ := json.Marshal(msg)
 				want, _ := json.Marshal(test.wantMsg)
-				if !bytes.Equal(got, want) {
+				if !reflect.DeepEqual(msg, test.wantMsg) { // Check result
 					t.Errorf("\ngot message\n%s\nwant\n%s", got, want)
 				}
 			}
