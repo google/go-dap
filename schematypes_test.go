@@ -15,6 +15,8 @@
 package dap
 
 import (
+	"bytes"
+	"encoding/json"
 	"testing"
 )
 
@@ -80,7 +82,7 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 			},
 			Command: "launch",
 		},
-		Arguments: map[string]interface{}{"foo": "bar"},
+		Arguments: json.RawMessage("foobar"),
 	}
 	ar := &AttachRequest{
 		Request: Request{
@@ -90,11 +92,11 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 			},
 			Command: "attach",
 		},
-		Arguments: map[string]interface{}{"foo": "bar"},
+		Arguments: json.RawMessage(`{"foo":"bar"}`),
 	}
 
-	f := func(r LaunchAttachRequest) (int, string, interface{}) {
-		return r.GetSeq(), r.GetRequest().Command, r.GetArguments()["foo"]
+	f := func(r LaunchAttachRequest) (int, string, json.RawMessage) {
+		return r.GetSeq(), r.GetRequest().Command, r.GetArguments()
 	}
 	// Test adherence to the LaunchAttachRequest interface.
 	lseq, lcmd, lfoo := f(lr)
@@ -106,7 +108,7 @@ func TestLaunchAttachRequestInterface(t *testing.T) {
 	if lcmd != "launch" || acmd != "attach" {
 		t.Errorf("got lcmd=%s acmd=%s, want (\"launch\", \"attach\")", lcmd, acmd)
 	}
-	if lfoo != "bar" || afoo != "bar" {
-		t.Errorf("got lfoo=%s afoo=%s, want \"bar\"", lfoo, afoo)
+	if !bytes.Equal(lfoo, []byte("foobar")) || !bytes.Equal(afoo, []byte(`{"foo":"bar"}`)) {
+		t.Errorf(`got lfoo=%v afoo=%v, want "foobar", {"foo":"bar"}`, lfoo, afoo)
 	}
 }
