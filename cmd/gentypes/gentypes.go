@@ -310,6 +310,10 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				// optional. If this attribute is missing the server will (according to
 				// the specification) assume a value of 'true'.
 				jsonTag += "\"`"
+			} else if typeName == "ErrorMessage" && propName == "showUser" {
+				// For launch/attach errors, vscode will treat omitted values the same way as true,
+				// so to supress visible reporting, we must report false explicitly.
+				jsonTag += "\"`"
 			} else {
 				jsonTag += ",omitempty\"`"
 			}
