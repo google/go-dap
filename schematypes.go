@@ -1612,7 +1612,7 @@ type ErrorMessage struct {
 	Format        string            `json:"format"`
 	Variables     map[string]string `json:"variables,omitempty"`
 	SendTelemetry bool              `json:"sendTelemetry,omitempty"`
-	ShowUser      bool              `json:"showUser,omitempty"`
+	ShowUser      bool              `json:"showUser"`
 	Url           string            `json:"url,omitempty"`
 	UrlLabel      string            `json:"urlLabel,omitempty"`
 }
