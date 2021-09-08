@@ -226,4 +226,5 @@ var eventCtor = map[string]messageCtor{
 	"loadedSource": func() Message { return &LoadedSourceEvent{} },
 	"process":      func() Message { return &ProcessEvent{} },
 	"capabilities": func() Message { return &CapabilitiesEvent{} },
+	"invalidated":  func() Message { return &InvalidatedEvent{} },
 }
