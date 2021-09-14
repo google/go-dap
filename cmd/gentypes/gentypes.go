@@ -425,25 +425,35 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 	}
 }
 
-func getResponseAndEventTypes(resps, events []string, typeName string) ([]string, []string) {
-	if strings.HasSuffix(typeName, "Response") && typeName != "Response" && typeName != "ErrorResponse" {
-		resps = append(resps, typeName)
+func emitCtor(sb *strings.Builder, reqs, resps, events []string) {
+	fmt.Fprint(sb, `
+// Mapping of request commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var requestCtor = map[string]messageCtor{`)
+	for _, r := range reqs {
+		req := strings.TrimSuffix(firstToLower(r), "Request")
+		var msg string
+		if req == "initialize" {
+			msg = `
+	Arguments: InitializeRequestArguments{
+		// Set the default values specified here: https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize.
+		LinesStartAt1:   true,
+		ColumnsStartAt1: true,
+		PathFormat:      "path",
+}`
+		}
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{%s} },", req, r, msg)
 	}
-	if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
-		events = append(events, typeName)
-	}
-	return resps, events
-}
+	fmt.Fprint(sb, "\n}")
 
-func emitCtor(sb *strings.Builder, resps, events []string) {
 	fmt.Fprint(sb, `
 // Mapping of response commands and corresponding struct constructors that
 // can be passed to json.Unmarshal.
 var responseCtor = map[string]messageCtor{`)
 	for _, r := range resps {
-		req := strings.TrimSuffix(firstToLower(r), "Response")
+		resp := strings.TrimSuffix(firstToLower(r), "Response")
 
-		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", req, r)
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", resp, r)
 	}
 	fmt.Fprint(sb, "\n}")
 
@@ -576,7 +586,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var responses, events []string
+	var requests, responses, events []string
 	for _, typeName := range typeNames {
 		if _, ok := typesExcludeList[typeName]; !ok {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
@@ -584,11 +594,20 @@ func main() {
 		}
 
 		emitMethodsForType(&b, replaceGoTypename(typeName))
-		responses, events = getResponseAndEventTypes(responses, events, replaceGoTypename(typeName))
+		// Add the typename to the appropriate list.
+		if strings.HasSuffix(typeName, "Request") && typeName != "Request" {
+			requests = append(requests, typeName)
+		}
+		if strings.HasSuffix(typeName, "Response") && typeName != "Response" && typeName != "ErrorResponse" {
+			responses = append(responses, typeName)
+		}
+		if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
+			events = append(events, typeName)
+		}
 	}
 
 	// Emit the maps from id to response and event types.
-	emitCtor(&b, responses, events)
+	emitCtor(&b, requests, responses, events)
 
 	wholeFile := []byte(b.String())
 	formatted, err := format.Source(wholeFile)

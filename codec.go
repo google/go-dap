@@ -73,61 +73,6 @@ func decodeRequest(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{r.GetSeq(), "Request", "command", r.Command}
 }
 
-// Mapping of request commands and corresponding struct constructors that
-// can be passed to json.Unmarshal.
-var requestCtor = map[string]messageCtor{
-	"cancel":        func() Message { return &CancelRequest{} },
-	"runInTerminal": func() Message { return &RunInTerminalRequest{} },
-	"initialize": func() Message {
-		return &InitializeRequest{
-			Arguments: InitializeRequestArguments{
-				// Set the default values specified here: https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize.
-				LinesStartAt1:   true,
-				ColumnsStartAt1: true,
-				PathFormat:      "path",
-			},
-		}
-	},
-	"configurationDone":       func() Message { return &ConfigurationDoneRequest{} },
-	"launch":                  func() Message { return &LaunchRequest{} },
-	"attach":                  func() Message { return &AttachRequest{} },
-	"restart":                 func() Message { return &RestartRequest{} },
-	"disconnect":              func() Message { return &DisconnectRequest{} },
-	"terminate":               func() Message { return &TerminateRequest{} },
-	"breakpointLocations":     func() Message { return &BreakpointLocationsRequest{} },
-	"setBreakpoints":          func() Message { return &SetBreakpointsRequest{} },
-	"setFunctionBreakpoints":  func() Message { return &SetFunctionBreakpointsRequest{} },
-	"setExceptionBreakpoints": func() Message { return &SetExceptionBreakpointsRequest{} },
-	"dataBreakpointInfo":      func() Message { return &DataBreakpointInfoRequest{} },
-	"setDataBreakpoints":      func() Message { return &SetDataBreakpointsRequest{} },
-	"continue":                func() Message { return &ContinueRequest{} },
-	"next":                    func() Message { return &NextRequest{} },
-	"stepIn":                  func() Message { return &StepInRequest{} },
-	"stepOut":                 func() Message { return &StepOutRequest{} },
-	"stepBack":                func() Message { return &StepBackRequest{} },
-	"reverseContinue":         func() Message { return &ReverseContinueRequest{} },
-	"restartFrame":            func() Message { return &RestartFrameRequest{} },
-	"goto":                    func() Message { return &GotoRequest{} },
-	"pause":                   func() Message { return &PauseRequest{} },
-	"stackTrace":              func() Message { return &StackTraceRequest{} },
-	"scopes":                  func() Message { return &ScopesRequest{} },
-	"variables":               func() Message { return &VariablesRequest{} },
-	"setVariable":             func() Message { return &SetVariableRequest{} },
-	"source":                  func() Message { return &SourceRequest{} },
-	"threads":                 func() Message { return &ThreadsRequest{} },
-	"terminateThreads":        func() Message { return &TerminateThreadsRequest{} },
-	"modules":                 func() Message { return &ModulesRequest{} },
-	"loadedSources":           func() Message { return &LoadedSourcesRequest{} },
-	"evaluate":                func() Message { return &EvaluateRequest{} },
-	"setExpression":           func() Message { return &SetExpressionRequest{} },
-	"stepInTargets":           func() Message { return &StepInTargetsRequest{} },
-	"gotoTargets":             func() Message { return &GotoTargetsRequest{} },
-	"completions":             func() Message { return &CompletionsRequest{} },
-	"exceptionInfo":           func() Message { return &ExceptionInfoRequest{} },
-	"readMemory":              func() Message { return &ReadMemoryRequest{} },
-	"disassemble":             func() Message { return &DisassembleRequest{} },
-}
-
 // decodeResponse determines what response type in the ProtocolMessage hierarchy
 // data corresponds to and uses json.Unmarshal to populate the corresponding
 // struct to be returned.
