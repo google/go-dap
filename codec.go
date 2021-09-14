@@ -149,52 +149,6 @@ func decodeResponse(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{r.GetSeq(), "Response", "command", r.Command}
 }
 
-// Mapping of response commands and corresponding struct constructors that
-// can be passed to json.Unmarshal.
-var responseCtor = map[string]messageCtor{
-	"cancel":                  func() Message { return &CancelResponse{} },
-	"runInTerminal":           func() Message { return &RunInTerminalResponse{} },
-	"initialize":              func() Message { return &InitializeResponse{} },
-	"configurationDone":       func() Message { return &ConfigurationDoneResponse{} },
-	"launch":                  func() Message { return &LaunchResponse{} },
-	"attach":                  func() Message { return &AttachResponse{} },
-	"restart":                 func() Message { return &RestartResponse{} },
-	"disconnect":              func() Message { return &DisconnectResponse{} },
-	"terminate":               func() Message { return &TerminateResponse{} },
-	"breakpointLocations":     func() Message { return &BreakpointLocationsResponse{} },
-	"setBreakpoints":          func() Message { return &SetBreakpointsResponse{} },
-	"setFunctionBreakpoints":  func() Message { return &SetFunctionBreakpointsResponse{} },
-	"setExceptionBreakpoints": func() Message { return &SetExceptionBreakpointsResponse{} },
-	"dataBreakpointInfo":      func() Message { return &DataBreakpointInfoResponse{} },
-	"setDataBreakpoints":      func() Message { return &SetDataBreakpointsResponse{} },
-	"continue":                func() Message { return &ContinueResponse{} },
-	"next":                    func() Message { return &NextResponse{} },
-	"stepIn":                  func() Message { return &StepInResponse{} },
-	"stepOut":                 func() Message { return &StepOutResponse{} },
-	"stepBack":                func() Message { return &StepBackResponse{} },
-	"reverseContinue":         func() Message { return &ReverseContinueResponse{} },
-	"restartFrame":            func() Message { return &RestartFrameResponse{} },
-	"goto":                    func() Message { return &GotoResponse{} },
-	"pause":                   func() Message { return &PauseResponse{} },
-	"stackTrace":              func() Message { return &StackTraceResponse{} },
-	"scopes":                  func() Message { return &ScopesResponse{} },
-	"variables":               func() Message { return &VariablesResponse{} },
-	"setVariable":             func() Message { return &SetVariableResponse{} },
-	"source":                  func() Message { return &SourceResponse{} },
-	"threads":                 func() Message { return &ThreadsResponse{} },
-	"terminateThreads":        func() Message { return &TerminateThreadsResponse{} },
-	"modules":                 func() Message { return &ModulesResponse{} },
-	"loadedSources":           func() Message { return &LoadedSourcesResponse{} },
-	"evaluate":                func() Message { return &EvaluateResponse{} },
-	"setExpression":           func() Message { return &SetExpressionResponse{} },
-	"stepInTargets":           func() Message { return &StepInTargetsResponse{} },
-	"gotoTargets":             func() Message { return &GotoTargetsResponse{} },
-	"completions":             func() Message { return &CompletionsResponse{} },
-	"exceptionInfo":           func() Message { return &ExceptionInfoResponse{} },
-	"readMemory":              func() Message { return &ReadMemoryResponse{} },
-	"disassemble":             func() Message { return &DisassembleResponse{} },
-}
-
 // decodeEvent determines what event type in the ProtocolMessage hierarchy
 // data corresponds to and uses json.Unmarshal to populate the corresponding
 // struct to be returned.
@@ -209,21 +163,4 @@ func decodeEvent(data []byte) (Message, error) {
 		return eventPtr, err
 	}
 	return nil, &DecodeProtocolMessageFieldError{e.GetSeq(), "Event", "event", e.Event}
-}
-
-// Mapping of event ids and corresponding struct constructors that
-// can be passed to json.Unmarshal.
-var eventCtor = map[string]messageCtor{
-	"initialized":  func() Message { return &InitializedEvent{} },
-	"stopped":      func() Message { return &StoppedEvent{} },
-	"continued":    func() Message { return &ContinuedEvent{} },
-	"exited":       func() Message { return &ExitedEvent{} },
-	"terminated":   func() Message { return &TerminatedEvent{} },
-	"thread":       func() Message { return &ThreadEvent{} },
-	"output":       func() Message { return &OutputEvent{} },
-	"breakpoint":   func() Message { return &BreakpointEvent{} },
-	"module":       func() Message { return &ModuleEvent{} },
-	"loadedSource": func() Message { return &LoadedSourceEvent{} },
-	"process":      func() Message { return &ProcessEvent{} },
-	"capabilities": func() Message { return &CapabilitiesEvent{} },
 }

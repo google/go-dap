@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"unicode"
 )
 
 var (
@@ -424,6 +425,44 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 	}
 }
 
+func getResponseAndEventTypes(resps, events []string, typeName string) ([]string, []string) {
+	if strings.HasSuffix(typeName, "Response") && typeName != "Response" && typeName != "ErrorResponse" {
+		resps = append(resps, typeName)
+	}
+	if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
+		events = append(events, typeName)
+	}
+	return resps, events
+}
+
+func emitCtor(sb *strings.Builder, resps, events []string) {
+	fmt.Fprint(sb, `
+// Mapping of response commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var responseCtor = map[string]messageCtor{`)
+	for _, r := range resps {
+		req := strings.TrimSuffix(firstToLower(r), "Response")
+
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", req, r)
+	}
+	fmt.Fprint(sb, "\n}")
+
+	fmt.Fprint(sb, `
+// Mapping of event ids and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var eventCtor = map[string]messageCtor{`)
+	for _, e := range events {
+		ev := strings.TrimSuffix(firstToLower(e), "Event")
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", ev, e)
+	}
+	fmt.Fprint(sb, "\n}\n")
+}
+
+func firstToLower(s string) string {
+	r := []rune(s)
+	return string(unicode.ToLower(r[0])) + string(r[1:])
+}
+
 const preamble = `// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -537,6 +576,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var responses, events []string
 	for _, typeName := range typeNames {
 		if _, ok := typesExcludeList[typeName]; !ok {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
@@ -544,7 +584,11 @@ func main() {
 		}
 
 		emitMethodsForType(&b, replaceGoTypename(typeName))
+		responses, events = getResponseAndEventTypes(responses, events, replaceGoTypename(typeName))
 	}
+
+	// Emit the maps from id to response and event types.
+	emitCtor(&b, responses, events)
 
 	wholeFile := []byte(b.String())
 	formatted, err := format.Source(wholeFile)
