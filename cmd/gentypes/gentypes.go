@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"unicode"
 )
 
 var (
@@ -424,6 +425,55 @@ func emitMethodsForType(sb *strings.Builder, typeName string) {
 	}
 }
 
+func emitCtor(sb *strings.Builder, reqs, resps, events []string) {
+	fmt.Fprint(sb, `
+// Mapping of request commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var requestCtor = map[string]messageCtor{`)
+	for _, r := range reqs {
+		req := strings.TrimSuffix(firstToLower(r), "Request")
+		var msg string
+		if req == "initialize" {
+			msg = `
+	Arguments: InitializeRequestArguments{
+		// Set the default values specified here: https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize.
+		LinesStartAt1:   true,
+		ColumnsStartAt1: true,
+		PathFormat:      "path",
+},
+`
+		}
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{%s} },", req, r, msg)
+	}
+	fmt.Fprint(sb, "\n}")
+
+	fmt.Fprint(sb, `
+// Mapping of response commands and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var responseCtor = map[string]messageCtor{`)
+	for _, r := range resps {
+		resp := strings.TrimSuffix(firstToLower(r), "Response")
+
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", resp, r)
+	}
+	fmt.Fprint(sb, "\n}")
+
+	fmt.Fprint(sb, `
+// Mapping of event ids and corresponding struct constructors that
+// can be passed to json.Unmarshal.
+var eventCtor = map[string]messageCtor{`)
+	for _, e := range events {
+		ev := strings.TrimSuffix(firstToLower(e), "Event")
+		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{} },", ev, e)
+	}
+	fmt.Fprint(sb, "\n}\n")
+}
+
+func firstToLower(s string) string {
+	r := []rune(s)
+	return string(unicode.ToLower(r[0])) + string(r[1:])
+}
+
 const preamble = `// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -537,6 +587,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var requests, responses, events []string
 	for _, typeName := range typeNames {
 		if _, ok := typesExcludeList[typeName]; !ok {
 			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
@@ -544,7 +595,20 @@ func main() {
 		}
 
 		emitMethodsForType(&b, replaceGoTypename(typeName))
+		// Add the typename to the appropriate list.
+		if strings.HasSuffix(typeName, "Request") && typeName != "Request" {
+			requests = append(requests, typeName)
+		}
+		if strings.HasSuffix(typeName, "Response") && typeName != "Response" && typeName != "ErrorResponse" {
+			responses = append(responses, typeName)
+		}
+		if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
+			events = append(events, typeName)
+		}
 	}
+
+	// Emit the maps from id to response and event types.
+	emitCtor(&b, requests, responses, events)
 
 	wholeFile := []byte(b.String())
 	formatted, err := format.Source(wholeFile)
