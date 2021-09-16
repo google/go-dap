@@ -394,6 +394,23 @@ type InvalidatedEventBody struct {
 
 func (e *InvalidatedEvent) GetEvent() *Event { return &e.Event }
 
+// MemoryEvent: This event indicates that some memory range has been updated. It should only be sent if the debug adapter has received a value true for the `supportsMemoryEvent` capability of the `initialize` request.
+// Clients typically react to the event by re-issuing a `readMemory` request if they show the memory identified by the `memoryReference` and if the updated memory range overlaps the displayed range. Clients should not make assumptions how individual memory references relate to each other, so they should not assume that they are part of a single continuous address range and might overlap.
+// Debug adapters can use this event to indicate that the contents of a memory range has changed due to some other DAP request like `setVariable` or `setExpression`. Debug adapters are not expected to emit this event for each and every memory change of a running program, because that information is typically not available from debuggers and it would flood clients with too many events.
+type MemoryEvent struct {
+	Event
+
+	Body MemoryEventBody `json:"body"`
+}
+
+type MemoryEventBody struct {
+	MemoryReference string `json:"memoryReference"`
+	Offset          int    `json:"offset"`
+	Count           int    `json:"count"`
+}
+
+func (e *MemoryEvent) GetEvent() *Event { return &e.Event }
+
 // RunInTerminalRequest: This optional request is sent from the debug adapter to the client to run a command in a terminal.
 // This is typically used to launch the debuggee in a terminal provided by the client.
 // This request should only be called if the client has passed the value true for the 'supportsRunInTerminalRequest' capability of the 'initialize' request.
@@ -456,6 +473,7 @@ type InitializeRequestArguments struct {
 	SupportsMemoryReferences     bool   `json:"supportsMemoryReferences,omitempty"`
 	SupportsProgressReporting    bool   `json:"supportsProgressReporting,omitempty"`
 	SupportsInvalidatedEvent     bool   `json:"supportsInvalidatedEvent,omitempty"`
+	SupportsMemoryEvent          bool   `json:"supportsMemoryEvent,omitempty"`
 }
 
 // InitializeResponse: Response to 'initialize' request.
@@ -1133,6 +1151,7 @@ type VariablesResponseBody struct {
 func (r *VariablesResponse) GetResponse() *Response { return &r.Response }
 
 // SetVariableRequest: Set the variable with the given name in the variable container to a new value. Clients should only call this request if the capability 'supportsSetVariable' is true.
+// If a debug adapter implements both setVariable and setExpression, a client will only use setExpression if the variable has an evaluateName property.
 type SetVariableRequest struct {
 	Request
 
@@ -1334,6 +1353,7 @@ func (r *EvaluateResponse) GetResponse() *Response { return &r.Response }
 // SetExpressionRequest: Evaluates the given 'value' expression and assigns it to the 'expression' which must be a modifiable l-value.
 // The expressions have access to any variables and arguments that are in scope of the specified frame.
 // Clients should only call this request if the capability 'supportsSetExpression' is true.
+// If a debug adapter implements both setExpression and setVariable, a client will only use setExpression if the variable has an evaluateName property.
 type SetExpressionRequest struct {
 	Request
 
@@ -1523,6 +1543,38 @@ type ReadMemoryResponseBody struct {
 
 func (r *ReadMemoryResponse) GetResponse() *Response { return &r.Response }
 
+// WriteMemoryRequest: Writes bytes to memory at the provided location.
+// Clients should only call this request if the capability 'supportsWriteMemoryRequest' is true.
+type WriteMemoryRequest struct {
+	Request
+
+	Arguments WriteMemoryArguments `json:"arguments"`
+}
+
+func (r *WriteMemoryRequest) GetRequest() *Request { return &r.Request }
+
+// WriteMemoryArguments: Arguments for 'writeMemory' request.
+type WriteMemoryArguments struct {
+	MemoryReference string `json:"memoryReference"`
+	Offset          int    `json:"offset,omitempty"`
+	AllowPartial    bool   `json:"allowPartial,omitempty"`
+	Data            string `json:"data"`
+}
+
+// WriteMemoryResponse: Response to 'writeMemory' request.
+type WriteMemoryResponse struct {
+	Response
+
+	Body WriteMemoryResponseBody `json:"body,omitempty"`
+}
+
+type WriteMemoryResponseBody struct {
+	Offset       int `json:"offset,omitempty"`
+	BytesWritten int `json:"bytesWritten,omitempty"`
+}
+
+func (r *WriteMemoryResponse) GetResponse() *Response { return &r.Response }
+
 // DisassembleRequest: Disassembles code stored at the provided location.
 // Clients should only call this request if the capability 'supportsDisassembleRequest' is true.
 type DisassembleRequest struct {
@@ -1587,6 +1639,7 @@ type Capabilities struct {
 	SupportsTerminateRequest           bool                         `json:"supportsTerminateRequest,omitempty"`
 	SupportsDataBreakpoints            bool                         `json:"supportsDataBreakpoints,omitempty"`
 	SupportsReadMemoryRequest          bool                         `json:"supportsReadMemoryRequest,omitempty"`
+	SupportsWriteMemoryRequest         bool                         `json:"supportsWriteMemoryRequest,omitempty"`
 	SupportsDisassembleRequest         bool                         `json:"supportsDisassembleRequest,omitempty"`
 	SupportsCancelRequest              bool                         `json:"supportsCancelRequest,omitempty"`
 	SupportsBreakpointLocationsRequest bool                         `json:"supportsBreakpointLocationsRequest,omitempty"`
