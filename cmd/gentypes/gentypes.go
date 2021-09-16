@@ -440,7 +440,8 @@ var requestCtor = map[string]messageCtor{`)
 		LinesStartAt1:   true,
 		ColumnsStartAt1: true,
 		PathFormat:      "path",
-}`
+},
+`
 		}
 		fmt.Fprintf(sb, "\n\t\"%s\":\tfunc() Message { return &%s{%s} },", req, r, msg)
 	}

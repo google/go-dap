@@ -1967,7 +1967,8 @@ var requestCtor = map[string]messageCtor{
 				LinesStartAt1:   true,
 				ColumnsStartAt1: true,
 				PathFormat:      "path",
-			}}
+			},
+		}
 	},
 	"configurationDone":         func() Message { return &ConfigurationDoneRequest{} },
 	"launch":                    func() Message { return &LaunchRequest{} },
@@ -2007,6 +2008,7 @@ var requestCtor = map[string]messageCtor{
 	"completions":               func() Message { return &CompletionsRequest{} },
 	"exceptionInfo":             func() Message { return &ExceptionInfoRequest{} },
 	"readMemory":                func() Message { return &ReadMemoryRequest{} },
+	"writeMemory":               func() Message { return &WriteMemoryRequest{} },
 	"disassemble":               func() Message { return &DisassembleRequest{} },
 }
 
@@ -2054,6 +2056,7 @@ var responseCtor = map[string]messageCtor{
 	"completions":               func() Message { return &CompletionsResponse{} },
 	"exceptionInfo":             func() Message { return &ExceptionInfoResponse{} },
 	"readMemory":                func() Message { return &ReadMemoryResponse{} },
+	"writeMemory":               func() Message { return &WriteMemoryResponse{} },
 	"disassemble":               func() Message { return &DisassembleResponse{} },
 }
 
@@ -2076,4 +2079,5 @@ var eventCtor = map[string]messageCtor{
 	"progressUpdate": func() Message { return &ProgressUpdateEvent{} },
 	"progressEnd":    func() Message { return &ProgressEndEvent{} },
 	"invalidated":    func() Message { return &InvalidatedEvent{} },
+	"memory":         func() Message { return &MemoryEvent{} },
 }
