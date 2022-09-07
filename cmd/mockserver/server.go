@@ -271,7 +271,7 @@ func (ds *fakeDebugSession) doContinue() {
 	ds.bpSetMux.Lock()
 	if ds.bpSet == 0 {
 		// Pretend that the program is running.
-		// The delay will alow for all in-flight responses
+		// The delay will allow for all in-flight responses
 		// to be sent before termination.
 		time.Sleep(1000 * time.Millisecond)
 		e = &dap.TerminatedEvent{
