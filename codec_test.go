@@ -747,6 +747,47 @@ var disassembleResponseStruct = DisassembleResponse{
 	},
 }
 
+// -------- Custom Request/Response --------
+
+type customRequest struct {
+	Request
+	Body string `json:"body"`
+}
+
+func (r *customRequest) GetRequest() *Request { return &r.Request }
+
+type customResponse struct {
+	Response
+	Body string `json:"body"`
+}
+
+func (r *customResponse) GetResponse() *Response { return &r.Response }
+
+var customRequestString = `{"seq":40,"type":"request","command":"customReq","body":"242424"}`
+var customRequestStruct = customRequest{
+	Request: *newRequest(40, "customReq"),
+	Body:    "242424",
+}
+
+var customResponseString = `{"seq":40,"type":"response","request_seq":41,"command":"customReq","success":true,"body":"424242"}`
+var customResponseStruct = customResponse{
+	Response: *newResponse(40, 41, "customReq", true),
+	Body:     "424242",
+}
+
+type customEvent struct {
+	Event
+	Body int `json:"body"`
+}
+
+func (e *customEvent) GetEvent() *Event { return &e.Event }
+
+var customEventString = `{"seq":13,"type":"event","event":"customEvt","body":42}`
+var customEventStruct = customEvent{
+	Event: *newEvent(13, "customEvt"),
+	Body:  42,
+}
+
 // -------- Events --------
 
 var initializedEventString = `{"seq":1,"type":"event","event":"initialized"}`
@@ -882,6 +923,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{exceptionInfoRequestString, &exceptionInfoRequestStruct, noError},
 		{readMemoryRequestString, &readMemoryRequestStruct, noError},
 		{disassembleRequestString, &disassembleRequestStruct, noError},
+		{customRequestString, &customRequestStruct, noError},
 		// Response
 		{`{"type":"response","success":true, "seq": 77}`, msgIgnoredOnError, "Response command '' is not supported (seq: 77)"},
 		{errorResponseString, &errorResponseStruct, noError},
@@ -926,6 +968,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{exceptionInfoResponseString, &exceptionInfoResponseStruct, noError},
 		{readMemoryResponseString, &readMemoryResponseStruct, noError},
 		{disassembleResponseString, &disassembleResponseStruct, noError},
+		{customResponseString, &customResponseStruct, noError},
 		// Event
 		{`{"type":"event", "seq": 8}`, msgIgnoredOnError, "Event event '' is not supported (seq: 8)"},
 		{initializedEventString, &initializedEventStruct, noError},
@@ -940,10 +983,15 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{loadedSourceEventString, &loadedSourceEventStruct, noError},
 		{processEventString, &processEventStruct, noError},
 		{capabilitiesEventString, &capabilitiesEventStruct, noError},
+		{customEventString, &customEventStruct, noError},
 	}
+
+	codec := NewCodec()
+	codec.RegisterRequest("customReq", func() Message { return new(customRequest) }, func() Message { return new(customResponse) })
+	codec.RegisterEvent("customEvt", func() Message { return new(customEvent) })
 	for _, test := range tests {
 		t.Run(test.data, func(t *testing.T) {
-			msg, err := DecodeProtocolMessage([]byte(test.data))
+			msg, err := codec.DecodeMessage([]byte(test.data))
 			if err != nil { // Decoding error
 				if err.Error() != test.wantErr { // Was it the right error?
 					t.Errorf("got error=%#v, want %q", err, test.wantErr)
