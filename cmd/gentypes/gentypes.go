@@ -107,7 +107,15 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			if !ok {
 				log.Fatal("missing additionalProperties field when type=object:", propValue)
 			}
-			valueType := parsePropertyType(additionalProps.(map[string]interface{}))
+			var valueType string
+			switch actual := additionalProps.(type) {
+			case bool:
+				valueType = "interface{}"
+			case map[string]interface{}:
+				valueType = parsePropertyType(actual)
+			default:
+				log.Fatal("unexpected additionalProperties value:", additionalProps)
+			}
 			return fmt.Sprintf("map[string]%v", valueType)
 		case "interface{}":
 			return "interface{}"
