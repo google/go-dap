@@ -747,6 +747,22 @@ var disassembleResponseStruct = DisassembleResponse{
 	},
 }
 
+// -------- StartDebugging
+
+var startDebuggingRequestString = `{"seq":39,"type":"request","command":"startDebugging","arguments":{"request":"launch","configuration":{"any":true}}}`
+var startDebuggingRequestStruct = StartDebuggingRequest{
+	Request: *newRequest(39, "StartDebugging"),
+	Arguments: StartDebuggingRequestArguments{
+		Request:       "launch",
+		Configuration: map[string]interface{}{"any": true},
+	},
+}
+
+var startDebuggingResponseString = `{"seq":39,"type":"response","request_seq":40,"command":"startDebugging","success":true,"body":{"instructions":[{"address":"someaddr","instruction":"someinstr"}]}}`
+var startDebuggingResponseStruct = StartDebuggingResponse{
+	Response: *newResponse(39, 40, "startDebugging", true),
+}
+
 // -------- Events --------
 
 var initializedEventString = `{"seq":1,"type":"event","event":"initialized"}`
@@ -882,6 +898,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{exceptionInfoRequestString, &exceptionInfoRequestStruct, noError},
 		{readMemoryRequestString, &readMemoryRequestStruct, noError},
 		{disassembleRequestString, &disassembleRequestStruct, noError},
+		{startDebuggingRequestString, &startDebuggingRequestStruct, noError},
 		// Response
 		{`{"type":"response","success":true, "seq": 77}`, msgIgnoredOnError, "Response command '' is not supported (seq: 77)"},
 		{errorResponseString, &errorResponseStruct, noError},
@@ -926,6 +943,7 @@ func Test_DecodeProtocolMessage(t *testing.T) {
 		{exceptionInfoResponseString, &exceptionInfoResponseStruct, noError},
 		{readMemoryResponseString, &readMemoryResponseStruct, noError},
 		{disassembleResponseString, &disassembleResponseStruct, noError},
+		{startDebuggingResponseString, &startDebuggingResponseStruct, noError},
 		// Event
 		{`{"type":"event", "seq": 8}`, msgIgnoredOnError, "Event event '' is not supported (seq: 8)"},
 		{initializedEventString, &initializedEventStruct, noError},
