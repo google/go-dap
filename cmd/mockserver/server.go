@@ -450,7 +450,7 @@ func (ds *fakeDebugSession) onStackTraceRequest(request *dap.StackTraceRequest) 
 		StackFrames: []dap.StackFrame{
 			{
 				Id:     1000,
-				Source: dap.Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go", SourceReference: 0},
+				Source: &dap.Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go", SourceReference: 0},
 				Line:   5,
 				Column: 0,
 				Name:   "main.main",

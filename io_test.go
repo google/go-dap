@@ -300,7 +300,7 @@ var cancelReqStruct = CancelRequest{
 		},
 		Command: "cancel",
 	},
-	Arguments: CancelArguments{RequestId: 24},
+	Arguments: &CancelArguments{RequestId: 24},
 }
 
 func TestWriteProtocolMessage(t *testing.T) {

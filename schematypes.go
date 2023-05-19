@@ -101,7 +101,7 @@ type ErrorResponse struct {
 }
 
 type ErrorResponseBody struct {
-	Error ErrorMessage `json:"error,omitempty"`
+	Error *ErrorMessage `json:"error,omitempty"`
 }
 
 func (r *ErrorResponse) GetResponse() *Response { return &r.Response }
@@ -119,7 +119,7 @@ func (r *ErrorResponse) GetResponse() *Response { return &r.Response }
 type CancelRequest struct {
 	Request
 
-	Arguments CancelArguments `json:"arguments,omitempty"`
+	Arguments *CancelArguments `json:"arguments,omitempty"`
 }
 
 func (r *CancelRequest) GetRequest() *Request { return &r.Request }
@@ -240,7 +240,7 @@ type OutputEventBody struct {
 	Output             string      `json:"output"`
 	Group              string      `json:"group,omitempty"`
 	VariablesReference int         `json:"variablesReference,omitempty"`
-	Source             Source      `json:"source,omitempty"`
+	Source             *Source     `json:"source,omitempty"`
 	Line               int         `json:"line,omitempty"`
 	Column             int         `json:"column,omitempty"`
 	Data               interface{} `json:"data,omitempty"`
@@ -517,7 +517,7 @@ func (r *InitializeResponse) GetResponse() *Response { return &r.Response }
 type ConfigurationDoneRequest struct {
 	Request
 
-	Arguments ConfigurationDoneArguments `json:"arguments,omitempty"`
+	Arguments *ConfigurationDoneArguments `json:"arguments,omitempty"`
 }
 
 func (r *ConfigurationDoneRequest) GetRequest() *Request { return &r.Request }
@@ -574,7 +574,7 @@ func (r *AttachResponse) GetResponse() *Response { return &r.Response }
 type RestartRequest struct {
 	Request
 
-	Arguments RestartArguments `json:"arguments,omitempty"`
+	Arguments *RestartArguments `json:"arguments,omitempty"`
 }
 
 func (r *RestartRequest) GetRequest() *Request { return &r.Request }
@@ -597,7 +597,7 @@ func (r *RestartResponse) GetResponse() *Response { return &r.Response }
 type DisconnectRequest struct {
 	Request
 
-	Arguments DisconnectArguments `json:"arguments,omitempty"`
+	Arguments *DisconnectArguments `json:"arguments,omitempty"`
 }
 
 func (r *DisconnectRequest) GetRequest() *Request { return &r.Request }
@@ -623,7 +623,7 @@ func (r *DisconnectResponse) GetResponse() *Response { return &r.Response }
 type TerminateRequest struct {
 	Request
 
-	Arguments TerminateArguments `json:"arguments,omitempty"`
+	Arguments *TerminateArguments `json:"arguments,omitempty"`
 }
 
 func (r *TerminateRequest) GetRequest() *Request { return &r.Request }
@@ -645,7 +645,7 @@ func (r *TerminateResponse) GetResponse() *Response { return &r.Response }
 type BreakpointLocationsRequest struct {
 	Request
 
-	Arguments BreakpointLocationsArguments `json:"arguments,omitempty"`
+	Arguments *BreakpointLocationsArguments `json:"arguments,omitempty"`
 }
 
 func (r *BreakpointLocationsRequest) GetRequest() *Request { return &r.Request }
@@ -909,9 +909,9 @@ func (r *NextRequest) GetRequest() *Request { return &r.Request }
 
 // NextArguments: Arguments for `next` request.
 type NextArguments struct {
-	ThreadId     int                 `json:"threadId"`
-	SingleThread bool                `json:"singleThread,omitempty"`
-	Granularity  SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                  `json:"threadId"`
+	SingleThread bool                 `json:"singleThread,omitempty"`
+	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // NextResponse: Response to `next` request. This is just an acknowledgement, so no body field is required.
@@ -938,10 +938,10 @@ func (r *StepInRequest) GetRequest() *Request { return &r.Request }
 
 // StepInArguments: Arguments for `stepIn` request.
 type StepInArguments struct {
-	ThreadId     int                 `json:"threadId"`
-	SingleThread bool                `json:"singleThread,omitempty"`
-	TargetId     int                 `json:"targetId,omitempty"`
-	Granularity  SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                  `json:"threadId"`
+	SingleThread bool                 `json:"singleThread,omitempty"`
+	TargetId     int                  `json:"targetId,omitempty"`
+	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepInResponse: Response to `stepIn` request. This is just an acknowledgement, so no body field is required.
@@ -964,9 +964,9 @@ func (r *StepOutRequest) GetRequest() *Request { return &r.Request }
 
 // StepOutArguments: Arguments for `stepOut` request.
 type StepOutArguments struct {
-	ThreadId     int                 `json:"threadId"`
-	SingleThread bool                `json:"singleThread,omitempty"`
-	Granularity  SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                  `json:"threadId"`
+	SingleThread bool                 `json:"singleThread,omitempty"`
+	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepOutResponse: Response to `stepOut` request. This is just an acknowledgement, so no body field is required.
@@ -990,9 +990,9 @@ func (r *StepBackRequest) GetRequest() *Request { return &r.Request }
 
 // StepBackArguments: Arguments for `stepBack` request.
 type StepBackArguments struct {
-	ThreadId     int                 `json:"threadId"`
-	SingleThread bool                `json:"singleThread,omitempty"`
-	Granularity  SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                  `json:"threadId"`
+	SingleThread bool                 `json:"singleThread,omitempty"`
+	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepBackResponse: Response to `stepBack` request. This is just an acknowledgement, so no body field is required.
@@ -1108,10 +1108,10 @@ func (r *StackTraceRequest) GetRequest() *Request { return &r.Request }
 
 // StackTraceArguments: Arguments for `stackTrace` request.
 type StackTraceArguments struct {
-	ThreadId   int              `json:"threadId"`
-	StartFrame int              `json:"startFrame,omitempty"`
-	Levels     int              `json:"levels,omitempty"`
-	Format     StackFrameFormat `json:"format,omitempty"`
+	ThreadId   int               `json:"threadId"`
+	StartFrame int               `json:"startFrame,omitempty"`
+	Levels     int               `json:"levels,omitempty"`
+	Format     *StackFrameFormat `json:"format,omitempty"`
 }
 
 // StackTraceResponse: Response to `stackTrace` request.
@@ -1167,11 +1167,11 @@ func (r *VariablesRequest) GetRequest() *Request { return &r.Request }
 
 // VariablesArguments: Arguments for `variables` request.
 type VariablesArguments struct {
-	VariablesReference int         `json:"variablesReference"`
-	Filter             string      `json:"filter,omitempty"`
-	Start              int         `json:"start,omitempty"`
-	Count              int         `json:"count,omitempty"`
-	Format             ValueFormat `json:"format,omitempty"`
+	VariablesReference int          `json:"variablesReference"`
+	Filter             string       `json:"filter,omitempty"`
+	Start              int          `json:"start,omitempty"`
+	Count              int          `json:"count,omitempty"`
+	Format             *ValueFormat `json:"format,omitempty"`
 }
 
 // VariablesResponse: Response to `variables` request.
@@ -1199,10 +1199,10 @@ func (r *SetVariableRequest) GetRequest() *Request { return &r.Request }
 
 // SetVariableArguments: Arguments for `setVariable` request.
 type SetVariableArguments struct {
-	VariablesReference int         `json:"variablesReference"`
-	Name               string      `json:"name"`
-	Value              string      `json:"value"`
-	Format             ValueFormat `json:"format,omitempty"`
+	VariablesReference int          `json:"variablesReference"`
+	Name               string       `json:"name"`
+	Value              string       `json:"value"`
+	Format             *ValueFormat `json:"format,omitempty"`
 }
 
 // SetVariableResponse: Response to `setVariable` request.
@@ -1233,8 +1233,8 @@ func (r *SourceRequest) GetRequest() *Request { return &r.Request }
 
 // SourceArguments: Arguments for `source` request.
 type SourceArguments struct {
-	Source          Source `json:"source,omitempty"`
-	SourceReference int    `json:"sourceReference"`
+	Source          *Source `json:"source,omitempty"`
+	SourceReference int     `json:"sourceReference"`
 }
 
 // SourceResponse: Response to `source` request.
@@ -1328,7 +1328,7 @@ func (r *ModulesResponse) GetResponse() *Response { return &r.Response }
 type LoadedSourcesRequest struct {
 	Request
 
-	Arguments LoadedSourcesArguments `json:"arguments,omitempty"`
+	Arguments *LoadedSourcesArguments `json:"arguments,omitempty"`
 }
 
 func (r *LoadedSourcesRequest) GetRequest() *Request { return &r.Request }
@@ -1362,10 +1362,10 @@ func (r *EvaluateRequest) GetRequest() *Request { return &r.Request }
 
 // EvaluateArguments: Arguments for `evaluate` request.
 type EvaluateArguments struct {
-	Expression string      `json:"expression"`
-	FrameId    int         `json:"frameId,omitempty"`
-	Context    string      `json:"context,omitempty"`
-	Format     ValueFormat `json:"format,omitempty"`
+	Expression string       `json:"expression"`
+	FrameId    int          `json:"frameId,omitempty"`
+	Context    string       `json:"context,omitempty"`
+	Format     *ValueFormat `json:"format,omitempty"`
 }
 
 // EvaluateResponse: Response to `evaluate` request.
@@ -1376,13 +1376,13 @@ type EvaluateResponse struct {
 }
 
 type EvaluateResponseBody struct {
-	Result             string                   `json:"result"`
-	Type               string                   `json:"type,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
-	VariablesReference int                      `json:"variablesReference"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
-	MemoryReference    string                   `json:"memoryReference,omitempty"`
+	Result             string                    `json:"result"`
+	Type               string                    `json:"type,omitempty"`
+	PresentationHint   *VariablePresentationHint `json:"presentationHint,omitempty"`
+	VariablesReference int                       `json:"variablesReference"`
+	NamedVariables     int                       `json:"namedVariables,omitempty"`
+	IndexedVariables   int                       `json:"indexedVariables,omitempty"`
+	MemoryReference    string                    `json:"memoryReference,omitempty"`
 }
 
 func (r *EvaluateResponse) GetResponse() *Response { return &r.Response }
@@ -1401,10 +1401,10 @@ func (r *SetExpressionRequest) GetRequest() *Request { return &r.Request }
 
 // SetExpressionArguments: Arguments for `setExpression` request.
 type SetExpressionArguments struct {
-	Expression string      `json:"expression"`
-	Value      string      `json:"value"`
-	FrameId    int         `json:"frameId,omitempty"`
-	Format     ValueFormat `json:"format,omitempty"`
+	Expression string       `json:"expression"`
+	Value      string       `json:"value"`
+	FrameId    int          `json:"frameId,omitempty"`
+	Format     *ValueFormat `json:"format,omitempty"`
 }
 
 // SetExpressionResponse: Response to `setExpression` request.
@@ -1415,12 +1415,12 @@ type SetExpressionResponse struct {
 }
 
 type SetExpressionResponseBody struct {
-	Value              string                   `json:"value"`
-	Type               string                   `json:"type,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
-	VariablesReference int                      `json:"variablesReference,omitempty"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
+	Value              string                    `json:"value"`
+	Type               string                    `json:"type,omitempty"`
+	PresentationHint   *VariablePresentationHint `json:"presentationHint,omitempty"`
+	VariablesReference int                       `json:"variablesReference,omitempty"`
+	NamedVariables     int                       `json:"namedVariables,omitempty"`
+	IndexedVariables   int                       `json:"indexedVariables,omitempty"`
 }
 
 func (r *SetExpressionResponse) GetResponse() *Response { return &r.Response }
@@ -1542,7 +1542,7 @@ type ExceptionInfoResponseBody struct {
 	ExceptionId string             `json:"exceptionId"`
 	Description string             `json:"description,omitempty"`
 	BreakMode   ExceptionBreakMode `json:"breakMode"`
-	Details     ExceptionDetails   `json:"details,omitempty"`
+	Details     *ExceptionDetails  `json:"details,omitempty"`
 }
 
 func (r *ExceptionInfoResponse) GetResponse() *Response { return &r.Response }
@@ -1767,7 +1767,7 @@ type Source struct {
 type StackFrame struct {
 	Id                          int         `json:"id"`
 	Name                        string      `json:"name"`
-	Source                      Source      `json:"source,omitempty"`
+	Source                      *Source     `json:"source,omitempty"`
 	Line                        int         `json:"line"`
 	Column                      int         `json:"column"`
 	EndLine                     int         `json:"endLine,omitempty"`
@@ -1780,17 +1780,17 @@ type StackFrame struct {
 
 // Scope: A `Scope` is a named container for variables. Optionally a scope can map to a source or a range within a source.
 type Scope struct {
-	Name               string `json:"name"`
-	PresentationHint   string `json:"presentationHint,omitempty"`
-	VariablesReference int    `json:"variablesReference"`
-	NamedVariables     int    `json:"namedVariables,omitempty"`
-	IndexedVariables   int    `json:"indexedVariables,omitempty"`
-	Expensive          bool   `json:"expensive"`
-	Source             Source `json:"source,omitempty"`
-	Line               int    `json:"line,omitempty"`
-	Column             int    `json:"column,omitempty"`
-	EndLine            int    `json:"endLine,omitempty"`
-	EndColumn          int    `json:"endColumn,omitempty"`
+	Name               string  `json:"name"`
+	PresentationHint   string  `json:"presentationHint,omitempty"`
+	VariablesReference int     `json:"variablesReference"`
+	NamedVariables     int     `json:"namedVariables,omitempty"`
+	IndexedVariables   int     `json:"indexedVariables,omitempty"`
+	Expensive          bool    `json:"expensive"`
+	Source             *Source `json:"source,omitempty"`
+	Line               int     `json:"line,omitempty"`
+	Column             int     `json:"column,omitempty"`
+	EndLine            int     `json:"endLine,omitempty"`
+	EndColumn          int     `json:"endColumn,omitempty"`
 }
 
 // Variable: A Variable is a name/value pair.
@@ -1800,15 +1800,15 @@ type Scope struct {
 // If the number of named or indexed children is large, the numbers should be returned via the `namedVariables` and `indexedVariables` attributes.
 // The client can use this information to present the children in a paged UI and fetch them in chunks.
 type Variable struct {
-	Name               string                   `json:"name"`
-	Value              string                   `json:"value"`
-	Type               string                   `json:"type,omitempty"`
-	PresentationHint   VariablePresentationHint `json:"presentationHint,omitempty"`
-	EvaluateName       string                   `json:"evaluateName,omitempty"`
-	VariablesReference int                      `json:"variablesReference"`
-	NamedVariables     int                      `json:"namedVariables,omitempty"`
-	IndexedVariables   int                      `json:"indexedVariables,omitempty"`
-	MemoryReference    string                   `json:"memoryReference,omitempty"`
+	Name               string                    `json:"name"`
+	Value              string                    `json:"value"`
+	Type               string                    `json:"type,omitempty"`
+	PresentationHint   *VariablePresentationHint `json:"presentationHint,omitempty"`
+	EvaluateName       string                    `json:"evaluateName,omitempty"`
+	VariablesReference int                       `json:"variablesReference"`
+	NamedVariables     int                       `json:"namedVariables,omitempty"`
+	IndexedVariables   int                       `json:"indexedVariables,omitempty"`
+	MemoryReference    string                    `json:"memoryReference,omitempty"`
 }
 
 // VariablePresentationHint: Properties of a variable that can be used to determine how to render the variable in the UI.
@@ -1848,10 +1848,10 @@ type DataBreakpointAccessType string
 
 // DataBreakpoint: Properties of a data breakpoint passed to the `setDataBreakpoints` request.
 type DataBreakpoint struct {
-	DataId       string                   `json:"dataId"`
-	AccessType   DataBreakpointAccessType `json:"accessType,omitempty"`
-	Condition    string                   `json:"condition,omitempty"`
-	HitCondition string                   `json:"hitCondition,omitempty"`
+	DataId       string                    `json:"dataId"`
+	AccessType   *DataBreakpointAccessType `json:"accessType,omitempty"`
+	Condition    string                    `json:"condition,omitempty"`
+	HitCondition string                    `json:"hitCondition,omitempty"`
 }
 
 // InstructionBreakpoint: Properties of a breakpoint passed to the `setInstructionBreakpoints` request
@@ -1903,15 +1903,15 @@ type GotoTarget struct {
 
 // CompletionItem: `CompletionItems` are the suggestions returned from the `completions` request.
 type CompletionItem struct {
-	Label           string             `json:"label"`
-	Text            string             `json:"text,omitempty"`
-	SortText        string             `json:"sortText,omitempty"`
-	Detail          string             `json:"detail,omitempty"`
-	Type            CompletionItemType `json:"type,omitempty"`
-	Start           int                `json:"start,omitempty"`
-	Length          int                `json:"length,omitempty"`
-	SelectionStart  int                `json:"selectionStart,omitempty"`
-	SelectionLength int                `json:"selectionLength,omitempty"`
+	Label           string              `json:"label"`
+	Text            string              `json:"text,omitempty"`
+	SortText        string              `json:"sortText,omitempty"`
+	Detail          string              `json:"detail,omitempty"`
+	Type            *CompletionItemType `json:"type,omitempty"`
+	Start           int                 `json:"start,omitempty"`
+	Length          int                 `json:"length,omitempty"`
+	SelectionStart  int                 `json:"selectionStart,omitempty"`
+	SelectionLength int                 `json:"selectionLength,omitempty"`
 }
 
 // CompletionItemType: Some predefined types for the CompletionItem. Please note that not all clients have specific icons for all of them.
@@ -1982,15 +1982,15 @@ type ExceptionDetails struct {
 
 // DisassembledInstruction: Represents a single disassembled instruction.
 type DisassembledInstruction struct {
-	Address          string `json:"address"`
-	InstructionBytes string `json:"instructionBytes,omitempty"`
-	Instruction      string `json:"instruction"`
-	Symbol           string `json:"symbol,omitempty"`
-	Location         Source `json:"location,omitempty"`
-	Line             int    `json:"line,omitempty"`
-	Column           int    `json:"column,omitempty"`
-	EndLine          int    `json:"endLine,omitempty"`
-	EndColumn        int    `json:"endColumn,omitempty"`
+	Address          string  `json:"address"`
+	InstructionBytes string  `json:"instructionBytes,omitempty"`
+	Instruction      string  `json:"instruction"`
+	Symbol           string  `json:"symbol,omitempty"`
+	Location         *Source `json:"location,omitempty"`
+	Line             int     `json:"line,omitempty"`
+	Column           int     `json:"column,omitempty"`
+	EndLine          int     `json:"endLine,omitempty"`
+	EndColumn        int     `json:"endColumn,omitempty"`
 }
 
 // InvalidatedAreas: Logical areas that can be invalidated by the `invalidated` event.
