@@ -7,14 +7,15 @@ if [[ $# -gt 0 ]]; then
 fi
 
 # ensure_go_binary verifies that a binary exists in $PATH corresponding to the
-# given go-gettable URI. If no such binary exists, it is fetched via `go get`.
+# given go-gettable URI. If no such binary exists, it is fetched via `go install`
+# at latest.
 ensure_go_binary() {
   local binary=$(basename $1)
   if ! [ -x "$(command -v $binary)" ]; then
-    info "Installing: $1"
+    echo "Installing: $1"
     # Run in a subshell for convenience, so that we don't have to worry about
     # our PWD.
-    (set -x; cd && env GO111MODULE=on go get -u $1)
+    (set -x; cd && go install $1@latest)
   fi
 }
 
