@@ -15,7 +15,7 @@ ensure_go_binary() {
     echo "Installing: $1"
     # Run in a subshell for convenience, so that we don't have to worry about
     # our PWD.
-    (set -x; cd && env GO111MODULE=on go install $1@latest)
+    (set -x; cd && go install $1@latest)
   fi
 }
 
