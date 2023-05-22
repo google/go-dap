@@ -12,7 +12,7 @@ fi
 ensure_go_binary() {
   local binary=$(basename $1)
   if ! [ -x "$(command -v $binary)" ]; then
-    info "Installing: $1"
+    echo "Installing: $1"
     # Run in a subshell for convenience, so that we don't have to worry about
     # our PWD.
     (set -x; cd && env GO111MODULE=on go install $1@latest)
