@@ -35,7 +35,7 @@ var launchRequest = []byte(`{"seq":2,"type":"request","command":"launch","argume
 var launchResponse = []byte(`{"seq":0,"type":"response","request_seq":2,"success":true,"command":"launch"}`)
 
 var setBreakpointsRequest = []byte(`{"seq":3,"type":"request","command":"setBreakpoints","arguments":{"source":{"name":"hello.go","path":"/Users/foo/go/src/hello/hello.go"},"lines":[7],"breakpoints":[{"line":7}],"sourceModified":false}}`)
-var setBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":3,"success":true,"command":"setBreakpoints","body":{"breakpoints":[{"verified":true,"source":{},"line":7}]}}`)
+var setBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":3,"success":true,"command":"setBreakpoints","body":{"breakpoints":[{"verified":true,"line":7}]}}`)
 
 var setExceptionBreakpointsRequest = []byte(`{"seq":4,"type":"request","command":"setExceptionBreakpoints","arguments":{"filters":[]}}`)
 var setExceptionBreakpointsResponse = []byte(`{"seq":0,"type":"response","request_seq":4,"success":true,"command":"setExceptionBreakpoints","body":{}}`)
