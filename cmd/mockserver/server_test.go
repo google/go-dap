@@ -53,10 +53,10 @@ var stackTraceRequest = []byte(`{"seq":7,"type":"request","command":"stackTrace"
 var stackTraceResponse = []byte(`{"seq":0,"type":"response","request_seq":7,"success":true,"command":"stackTrace","body":{"stackFrames":[{"id":1000,"name":"main.main","source":{"name":"hello.go","path":"/Users/foo/go/src/hello/hello.go"},"line":5,"column":0}],"totalFrames":1}}`)
 
 var scopesRequest = []byte(`{"seq":8,"type":"request","command":"scopes","arguments":{"frameId":1000}}`)
-var scopesResponse = []byte(`{"seq":0,"type":"response","request_seq":8,"success":true,"command":"scopes","body":{"scopes":[{"name":"Local","variablesReference":1000,"expensive":false,"source":{}},{"name":"Global","variablesReference":1001,"expensive":true,"source":{}}]}}`)
+var scopesResponse = []byte(`{"seq":0,"type":"response","request_seq":8,"success":true,"command":"scopes","body":{"scopes":[{"name":"Local","variablesReference":1000,"expensive":false},{"name":"Global","variablesReference":1001,"expensive":true}]}}`)
 
 var variablesRequest = []byte(`{"seq":9,"type":"request","command":"variables","arguments":{"variablesReference":1000}}`)
-var variablesResponse = []byte(`{"seq":0,"type":"response","request_seq":9,"success":true,"command":"variables","body":{"variables":[{"name":"i","value":"18434528","presentationHint":{},"evaluateName":"i","variablesReference":0}]}}`)
+var variablesResponse = []byte(`{"seq":0,"type":"response","request_seq":9,"success":true,"command":"variables","body":{"variables":[{"name":"i","value":"18434528","evaluateName":"i","variablesReference":0}]}}`)
 
 var continueRequest = []byte(`{"seq":10,"type":"request","command":"continue","arguments":{"threadId":1}}`)
 var continueResponse = []byte(`{"seq":0,"type":"response","request_seq":10,"success":true,"command":"continue","body":{"allThreadsContinued":false}}`)
