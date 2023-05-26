@@ -751,14 +751,14 @@ var disassembleResponseStruct = DisassembleResponse{
 
 var startDebuggingRequestString = `{"seq":39,"type":"request","command":"startDebugging","arguments":{"request":"launch","configuration":{"any":true}}}`
 var startDebuggingRequestStruct = StartDebuggingRequest{
-	Request: *newRequest(39, "StartDebugging"),
+	Request: *newRequest(39, "startDebugging"),
 	Arguments: StartDebuggingRequestArguments{
 		Request:       "launch",
 		Configuration: map[string]interface{}{"any": true},
 	},
 }
 
-var startDebuggingResponseString = `{"seq":39,"type":"response","request_seq":40,"command":"startDebugging","success":true,"body":{"instructions":[{"address":"someaddr","instruction":"someinstr"}]}}`
+var startDebuggingResponseString = `{"seq":39,"type":"response","request_seq":40,"command":"startDebugging","success":true}`
 var startDebuggingResponseStruct = StartDebuggingResponse{
 	Response: *newResponse(39, 40, "startDebugging", true),
 }
