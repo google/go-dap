@@ -325,11 +325,15 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				jsonTag += "\"`"
 			} else {
 				jsonTag += ",omitempty\"`"
-			}
-			if typeName == "Breakpoint" && goType == "Source" {
-				// Make the Source field in Breakpoint a pointer since a DAP client may distinguish
-				// between zero and nil source values.
-				goType = "*" + goType
+				// If the field should be omitted when empty and is a struct type in Go, make it a pointer,
+				// because non-pointer structs get initialized with default values in Go (and not nil), and
+				// are then indistinguishable from structs with values actually set to zero when serializing
+				// to JSON. Making them a pointer makes them initialize to nil, which is then indeed omitted
+				// during serialization.
+				_, isStruct := propDesc["$ref"]
+				if isStruct {
+					goType = "*" + goType
+				}
 			}
 			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
 
@@ -519,21 +523,21 @@ type Message interface {
 	GetSeq() int
 }
 
-// RequestMessage is an interface implemented by all Request-types. 
+// RequestMessage is an interface implemented by all Request-types.
 type RequestMessage interface {
 	Message
 	// GetRequest provides access to the embedded Request.
 	GetRequest() *Request
 }
 
-// ResponseMessage is an interface implemented by all Response-types. 
+// ResponseMessage is an interface implemented by all Response-types.
 type ResponseMessage interface {
 	Message
 	// GetResponse provides access to the embedded Response.
 	GetResponse() *Response
 }
 
-// EventMessage is an interface implemented by all Event-types. 
+// EventMessage is an interface implemented by all Event-types.
 type EventMessage interface {
 	Message
 	// GetEvent provides access to the embedded Event.

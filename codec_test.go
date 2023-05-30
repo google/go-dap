@@ -35,7 +35,7 @@ var errorResponseStruct = ErrorResponse{
 		Message:    "Unable to produce stack trace: \"{e}\"",
 	},
 	Body: ErrorResponseBody{
-		Error: ErrorMessage{
+		Error: &ErrorMessage{
 			Id:        2004,
 			Format:    "Unable to produce stack trace: \"{e}\"",
 			Variables: map[string]string{"e": "Unknown goroutine 1"},
@@ -49,7 +49,7 @@ var errorResponseStruct = ErrorResponse{
 var cancelRequestString = `{"seq":25,"type":"request","command":"cancel","arguments":{"requestId":24}}`
 var cancelRequestStruct = CancelRequest{
 	Request:   *newRequest(25, "cancel"),
-	Arguments: CancelArguments{RequestId: 24},
+	Arguments: &CancelArguments{RequestId: 24},
 }
 
 var cancelResponseString = `{"seq":25,"type":"response","request_seq":26,"command":"cancel","success":true}`
@@ -125,7 +125,7 @@ var initializeResponseStruct = InitializeResponse{
 var configurationDoneRequestString = `{"seq":2,"type":"request","command":"configurationDone"}`
 var configurationDoneRequestStruct = ConfigurationDoneRequest{
 	Request:   *newRequest(2, "configurationDone"),
-	Arguments: ConfigurationDoneArguments{},
+	Arguments: nil,
 }
 
 var configurationDoneResponseString = `{"seq":2,"type":"response","request_seq":3,"command":"configurationDone","success":true}`
@@ -155,10 +155,10 @@ var attachResponseStruct = AttachResponse{Response: *newResponse(4, 5, "attach",
 
 // -------- Restart
 
-var restartRequestString = `{"seq":5,"type":"request","command":"restart","arguments":{}}`
+var restartRequestString = `{"seq":5,"type":"request","command":"restart"}`
 var restartRequestStruct = RestartRequest{
 	Request:   *newRequest(5, "restart"),
-	Arguments: RestartArguments{},
+	Arguments: nil,
 }
 
 var restartResponseString = `{"seq":5,"type":"response","request_seq":6,"command":"restart","success":true}`
@@ -169,7 +169,7 @@ var restartResponseStruct = RestartResponse{Response: *newResponse(5, 6, "restar
 var disconnectRequestString = `{"seq":6,"type":"request","command":"disconnect","arguments":{"restart":true}}`
 var disconnectRequestStruct = DisconnectRequest{
 	Request:   *newRequest(6, "disconnect"),
-	Arguments: DisconnectArguments{Restart: true},
+	Arguments: &DisconnectArguments{Restart: true},
 }
 
 var disconnectResponseString = `{"seq":6,"type":"response","request_seq":7,"command":"disconnect","success":true}`
@@ -180,7 +180,7 @@ var disconnectResponseStruct = DisconnectResponse{Response: *newResponse(6, 7, "
 var terminateRequestString = `{"seq":7,"type":"request","command":"terminate","arguments":{"restart":true}}`
 var terminateRequestStruct = TerminateRequest{
 	Request:   *newRequest(7, "terminate"),
-	Arguments: TerminateArguments{Restart: true},
+	Arguments: &TerminateArguments{Restart: true},
 }
 
 var terminateResponseString = `{"seq":7,"type":"response","request_seq":8,"command":"terminate","success":true}`
@@ -191,7 +191,7 @@ var terminateResponseStruct = TerminateResponse{Response: *newResponse(7, 8, "te
 var breakpointLocationsRequestString = `{"seq":8,"type":"request","command":"breakpointLocations","arguments":{"source":{"name":"hello.go","path":"/Users/foo/go/src/hello/hello.go"},"line":10}}`
 var breakpointLocationsRequestStruct = BreakpointLocationsRequest{
 	Request: *newRequest(8, "breakpointLocations"),
-	Arguments: BreakpointLocationsArguments{
+	Arguments: &BreakpointLocationsArguments{
 		Source: Source{Name: "hello.go", Path: "/Users/foo/go/src/hello/hello.go"},
 		Line:   10,
 	},
@@ -411,7 +411,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 		StackFrames: []StackFrame{
 			{
 				Id: 1000,
-				Source: Source{
+				Source: &Source{
 					Name:            "hello.go",
 					Path:            "/Users/foo/go/src/hello/hello.go",
 					SourceReference: 0,
@@ -422,7 +422,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 			},
 			{
 				Id: 1001,
-				Source: Source{
+				Source: &Source{
 					Name:            "proc.go",
 					Path:            "/usr/local/go/src/runtime/proc.go",
 					SourceReference: 0,
@@ -433,7 +433,7 @@ var stackTraceResponseStruct = StackTraceResponse{
 			},
 			{
 				Id: 1002,
-				Source: Source{
+				Source: &Source{
 					Name:            "asm_amd64.s",
 					Path:            "/usr/local/go/src/runtime/asm_amd64.s",
 					SourceReference: 0,
@@ -573,10 +573,10 @@ var modulesResponseStruct = ModulesResponse{
 
 // -------- LoadedSources
 
-var loadedSourcesRequestString = `{"seq":31,"type":"request","command":"loadedSources","arguments":{}}`
+var loadedSourcesRequestString = `{"seq":31,"type":"request","command":"loadedSources"}`
 var loadedSourcesRequestStruct = LoadedSourcesRequest{
 	Request:   *newRequest(31, "loadedSources"),
-	Arguments: LoadedSourcesArguments{},
+	Arguments: nil,
 }
 
 var loadedSourcesResponseString = `{"seq":31,"type":"response","request_seq":32,"command":"loadedSources","success":true,"body":{"sources":[{"name":"hello.go","path":"/Users/foo/go/src/hello/hello.go"}]}}`

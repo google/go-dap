@@ -34,7 +34,7 @@ func makeErrorResponse() *ErrorResponse {
 			Message:    "Unable to produce stack trace: \"{e}\"",
 		},
 		Body: ErrorResponseBody{
-			Error: ErrorMessage{
+			Error: &ErrorMessage{
 				Id:        2004,
 				Format:    "Unable to produce stack trace: \"{e}\"",
 				Variables: map[string]string{"e": "Unknown goroutine 1"},
