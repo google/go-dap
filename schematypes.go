@@ -909,9 +909,9 @@ func (r *NextRequest) GetRequest() *Request { return &r.Request }
 
 // NextArguments: Arguments for `next` request.
 type NextArguments struct {
-	ThreadId     int                  `json:"threadId"`
-	SingleThread bool                 `json:"singleThread,omitempty"`
-	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                 `json:"threadId"`
+	SingleThread bool                `json:"singleThread,omitempty"`
+	Granularity  SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // NextResponse: Response to `next` request. This is just an acknowledgement, so no body field is required.
@@ -938,10 +938,10 @@ func (r *StepInRequest) GetRequest() *Request { return &r.Request }
 
 // StepInArguments: Arguments for `stepIn` request.
 type StepInArguments struct {
-	ThreadId     int                  `json:"threadId"`
-	SingleThread bool                 `json:"singleThread,omitempty"`
-	TargetId     int                  `json:"targetId,omitempty"`
-	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                 `json:"threadId"`
+	SingleThread bool                `json:"singleThread,omitempty"`
+	TargetId     int                 `json:"targetId,omitempty"`
+	Granularity  SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepInResponse: Response to `stepIn` request. This is just an acknowledgement, so no body field is required.
@@ -964,9 +964,9 @@ func (r *StepOutRequest) GetRequest() *Request { return &r.Request }
 
 // StepOutArguments: Arguments for `stepOut` request.
 type StepOutArguments struct {
-	ThreadId     int                  `json:"threadId"`
-	SingleThread bool                 `json:"singleThread,omitempty"`
-	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                 `json:"threadId"`
+	SingleThread bool                `json:"singleThread,omitempty"`
+	Granularity  SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepOutResponse: Response to `stepOut` request. This is just an acknowledgement, so no body field is required.
@@ -990,9 +990,9 @@ func (r *StepBackRequest) GetRequest() *Request { return &r.Request }
 
 // StepBackArguments: Arguments for `stepBack` request.
 type StepBackArguments struct {
-	ThreadId     int                  `json:"threadId"`
-	SingleThread bool                 `json:"singleThread,omitempty"`
-	Granularity  *SteppingGranularity `json:"granularity,omitempty"`
+	ThreadId     int                 `json:"threadId"`
+	SingleThread bool                `json:"singleThread,omitempty"`
+	Granularity  SteppingGranularity `json:"granularity,omitempty"`
 }
 
 // StepBackResponse: Response to `stepBack` request. This is just an acknowledgement, so no body field is required.
@@ -1848,10 +1848,10 @@ type DataBreakpointAccessType string
 
 // DataBreakpoint: Properties of a data breakpoint passed to the `setDataBreakpoints` request.
 type DataBreakpoint struct {
-	DataId       string                    `json:"dataId"`
-	AccessType   *DataBreakpointAccessType `json:"accessType,omitempty"`
-	Condition    string                    `json:"condition,omitempty"`
-	HitCondition string                    `json:"hitCondition,omitempty"`
+	DataId       string                   `json:"dataId"`
+	AccessType   DataBreakpointAccessType `json:"accessType,omitempty"`
+	Condition    string                   `json:"condition,omitempty"`
+	HitCondition string                   `json:"hitCondition,omitempty"`
 }
 
 // InstructionBreakpoint: Properties of a breakpoint passed to the `setInstructionBreakpoints` request
@@ -1903,15 +1903,15 @@ type GotoTarget struct {
 
 // CompletionItem: `CompletionItems` are the suggestions returned from the `completions` request.
 type CompletionItem struct {
-	Label           string              `json:"label"`
-	Text            string              `json:"text,omitempty"`
-	SortText        string              `json:"sortText,omitempty"`
-	Detail          string              `json:"detail,omitempty"`
-	Type            *CompletionItemType `json:"type,omitempty"`
-	Start           int                 `json:"start,omitempty"`
-	Length          int                 `json:"length,omitempty"`
-	SelectionStart  int                 `json:"selectionStart,omitempty"`
-	SelectionLength int                 `json:"selectionLength,omitempty"`
+	Label           string             `json:"label"`
+	Text            string             `json:"text,omitempty"`
+	SortText        string             `json:"sortText,omitempty"`
+	Detail          string             `json:"detail,omitempty"`
+	Type            CompletionItemType `json:"type,omitempty"`
+	Start           int                `json:"start,omitempty"`
+	Length          int                `json:"length,omitempty"`
+	SelectionStart  int                `json:"selectionStart,omitempty"`
+	SelectionLength int                `json:"selectionLength,omitempty"`
 }
 
 // CompletionItemType: Some predefined types for the CompletionItem. Please note that not all clients have specific icons for all of them.

@@ -173,7 +173,7 @@ func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName str
 // emitToplevelType emits a single type into a string. It takes the type name
 // and a serialized json object representing the type. The json representation
 // will have fields: "type", "properties" etc.
-func emitToplevelType(typeName string, descJson json.RawMessage) string {
+func emitToplevelType(typeName string, descJson json.RawMessage, goTypeIsStruct map[string]bool) string {
 	var b strings.Builder
 	var baseType string
 
@@ -289,7 +289,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				bodyTypeName = parseRef(ref)
 			} else {
 				bodyTypeName = typeName + "Body"
-				bodyType = emitToplevelType(bodyTypeName, propsMapOfJson["body"])
+				bodyType = emitToplevelType(bodyTypeName, propsMapOfJson["body"], goTypeIsStruct)
 			}
 
 			if requiredMap["body"] {
@@ -321,7 +321,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				jsonTag += "\"`"
 			} else if typeName == "ErrorMessage" && propName == "showUser" {
 				// For launch/attach errors, vscode will treat omitted values the same way as true,
-				// so to supress visible reporting, we must report false explicitly.
+				// so to suppress visible reporting, we must report false explicitly.
 				jsonTag += "\"`"
 			} else {
 				jsonTag += ",omitempty\"`"
@@ -330,9 +330,11 @@ func emitToplevelType(typeName string, descJson json.RawMessage) string {
 				// are then indistinguishable from structs with values actually set to zero when serializing
 				// to JSON. Making them a pointer makes them initialize to nil, which is then indeed omitted
 				// during serialization.
-				_, isStruct := propDesc["$ref"]
-				if isStruct {
-					goType = "*" + goType
+				if _, ok := propDesc["$ref"]; ok {
+					// If we have a ref, then goType is the parsed ref
+					if goTypeIsStruct[goType] {
+						goType = "*" + goType
+					}
 				}
 			}
 			fmt.Fprintf(&b, "\t%s %s %s\n", goFieldName(propName), goType, jsonTag)
@@ -596,6 +598,27 @@ func main() {
 		log.Fatal(err)
 	}
 
+	goTypesIsStruct := make(map[string]bool)
+	for typeName, descJson := range typeMap {
+		var descMap map[string]json.RawMessage
+		if err := json.Unmarshal(descJson, &descMap); err != nil {
+			log.Fatal(err)
+		}
+		_, descMap = maybeParseInheritance(descMap)
+
+		typeJson, ok := descMap["type"]
+		if !ok {
+			log.Fatal("want description to have 'type', got ", descMap)
+		}
+
+		var descTypeString string
+		if err := json.Unmarshal(typeJson, &descTypeString); err != nil {
+			log.Fatal(err)
+		}
+
+		goTypesIsStruct[replaceGoTypename(typeName)] = descTypeString == "object"
+	}
+
 	var b strings.Builder
 	b.WriteString(preamble)
 
@@ -607,7 +630,7 @@ func main() {
 	var requests, responses, events []string
 	for _, typeName := range typeNames {
 		if _, ok := typesExcludeList[typeName]; !ok {
-			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName]))
+			b.WriteString(emitToplevelType(replaceGoTypename(typeName), typeMap[typeName], goTypesIsStruct))
 			b.WriteString("\n")
 		}
 
