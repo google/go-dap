@@ -70,9 +70,11 @@ func NewCodec() *Codec {
 // exists.
 //
 // The ctor functions need to return a new instance of the underlying DAP
-// message type. A typical implementation looks like this:
+// message type. A typical usage looks like this:
 //
-//	func() Message { return &StoppedEvent{} }
+//	reqCtor := func() Message { return &LaunchRequest{} }
+//	respCtor := func() Message { return &LaunchResponse{} }
+//      codec.RegisterRequest("launch", reqCtor, respCtor)
 func (c *Codec) RegisterRequest(command string, requestCtor, responseCtor func() Message) error {
 	_, hasReqCtor := c.requestCtor[command]
 	_, hasRespCtor := c.responseCtor[command]
@@ -89,9 +91,10 @@ func (c *Codec) RegisterRequest(command string, requestCtor, responseCtor func()
 // exists.
 //
 // The ctor function needs to return a new instance of the underlying DAP
-// message type. A typical implementation looks like this:
+// message type. A typical usage looks like this:
 //
-//	func() Message { return &StoppedEvent{} }
+//	ctor := func() Message { return &StoppedEvent{} }
+//      codec.RegisterEvent("stopped", ctor)
 func (c *Codec) RegisterEvent(event string, ctor func() Message) error {
 	if _, hasEventCtor := c.eventCtor[event]; hasEventCtor {
 		return fmt.Errorf("event %q is already registered", event)
