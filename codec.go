@@ -66,7 +66,7 @@ func NewCodec() *Codec {
 }
 
 // RegisterRequest registers a new custom DAP command, so that it can be
-// unmarshalled by DecodeMessage. Returns an error when the event already
+// unmarshalled by DecodeMessage. Returns an error when the command already
 // exists.
 //
 // The ctor functions need to return a new instance of the underlying DAP
@@ -174,10 +174,10 @@ func (c *Codec) decodeEvent(data []byte) (Message, error) {
 	return nil, &DecodeProtocolMessageFieldError{e.GetSeq(), "Event", "event", e.Event}
 }
 
-// DecodeProtocolMessage parses the JSON-encoded data and returns the result of
-// the appropriate type within the ProtocolMessage hierarchy. If message type,
-// command, etc cannot be cast, returns DecodeProtocolMessageFieldError.
-// See also godoc for json.Unmarshal, which is used for underlying decoding.
+// DecodeProtocolMessage parses the JSON-encoded ProtocolMessage and returns
+// the message embedded in it. If message type, command, etc cannot be cast,
+// returns DecodeProtocolMessageFieldError. See also godoc for json.Unmarshal,
+// which is used for underlying decoding.
 func DecodeProtocolMessage(data []byte) (Message, error) {
 	return defaultCodec.DecodeMessage(data)
 }
