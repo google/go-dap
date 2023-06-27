@@ -108,12 +108,14 @@ func (c *Codec) RegisterEvent(event string, ctor func() Message) error {
 // command, etc cannot be cast, returns DecodeProtocolMessageFieldError.
 // See also godoc for json.Unmarshal, which is used for underlying decoding.
 func (c *Codec) DecodeMessage(data []byte) (Message, error) {
+	// This struct is the union of the ResponseMessage, RequestMessage, and
+	// EventMessage types. It is an optimization that saves an additional
+	// json.Unmarshal call.
 	var m struct {
-		Seq     int    `json:"seq"`
-		Type    string `json:"type"`
+		ProtocolMessage
+		Command string `json:"command"`
 		Event   string `json:"event"`
 		Success bool   `json:"success"`
-		Command string `json:"command"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
@@ -134,7 +136,7 @@ func (c *Codec) DecodeMessage(data []byte) (Message, error) {
 // data corresponds to and uses json.Unmarshal to populate the corresponding
 // struct to be returned.
 func (c *Codec) decodeRequest(command string, seq int, data []byte) (Message, error) {
-	ctor, ok := requestCtor[command]
+	ctor, ok := c.requestCtor[command]
 	if !ok {
 		return nil, &DecodeProtocolMessageFieldError{seq, "Request", "command", command}
 	}
@@ -152,7 +154,7 @@ func (c *Codec) decodeResponse(command string, seq int, success bool, data []byt
 		err := json.Unmarshal(data, &er)
 		return &er, err
 	}
-	ctor, ok := responseCtor[command]
+	ctor, ok := c.responseCtor[command]
 	if !ok {
 		return nil, &DecodeProtocolMessageFieldError{seq, "Response", "command", command}
 	}
@@ -165,7 +167,7 @@ func (c *Codec) decodeResponse(command string, seq int, success bool, data []byt
 // data corresponds to and uses json.Unmarshal to populate the corresponding
 // struct to be returned.
 func (c *Codec) decodeEvent(event string, seq int, data []byte) (Message, error) {
-	ctor, ok := eventCtor[event]
+	ctor, ok := c.eventCtor[event]
 	if !ok {
 		return nil, &DecodeProtocolMessageFieldError{seq, "Event", "event", event}
 	}
