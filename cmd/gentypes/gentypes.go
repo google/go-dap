@@ -428,16 +428,16 @@ func commentOutEachLine(s string) string {
 // emitMethodsForType may emit methods for typeName into sb.
 func emitMethodsForType(sb *strings.Builder, typeName string) {
 	if typeName == "ProtocolMessage" {
-		fmt.Fprintf(sb, "func (m *%s) GetSeq() int {return m.Seq}\n", typeName)
+		fmt.Fprintln(sb, "func (m *ProtocolMessage) GetSeq() int {return m.Seq}")
 	}
-	if strings.HasSuffix(typeName, "Request") && typeName != "Request" {
-		fmt.Fprintf(sb, "func (r *%s) GetRequest() *Request {return &r.Request}\n", typeName)
+	if typeName == "Request" {
+		fmt.Fprintln(sb, "func (r *Request) GetRequest() *Request {return r}")
 	}
-	if strings.HasSuffix(typeName, "Response") && typeName != "Response" {
-		fmt.Fprintf(sb, "func (r *%s) GetResponse() *Response {return &r.Response}\n", typeName)
+	if typeName == "Response" {
+		fmt.Fprintln(sb, "func (r *Response) GetResponse() *Response {return r}")
 	}
-	if strings.HasSuffix(typeName, "Event") && typeName != "Event" {
-		fmt.Fprintf(sb, "func (e *%s) GetEvent() *Event {return &e.Event}\n", typeName)
+	if typeName == "Event" {
+		fmt.Fprintln(sb, "func (e *Event) GetEvent() *Event {return e}")
 	}
 	if typeName == "LaunchRequest" || typeName == "AttachRequest" {
 		fmt.Fprintf(sb, "func (r *%s) GetArguments() json.RawMessage { return r.Arguments }\n", typeName)
