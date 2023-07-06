@@ -28,6 +28,7 @@ type DecodeProtocolMessageFieldError struct {
 	SubType    string
 	FieldName  string
 	FieldValue string
+	Message    json.RawMessage
 }
 
 func (e *DecodeProtocolMessageFieldError) Error() string {
@@ -128,7 +129,7 @@ func (c *Codec) DecodeMessage(data []byte) (Message, error) {
 	case "event":
 		return c.decodeEvent(m.Event, m.Seq, data)
 	default:
-		return nil, &DecodeProtocolMessageFieldError{m.Seq, "ProtocolMessage", "type", m.Type}
+		return nil, &DecodeProtocolMessageFieldError{m.Seq, "ProtocolMessage", "type", m.Type, json.RawMessage(data)}
 	}
 }
 
@@ -138,7 +139,7 @@ func (c *Codec) DecodeMessage(data []byte) (Message, error) {
 func (c *Codec) decodeRequest(command string, seq int, data []byte) (Message, error) {
 	ctor, ok := c.requestCtor[command]
 	if !ok {
-		return nil, &DecodeProtocolMessageFieldError{seq, "Request", "command", command}
+		return nil, &DecodeProtocolMessageFieldError{seq, "Request", "command", command, json.RawMessage(data)}
 	}
 	requestPtr := ctor()
 	err := json.Unmarshal(data, requestPtr)
@@ -156,7 +157,7 @@ func (c *Codec) decodeResponse(command string, seq int, success bool, data []byt
 	}
 	ctor, ok := c.responseCtor[command]
 	if !ok {
-		return nil, &DecodeProtocolMessageFieldError{seq, "Response", "command", command}
+		return nil, &DecodeProtocolMessageFieldError{seq, "Response", "command", command, json.RawMessage(data)}
 	}
 	responsePtr := ctor()
 	err := json.Unmarshal(data, responsePtr)
@@ -169,7 +170,7 @@ func (c *Codec) decodeResponse(command string, seq int, success bool, data []byt
 func (c *Codec) decodeEvent(event string, seq int, data []byte) (Message, error) {
 	ctor, ok := c.eventCtor[event]
 	if !ok {
-		return nil, &DecodeProtocolMessageFieldError{seq, "Event", "event", event}
+		return nil, &DecodeProtocolMessageFieldError{seq, "Event", "event", event, json.RawMessage(data)}
 	}
 	eventPtr := ctor()
 	err := json.Unmarshal(data, eventPtr)
