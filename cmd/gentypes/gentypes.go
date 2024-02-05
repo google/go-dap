@@ -297,7 +297,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage, goTypeIsStruct 
 			} else {
 				fmt.Fprintf(&b, "\t%s %s `json:\"body,omitempty\"`\n", "Body", bodyTypeName)
 			}
-		} else if propName == "arguments" && (typeName == "LaunchRequest" || typeName == "AttachRequest") {
+		} else if propName == "arguments" && (typeName == "LaunchRequest" || typeName == "AttachRequest" || typeName == "RestartRequest") {
 			// Special case for LaunchRequest or AttachRequest arguments, which are implementation
 			// defined and don't have pre-set field names in the specification.
 			fmt.Fprintln(&b, "\tArguments json.RawMessage `json:\"arguments\"`")
@@ -563,6 +563,7 @@ var typesExcludeList = map[string]bool{
 	// Therefore, this type is not used anywhere.
 	"LaunchRequestArguments": true,
 	"AttachRequestArguments": true,
+	"RestartArguments":       true,
 }
 
 func main() {
