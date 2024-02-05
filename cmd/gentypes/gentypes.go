@@ -124,10 +124,22 @@ func parsePropertyType(propValue map[string]interface{}) string {
 		}
 
 	case []interface{}:
+		// This field is polymorphic so it needs a generic type.
+		for _, p := range propType.([]interface{}) {
+			s, ok := p.(string)
+			if !ok {
+				log.Fatalf("property type contains a non-string: %v", propType)
+			}
+			if s == "object" || s == "array" {
+				// It contains non-fundamental types, so treat it as opaque.
+				return "json.RawMessage"
+			}
+		}
+		// The possible types are all fundamental types, so we can use interface{}.
 		return "interface{}"
 
 	default:
-		log.Fatal("unknown property type", propType)
+		log.Fatalf("unknown property type %v", propType)
 	}
 
 	panic("unreachable")

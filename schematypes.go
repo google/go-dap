@@ -201,7 +201,7 @@ type TerminatedEvent struct {
 }
 
 type TerminatedEventBody struct {
-	Restart interface{} `json:"restart,omitempty"`
+	Restart json.RawMessage `json:"restart,omitempty"`
 }
 
 // ThreadEvent: The event indicates that a thread has started or exited.
@@ -224,14 +224,14 @@ type OutputEvent struct {
 }
 
 type OutputEventBody struct {
-	Category           string      `json:"category,omitempty"`
-	Output             string      `json:"output"`
-	Group              string      `json:"group,omitempty"`
-	VariablesReference int         `json:"variablesReference,omitempty"`
-	Source             *Source     `json:"source,omitempty"`
-	Line               int         `json:"line,omitempty"`
-	Column             int         `json:"column,omitempty"`
-	Data               interface{} `json:"data,omitempty"`
+	Category           string          `json:"category,omitempty"`
+	Output             string          `json:"output"`
+	Group              string          `json:"group,omitempty"`
+	VariablesReference int             `json:"variablesReference,omitempty"`
+	Source             *Source         `json:"source,omitempty"`
+	Line               int             `json:"line,omitempty"`
+	Column             int             `json:"column,omitempty"`
+	Data               json.RawMessage `json:"data,omitempty"`
 }
 
 // BreakpointEvent: The event indicates that some information about a breakpoint has changed.
@@ -1549,14 +1549,14 @@ type Thread struct {
 // Source: A `Source` is a descriptor for source code.
 // It is returned from the debug adapter as part of a `StackFrame` and it is used by clients when specifying breakpoints.
 type Source struct {
-	Name             string      `json:"name,omitempty"`
-	Path             string      `json:"path,omitempty"`
-	SourceReference  int         `json:"sourceReference,omitempty"`
-	PresentationHint string      `json:"presentationHint,omitempty"`
-	Origin           string      `json:"origin,omitempty"`
-	Sources          []Source    `json:"sources,omitempty"`
-	AdapterData      interface{} `json:"adapterData,omitempty"`
-	Checksums        []Checksum  `json:"checksums,omitempty"`
+	Name             string          `json:"name,omitempty"`
+	Path             string          `json:"path,omitempty"`
+	SourceReference  int             `json:"sourceReference,omitempty"`
+	PresentationHint string          `json:"presentationHint,omitempty"`
+	Origin           string          `json:"origin,omitempty"`
+	Sources          []Source        `json:"sources,omitempty"`
+	AdapterData      json.RawMessage `json:"adapterData,omitempty"`
+	Checksums        []Checksum      `json:"checksums,omitempty"`
 }
 
 // StackFrame: A Stackframe contains the source location.
