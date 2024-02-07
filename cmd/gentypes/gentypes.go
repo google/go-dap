@@ -81,9 +81,9 @@ func parsePropertyType(propValue map[string]interface{}) string {
 		log.Fatal("property with no type or ref:", propValue)
 	}
 
-	switch propType.(type) {
+	switch typ := propType.(type) {
 	case string:
-		switch propType {
+		switch typ {
 		case "string":
 			return "string"
 		case "number":
@@ -125,10 +125,10 @@ func parsePropertyType(propValue map[string]interface{}) string {
 
 	case []interface{}:
 		// This field is polymorphic so it needs a generic type.
-		for _, p := range propType.([]interface{}) {
-			s, ok := p.(string)
+		for _, el := range typ {
+			s, ok := el.(string)
 			if !ok {
-				log.Fatalf("property type contains a non-string: %v", propType)
+				log.Fatalf("property type contains a non-string of type %T: %#v", el, typ)
 			}
 			if s == "object" || s == "array" {
 				// It contains non-fundamental types, so treat it as opaque.
@@ -139,7 +139,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 		return "interface{}"
 
 	default:
-		log.Fatalf("unknown property type %v", propType)
+		log.Fatalf("unknown property type %T (%#v)", typ, typ)
 	}
 
 	panic("unreachable")
