@@ -518,12 +518,7 @@ type AttachResponse struct {
 type RestartRequest struct {
 	Request
 
-	Arguments *RestartArguments `json:"arguments,omitempty"`
-}
-
-// RestartArguments: Arguments for `restart` request.
-type RestartArguments struct {
-	Arguments interface{} `json:"arguments,omitempty"`
+	Arguments json.RawMessage `json:"arguments"`
 }
 
 // RestartResponse: Response to `restart` request. This is just an acknowledgement, so no body field is required.
