@@ -791,7 +791,7 @@ var exitedEventStruct = ExitedEvent{
 var terminatedEventString = `{"seq":5,"type":"event","event":"terminated","body":{"restart":true}}`
 var terminatedEventStruct = TerminatedEvent{
 	Event: *newEvent(5, "terminated"),
-	Body:  TerminatedEventBody{Restart: true},
+	Body:  TerminatedEventBody{Restart: json.RawMessage(`true`)},
 }
 
 var threadEventString = `{"seq":6,"type":"event","event":"thread","body":{"reason":"started","threadId":18}}`
