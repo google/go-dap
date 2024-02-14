@@ -41,7 +41,7 @@ var (
 
 // parseRef parses the value of a "$ref" key.
 // For example "#definitions/ProtocolMessage" => "ProtocolMessage".
-func parseRef(refValue interface{}) string {
+func parseRef(refValue any) string {
 	refContents := refValue.(string)
 	if !strings.HasPrefix(refContents, "#/definitions/") {
 		log.Fatal("want ref to start with '#/definitions/', got ", refValue)
@@ -54,9 +54,21 @@ func parseRef(refValue interface{}) string {
 // exported Go field name.
 // For example "__some_property_name" => "SomePropertyName".
 func goFieldName(jsonPropName string) string {
-	clean := strings.ReplaceAll(jsonPropName, "_", " ")
-	titled := strings.Title(clean)
-	return strings.ReplaceAll(titled, " ", "")
+	var ret strings.Builder
+	ret.Grow(len(jsonPropName))
+	upper := true
+	for _, r := range jsonPropName {
+		switch {
+		case r == '_':
+			upper = true
+		case upper:
+			upper = false
+			ret.WriteRune(unicode.ToUpper(r))
+		default:
+			ret.WriteRune(r)
+		}
+	}
+	return ret.String()
 }
 
 // parsePropertyType takes the JSON value of a property field and extracts
@@ -68,13 +80,13 @@ func goFieldName(jsonPropName string) string {
 //	},
 //
 // It will emit "string".
-func parsePropertyType(propValue map[string]interface{}) string {
+func parsePropertyType(propValue map[string]any) string {
 	if ref, ok := propValue["$ref"]; ok {
 		return parseRef(ref)
 	}
 
 	if _, ok := propValue["oneOf"]; ok {
-		return "interface{}"
+		return "any"
 	}
 	propType, ok := propValue["type"]
 	if !ok {
@@ -97,7 +109,7 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			if !ok {
 				log.Fatal("missing items type for property of array type:", propValue)
 			}
-			propItemsMap := propItems.(map[string]interface{})
+			propItemsMap := propItems.(map[string]any)
 			return "[]" + parsePropertyType(propItemsMap)
 		case "object":
 			// When the type of a property is "object", we'll emit a map with a string
@@ -110,20 +122,20 @@ func parsePropertyType(propValue map[string]interface{}) string {
 			var valueType string
 			switch actual := additionalProps.(type) {
 			case bool:
-				valueType = "interface{}"
-			case map[string]interface{}:
+				valueType = "any"
+			case map[string]any:
 				valueType = parsePropertyType(actual)
 			default:
 				log.Fatal("unexpected additionalProperties value:", additionalProps)
 			}
 			return fmt.Sprintf("map[string]%v", valueType)
-		case "interface{}":
-			return "interface{}"
+		case "any":
+			return "any"
 		default:
 			log.Fatalf("unknown property type value %v in %v", propType, propValue)
 		}
 
-	case []interface{}:
+	case []any:
 		// This field is polymorphic so it needs a generic type.
 		for _, el := range typ {
 			s, ok := el.(string)
@@ -135,8 +147,8 @@ func parsePropertyType(propValue map[string]interface{}) string {
 				return "json.RawMessage"
 			}
 		}
-		// The possible types are all fundamental types, so we can use interface{}.
-		return "interface{}"
+		// The possible types are all fundamental types, so we can use any.
+		return "any"
 
 	default:
 		log.Fatalf("unknown property type %T (%#v)", typ, typ)
@@ -171,7 +183,7 @@ func maybeParseInheritance(descMap map[string]json.RawMessage) (baseTypeName str
 		log.Fatal("want 2 elements in allOf list, got", allOfSliceOfJson)
 	}
 
-	var baseTypeRef map[string]interface{}
+	var baseTypeRef map[string]any
 	if err := json.Unmarshal(allOfSliceOfJson[0], &baseTypeRef); err != nil {
 		log.Fatal(err)
 	}
@@ -189,7 +201,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage, goTypeIsStruct 
 	var b strings.Builder
 	var baseType string
 
-	// We don't parse the description all the way to map[string]interface{}
+	// We don't parse the description all the way to map[string]any
 	// because we have to retain the original JSON-order of properties (in this
 	// type as well as any nested types like "body").
 	var descMap map[string]json.RawMessage
@@ -252,7 +264,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage, goTypeIsStruct 
 	requiredMap := make(map[string]bool)
 
 	if requiredJson, ok := descMap["required"]; ok {
-		var required []interface{}
+		var required []any
 		if err := json.Unmarshal(requiredJson, &required); err != nil {
 			log.Fatal(err)
 		}
@@ -286,7 +298,7 @@ func emitToplevelType(typeName string, descJson json.RawMessage, goTypeIsStruct 
 			continue
 		}
 
-		var propDesc map[string]interface{}
+		var propDesc map[string]any
 		if err := json.Unmarshal(propsMapOfJson[propName], &propDesc); err != nil {
 			log.Fatal(err)
 		}
