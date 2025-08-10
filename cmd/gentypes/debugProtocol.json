@@ -936,6 +936,10 @@
 					"type": "boolean",
 					"description": "Client supports memory references."
 				},
+				"supportsReadMemoryRequest": {
+					"type": "boolean",
+					"description": "Client supports `readMemory` request."
+				},
 				"supportsProgressReporting": {
 					"type": "boolean",
 					"description": "Client supports progress reporting."
@@ -3187,6 +3191,10 @@
 				"supportsReadMemoryRequest": {
 					"type": "boolean",
 					"description": "The debug adapter supports the `readMemory` request."
+				},
+				"supportsMemoryReferences": {
+					"type": "boolean",
+					"description": "The debug adapter supports memory references."
 				},
 				"supportsWriteMemoryRequest": {
 					"type": "boolean",
