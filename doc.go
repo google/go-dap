@@ -13,8 +13,7 @@
 // limitations under the License.
 
 // Package dap contains data types and code for Debug Adapter Protocol (DAP) specification.
-// https://github.com/microsoft/vscode-debugadapter-node/blob/main/debugProtocol.json
+// https://github.com/microsoft/debug-adapter-protocol/blob/main/debugAdapterProtocol.json
 package dap
 
 //go:generate go run ./cmd/gentypes/gentypes.go -o schematypes.go -u cmd/gentypes/debugProtocol.json
-

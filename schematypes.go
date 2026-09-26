@@ -421,8 +421,9 @@ type StartDebuggingRequest struct {
 
 // StartDebuggingRequestArguments: Arguments for `startDebugging` request.
 type StartDebuggingRequestArguments struct {
-	Configuration map[string]any `json:"configuration"`
-	Request       string         `json:"request"`
+	Configuration      map[string]any `json:"configuration"`
+	OutputPresentation string         `json:"outputPresentation,omitempty"`
+	Request            string         `json:"request"`
 }
 
 // StartDebuggingResponse: Response to `startDebugging` request. This is just an acknowledgement, so no body field is required.

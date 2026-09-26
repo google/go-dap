@@ -690,7 +690,7 @@ func main() {
 }
 
 func updateInput(inputFilename string) error {
-	resp, err := http.Get("https://raw.githubusercontent.com/microsoft/vscode-debugadapter-node/main/debugProtocol.json")
+	resp, err := http.Get("https://raw.githubusercontent.com/microsoft/debug-adapter-protocol/main/debugAdapterProtocol.json")
 	if err != nil {
 		return err
 	}
